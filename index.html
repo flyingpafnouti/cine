@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#102e50" />
+    <title>CinéScope — Explorer le cinéma</title>
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <a class="skip" href="#results">Aller aux résultats</a>
+    <header class="header">
+      <a class="brand" href="./"
+        ><span class="brand-icon">C</span
+        ><span>CinéScope<small>L’EXPLORATEUR DE FILMS</small></span></a
+      >
+      <label class="search"
+        ><span aria-hidden="true">⌕</span
+        ><input
+          id="search"
+          type="search"
+          placeholder="Un film, un réalisateur, un acteur…"
+          aria-label="Rechercher un film, réalisateur ou acteur"
+        /><kbd>/</kbd></label
+      >
+      <button id="import-open" class="button">↑ Importer un dataset</button>
+    </header>
+    <div class="dataset-bar">
+      <span class="live-dot"></span
+      ><span id="dataset-status">Chargement du dataset Allociné…</span
+      ><button id="dataset-info" class="text-button">
+        À propos des données ↗</button
+      ><span class="local">Traitement 100 % local</span>
+    </div>
+    <div id="notice" role="status" aria-live="polite"></div>
+    <main class="layout">
+      <aside class="sidebar" aria-label="Configuration de la sélection">
+        <div class="section-heading">
+          <h2>Votre sélection</h2>
+          <button id="reset" class="text-button">Réinitialiser</button>
+        </div>
+        <p class="muted intro">
+          Définissez ce qui est indispensable.<br />Puis ce qui fait la
+          différence.
+        </p>
+        <div class="side-tabs">
+          <button class="active" id="hard-tab" aria-pressed="true">
+            01 · Contraintes fortes</button
+          ><button id="soft-tab" aria-pressed="false">02 · Préférences</button>
+        </div>
+        <form id="hard-form">
+          <div class="filter-section">
+            <h3>Année de sortie</h3>
+            <div class="pair">
+              <label
+                >De<input
+                  type="number"
+                  name="yearMin"
+                  placeholder="Toutes"
+                  min="1800"
+                  max="2200" /></label
+              ><label
+                >À<input
+                  type="number"
+                  name="yearMax"
+                  placeholder="Toutes"
+                  min="1800"
+                  max="2200"
+              /></label>
+            </div>
+            <div class="chips" id="decades"></div>
+          </div>
+          <div class="filter-section">
+            <h3>Note spectateur <span class="scale">/ 5</span></h3>
+            <label
+              >Note minimum<input
+                type="number"
+                name="ratingMin"
+                step="0.1"
+                min="0"
+                max="5"
+                placeholder="Aucune"
+            /></label>
+            <div class="chips" id="rating-shortcuts"></div>
+            <label class="check"
+              ><input type="checkbox" name="onlyRated" /> Uniquement les films
+              notés</label
+            >
+          </div>
+          <div class="filter-section">
+            <label
+              >Votes spectateurs minimum<select name="votesMin">
+                <option value="">Aucun minimum</option>
+                <option value="10">10 votes</option>
+                <option value="100">100 votes</option>
+                <option value="1000">1 000 votes</option>
+                <option value="10000">10 000 votes</option>
+              </select></label
+            >
+          </div>
+          <div class="filter-section">
+            <h3>Genres <span id="genre-count" class="scale"></span></h3>
+            <label
+              >Correspondance<select name="genreMode">
+                <option value="any">Au moins un des genres</option>
+                <option value="all">Tous les genres</option>
+                <option value="exclude">Exclure ces genres</option>
+              </select></label
+            ><input
+              type="search"
+              id="genre-search"
+              aria-label="Rechercher un genre"
+              placeholder="Rechercher un genre…"
+            />
+            <div id="genre-list" class="genre-list"></div>
+          </div>
+          <div class="filter-section">
+            <label
+              >Disponibilité en VOD<select name="vod">
+                <option value="all">Tous les films</option>
+                <option value="yes">Disponible</option>
+                <option value="no">Indisponible</option>
+                <option value="unknown">Non renseignée</option>
+              </select></label
+            >
+            <p class="hint">
+              Selon les données importées. Aucune disponibilité actuelle dans les
+              sources fournies.
+            </p>
+          </div>
+          <details class="filter-section">
+            <summary>Autres contraintes</summary>
+            <label
+              >Réalisateur<input
+                name="director"
+                placeholder="Nom du réalisateur" /></label
+            ><label
+              >Acteur<input name="actor" placeholder="Nom de l’acteur" /></label
+            ><label
+              >Nationalité<input name="country" placeholder="Ex. français"
+            /></label>
+            <div class="pair">
+              <label
+                >Durée min. (min)<input
+                  name="durationMin"
+                  type="number"
+                  min="0" /></label
+              ><label
+                >Durée max. (min)<input
+                  name="durationMax"
+                  type="number"
+                  min="0"
+              /></label>
+            </div>
+            <label
+              >Note presse minimum<input
+                name="pressMin"
+                type="number"
+                min="0"
+                max="5"
+                step="0.1"
+            /></label>
+          </details>
+        </form>
+        <form id="soft-form" hidden>
+          <p class="hint">
+            Ces préférences classent les films sans les exclure. Les poids sont
+            automatiquement normalisés.
+          </p>
+          <div id="weights"></div>
+          <p id="weight-status" class="hint"></p>
+          <details open class="filter-section">
+            <summary>Note & fiabilité</summary>
+            <label class="check"
+              ><input name="bayesian" type="checkbox" /> Corriger selon le
+              nombre de votes</label
+            ><label
+              >Seuil bayésien m<input
+                name="m"
+                type="number"
+                min="0"
+                max="1000000"
+            /></label>
+          </details>
+          <details open class="filter-section">
+            <summary>Période préférée</summary>
+            <label
+              >Méthode<select name="yearMode">
+                <option value="range">Plage préférée</option>
+                <option value="target">Année cible</option>
+                <option value="recent">Favoriser le récent</option>
+                <option value="old">Favoriser l’ancien</option>
+              </select></label
+            >
+            <div class="pair">
+              <label
+                >De<input
+                  name="yearMin"
+                  type="number"
+                  min="1800"
+                  max="2200" /></label
+              ><label
+                >À<input name="yearMax" type="number" min="1800" max="2200"
+              /></label>
+            </div>
+            <label
+              >Année cible<input
+                name="targetYear"
+                type="number"
+                min="1800"
+                max="2200" /></label
+            ><label
+              >Distance pour atteindre 0 (années)<input
+                name="falloff"
+                type="number"
+                min="1"
+            /></label>
+          </details>
+          <details class="filter-section">
+            <summary>Préférences de genres</summary>
+            <p class="hint">De 0 à 10. Par défaut : 5 pour chaque genre.</p>
+            <label
+              >Films multi-genres<select name="genreMode">
+                <option value="mean">Moyenne</option>
+                <option value="max">Maximum</option>
+              </select></label
+            >
+            <div id="genre-preferences"></div>
+          </details>
+          <details class="filter-section">
+            <summary>Autres préférences</summary>
+            <label
+              >Durée idéale (min)<input
+                name="durationTarget"
+                type="number"
+                min="0" /></label
+            ><label
+              >Écart de durée pour atteindre 0<input
+                name="durationFalloff"
+                type="number"
+                min="1" /></label
+            ><label>Nationalité préférée<input name="country" /></label
+            ><label>Réalisateur préféré<input name="director" /></label
+            ><label>Acteur préféré<input name="actor" /></label>
+            <p class="hint">
+              VOD : 1 si disponible, 0 sinon. Votes : normalisation
+              logarithmique. Donnée absente : 0 point.
+            </p>
+          </details>
+        </form>
+        <div class="preset-box">
+          <h3>Configurations enregistrées</h3>
+          <label class="sr-only" for="preset-select">Configuration</label
+          ><select id="preset-select">
+            <option value="">Choisir une configuration</option>
+          </select>
+          <div class="chips">
+            <button id="preset-save">Enregistrer</button
+            ><button id="preset-load">Charger</button
+            ><button id="preset-rename">Renommer</button
+            ><button id="preset-delete">Supprimer</button>
+          </div>
+        </div>
+      </aside>
+      <section class="content" id="results">
+        <div class="eyebrow">VOTRE PROCHAIN GRAND FILM EST ICI</div>
+        <div class="title-row">
+          <div>
+            <h1>Explorez le cinéma.</h1>
+            <p class="muted">
+              Des critères précis. Une sélection qui vous ressemble.
+            </p>
+          </div>
+          <span class="edition"
+            >COLLECTION ENRICHIE<br /><strong
+              >Édition explorateur</strong
+            ></span
+          >
+        </div>
+        <div class="metrics" id="stats"></div>
+        <div class="results-heading">
+          <div class="view-tabs" role="group" aria-label="Affichage">
+            <button id="view-table" class="active">Tableau</button
+            ><button id="view-cards">Cartes</button
+            ><button id="view-analysis">Analyse</button>
+          </div>
+          <button id="compare" class="button">
+            Comparer <span id="compare-count">0</span>
+          </button>
+        </div>
+        <div id="active-filters" class="active-filters"></div>
+        <div class="toolbar">
+          <strong id="result-count">Préparation des films…</strong
+          ><label
+            >Trier par<select id="sort">
+              <option value="score:desc">Score personnalisé ↓</option>
+              <option value="audienceRating:desc">Note spectateur ↓</option>
+              <option value="audienceRatingCount:desc">
+                Votes spectateurs ↓
+              </option>
+              <option value="year:desc">Plus récent</option>
+              <option value="year:asc">Plus ancien</option>
+              <option value="title:asc">Titre A → Z</option>
+              <option value="pressRating:desc">Note presse ↓</option>
+              <option value="genres:asc">Genres A → Z</option>
+            </select></label
+          ><label
+            >Sélection<select id="top">
+              <option value="0">Tous</option>
+              <option value="10">Top 10</option>
+              <option value="25">Top 25</option>
+              <option value="50">Top 50</option>
+              <option value="100">Top 100</option>
+            </select></label
+          >
+        </div>
+        <div id="table-view" class="table-scroll"></div>
+        <div id="cards-view" class="cards" hidden></div>
+        <section id="analysis-view" hidden>
+          <div class="pivot-controls">
+            <label>Lignes<select id="pivot-row"></select></label
+            ><label>Colonnes<select id="pivot-col"></select></label
+            ><label
+              >Mesure<select id="pivot-metric">
+                <option value="count">Nombre de films</option>
+                <option value="audienceRating">Note moyenne</option>
+                <option value="audienceRatingCount">Votes moyens</option>
+                <option value="score">Score moyen</option>
+              </select></label
+            >
+          </div>
+          <p class="hint">
+            Cliquez sur une cellule pour explorer ces films. Un film
+            multi-genres ou multinational peut apparaître dans plusieurs
+            cellules. Les moyennes ignorent les valeurs absentes.
+          </p>
+          <div id="pivot-table" class="table-scroll"></div>
+        </section>
+        <div class="bottom-bar">
+          <label
+            >Par page<select id="page-size">
+              <option>50</option>
+              <option>100</option>
+              <option>250</option>
+            </select></label
+          >
+          <div class="pagination">
+            <button id="previous" aria-label="Page précédente">←</button
+            ><span id="page-label"></span
+            ><button id="next" aria-label="Page suivante">→</button>
+          </div>
+          <div class="export">
+            <button id="copy">Copier la liste</button
+            ><button id="export-csv">↓ CSV</button
+            ><button id="export-json">↓ JSON</button>
+          </div>
+        </div>
+        <details class="selection-stats">
+          <summary>Statistiques de la sélection</summary>
+          <div id="extra-stats"></div>
+        </details>
+        <footer>
+          CinéScope
+          <span
+            >Sources Allociné · historique + juin 2026 · Traitement local</span
+          >
+        </footer>
+      </section>
+    </main>
+    <dialog id="modal">
+      <div class="modal-heading">
+        <h2 id="modal-title"></h2>
+        <button id="modal-close" aria-label="Fermer">✕</button>
+      </div>
+      <p id="modal-notice" role="status"></p>
+      <div id="modal-body"></div>
+    </dialog>
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>

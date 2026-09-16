@@ -283,14 +283,27 @@ test("favorites persist and can be filtered and removed from cards", async ({ pa
   await page.reload();
   await expect(page.locator("#favorites-only")).toHaveText("★ Favoris (0)");
 });
-test("detail view embeds a YouTube trailer search for the film", async ({ page }) => {
+test("detail view asks for a YouTube key then embeds the trailer", async ({ page }) => {
+  await page.route("**/youtube/v3/search**", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ items: [{ id: { videoId: "abc123XYZ_0" } }] }),
+    }),
+  );
   const row = page.locator("#table-view tbody tr").first();
-  const title = (await row.locator(".title-button").textContent()).trim();
   await row.locator(".title-button").click();
+  // No key yet: the key form and the fallback search link are shown.
+  await expect(page.locator("#modal .trailer-key")).toHaveCount(1);
+  await expect(page.locator("#modal .trailer-link")).toHaveAttribute("target", "_blank");
+  await page.locator("#modal .trailer-key").fill("test-key");
+  await page.locator("#modal .trailer button", { hasText: "Enregistrer" }).click();
   const iframe = page.locator("#modal .trailer-frame iframe");
   await expect(iframe).toHaveCount(1);
-  const src = await iframe.getAttribute("src");
-  expect(src).toContain("youtube-nocookie.com/embed?listType=search");
-  expect(decodeURIComponent(src)).toContain(title);
-  await expect(page.locator("#modal .trailer-link")).toHaveAttribute("target", "_blank");
+  await expect(iframe).toHaveAttribute("src", "https://www.youtube-nocookie.com/embed/abc123XYZ_0");
+  // Key persists: reopening a film loads the trailer without asking again.
+  await page.locator("#modal-close").click();
+  await page.locator("#table-view tbody tr").nth(1).locator(".title-button").click();
+  await expect(page.locator("#modal .trailer-frame iframe")).toHaveCount(1);
+  await expect(page.locator("#modal .trailer-key")).toHaveCount(0);
 });

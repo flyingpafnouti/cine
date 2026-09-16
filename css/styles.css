@@ -975,3 +975,15 @@ dialog::backdrop {
   margin-top: 8px;
   font-size: 14px;
 }
+.trailer-key-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0;
+}
+.trailer-key {
+  flex: 1 1 220px;
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+}

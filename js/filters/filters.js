@@ -31,6 +31,17 @@ export function matches(m, f) {
     )
       return false;
   }
+  if (f.countries && f.countries.length) {
+    const n = f.countries.filter((c) => m.countries.includes(c)).length;
+    if (
+      f.countryMode === "all"
+        ? n !== f.countries.length
+        : f.countryMode === "exclude"
+          ? n > 0
+          : n === 0
+    )
+      return false;
+  }
   for (const [key, field] of [
     ["director", "directors"],
     ["actor", "actors"],

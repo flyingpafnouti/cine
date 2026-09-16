@@ -115,6 +115,33 @@
             <div id="genre-list" class="genre-list"></div>
           </div>
           <div class="filter-section">
+            <h3>Nationalités <span id="country-count" class="scale"></span></h3>
+            <label
+              >Correspondance<select name="countryMode">
+                <option value="any">Au moins une des nationalités</option>
+                <option value="all">Toutes les nationalités</option>
+                <option value="exclude">Exclure ces nationalités</option>
+              </select></label
+            ><input
+              type="search"
+              id="country-search"
+              role="combobox"
+              autocomplete="off"
+              aria-autocomplete="list"
+              aria-expanded="false"
+              aria-controls="country-suggestions"
+              aria-label="Rechercher une nationalité"
+              placeholder="Tapez pour rechercher : fr, ital, brita…"
+            />
+            <div
+              id="country-suggestions"
+              class="autocomplete"
+              role="listbox"
+              hidden
+            ></div>
+            <div id="country-selected" class="chips"></div>
+          </div>
+          <div class="filter-section">
             <label
               >Disponibilité en VOD<select name="vod">
                 <option value="all">Tous les films</option>

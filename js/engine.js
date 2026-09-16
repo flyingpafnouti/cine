@@ -51,6 +51,9 @@ export function execute(type, p) {
       genres: [...new Set(movies.flatMap((m) => m.genres))].sort((a, b) =>
         a.localeCompare(b, "fr"),
       ),
+      countries: [...new Set(movies.flatMap((m) => m.countries))].sort((a, b) =>
+        a.localeCompare(b, "fr"),
+      ),
       directors: new Set(movies.flatMap((m) => m.directors)).size,
       vod: movies.filter((m) => m.vodAvailable !== null).length,
       C: ctx.C,

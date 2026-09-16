@@ -10,6 +10,8 @@ export const defaults = () => ({
     onlyRated: false,
     genres: [],
     genreMode: "any",
+    countries: [],
+    countryMode: "any",
     director: "",
     actor: "",
     country: "",

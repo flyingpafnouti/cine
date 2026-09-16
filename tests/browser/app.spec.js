@@ -331,3 +331,28 @@ test("watched films persist, filter as a tab and hide from hard constraints", as
   await expect(page.locator("#watched-only")).toHaveText("✓ Vus (1)");
   await expect(page.locator("#hard-form [name=watched]")).toHaveValue("all");
 });
+test("nationality autocomplete suggests, adds and removes a filter", async ({ page }) => {
+  const total = await page.locator("#result-count").textContent();
+  // Typing a prefix suggests matching nationalities (accent-insensitive).
+  await page.locator("#country-search").fill("fr");
+  const suggestions = page.locator("#country-suggestions .suggestion");
+  await expect(suggestions.first()).toBeVisible();
+  await expect(suggestions.filter({ hasText: "français" }).first()).toBeVisible();
+  // Selecting one adds a removable chip and filters the results.
+  await suggestions.filter({ hasText: "français" }).first().click();
+  await expect(page.locator("#country-selected")).toContainText("français");
+  await expect(page.locator("#country-search")).toHaveValue("");
+  await expect(page.locator("#result-count")).not.toHaveText(total);
+  await expect(page.locator("#active-filters")).toContainText("français");
+  // Keyboard: type + Enter selects the top suggestion.
+  await page.locator("#country-search").fill("ital");
+  await page.locator("#country-search").press("Enter");
+  await expect(page.locator("#country-selected")).toContainText(/Ital/i);
+  // Removing the chip clears that filter.
+  await page.locator("#country-selected button", { hasText: "français" }).click();
+  await expect(page.locator("#country-selected")).not.toContainText("français");
+  // Reset clears everything.
+  await page.locator("#reset").click();
+  await expect(page.locator("#country-selected")).toBeEmpty();
+  await expect(page.locator("#result-count")).toHaveText(total);
+});

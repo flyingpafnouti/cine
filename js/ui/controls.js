@@ -1,6 +1,9 @@
 import { $, el, labels, fmt } from "./dom.js";
 import { normalizeWeights } from "../scoring/scoring.js";
+import { fold } from "../utils/values.js";
+let refreshResults = () => {};
 export function setupControls(state, update) {
+  refreshResults = update;
   for (const decade of [1970, 1980, 1990, 2000, 2010, 2020])
     $("#decades").append(
       el(
@@ -99,6 +102,114 @@ export function setupControls(state, update) {
     for (const label of $("#genre-list").children)
       label.hidden = !label.textContent.toLocaleLowerCase("fr").includes(q);
   };
+  setupCountryAutocomplete(state);
+}
+function setupCountryAutocomplete(state) {
+  const input = $("#country-search"),
+    box = $("#country-suggestions");
+  let active = -1;
+  const suggestions = () => {
+    const q = fold(input.value).trim();
+    if (!q) return [];
+    const chosen = state.config.filters.countries;
+    const all = state.summary?.countries || [];
+    return all
+      .filter((c) => !chosen.includes(c) && fold(c).includes(q))
+      .sort((a, b) => {
+        const ap = fold(a).startsWith(q),
+          bp = fold(b).startsWith(q);
+        return ap === bp ? a.localeCompare(b, "fr") : ap ? -1 : 1;
+      })
+      .slice(0, 8);
+  };
+  const close = () => {
+    box.hidden = true;
+    box.replaceChildren();
+    active = -1;
+    input.setAttribute("aria-expanded", "false");
+  };
+  const choose = (country) => {
+    if (!state.config.filters.countries.includes(country))
+      state.config.filters.countries = [
+        ...state.config.filters.countries,
+        country,
+      ];
+    input.value = "";
+    close();
+    renderCountrySelected(state);
+    refreshResults();
+  };
+  const render = () => {
+    const items = suggestions();
+    active = -1;
+    if (!items.length) return close();
+    box.replaceChildren(
+      ...items.map((c, i) =>
+        el(
+          "button",
+          {
+            type: "button",
+            class: "suggestion",
+            role: "option",
+            onmousedown: (e) => {
+              e.preventDefault();
+              choose(c);
+            },
+            onmouseenter: () => setActive(i),
+          },
+          c,
+        ),
+      ),
+    );
+    box.hidden = false;
+    input.setAttribute("aria-expanded", "true");
+  };
+  const setActive = (i) => {
+    active = i;
+    [...box.children].forEach((n, j) =>
+      n.classList.toggle("active", j === i),
+    );
+  };
+  input.oninput = render;
+  input.onfocus = render;
+  input.onblur = () => setTimeout(close, 120);
+  input.onkeydown = (e) => {
+    const items = [...box.children];
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (items.length) setActive((active + 1) % items.length);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      if (items.length) setActive((active - 1 + items.length) % items.length);
+    } else if (e.key === "Enter") {
+      const pick = items[active] || items[0];
+      if (pick) {
+        e.preventDefault();
+        pick.dispatchEvent(new MouseEvent("mousedown"));
+      }
+    } else if (e.key === "Escape") close();
+  };
+}
+export function renderCountrySelected(state) {
+  const chosen = state.config.filters.countries;
+  $("#country-selected").replaceChildren(
+    ...chosen.map((c) =>
+      el(
+        "button",
+        {
+          type: "button",
+          class: "chip-remove",
+          "aria-label": "Retirer " + c,
+          onclick: () => {
+            state.config.filters.countries = chosen.filter((v) => v !== c);
+            renderCountrySelected(state);
+            refreshResults();
+          },
+        },
+        c + " ×",
+      ),
+    ),
+  );
 }
 export function renderGenres(state) {
   $("#genre-list").replaceChildren(
@@ -129,6 +240,7 @@ export function renderGenres(state) {
     ),
   );
   $("#genre-count").textContent = state.summary.genres.length;
+  $("#country-count").textContent = state.summary.countries.length;
 }
 export function updateWeightLabels(state) {
   const w = normalizeWeights(state.config.scoring.weights);
@@ -164,5 +276,6 @@ export function syncControls(state) {
     state.config.sorting.field + ":" + state.config.sorting.direction;
   $("#top").value = state.config.top;
   $("#page-size").value = state.config.pageSize;
+  renderCountrySelected(state);
   updateWeightLabels(state);
 }

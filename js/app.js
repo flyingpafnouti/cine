@@ -209,6 +209,20 @@ function activeFilters() {
         (f.genreMode === "exclude" ? "Sans " : "") + g + " ×",
       ),
     );
+  for (const c of f.countries)
+    nodes.push(
+      el(
+        "button",
+        {
+          onclick: () => {
+            f.countries = f.countries.filter((v) => v !== c);
+            syncControls(state);
+            schedule();
+          },
+        },
+        (f.countryMode === "exclude" ? "Sans " : "") + c + " ×",
+      ),
+    );
   for (const [i, p] of f.pivot.entries())
     nodes.push(
       el(

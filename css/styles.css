@@ -975,6 +975,40 @@ dialog::backdrop {
 }
 .results-heading { flex-wrap: wrap; gap: 10px; }
 
+.autocomplete {
+  display: flex;
+  flex-direction: column;
+  margin-top: 4px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+}
+.autocomplete .suggestion {
+  text-align: left;
+  padding: 8px 10px;
+  border: 0;
+  border-bottom: 1px solid #eef2f7;
+  background: #fff;
+  color: #102e50;
+  cursor: pointer;
+  font: inherit;
+}
+.autocomplete .suggestion:last-child { border-bottom: 0; }
+.autocomplete .suggestion.active,
+.autocomplete .suggestion:hover { background: #e8f2fb; }
+#country-selected { margin-top: 8px; }
+.chip-remove {
+  padding: 5px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  background: #eef4fb;
+  color: #102e50;
+  cursor: pointer;
+  font-size: 13px;
+}
+.chip-remove:hover { background: #d7e8f8; }
+
 .trailer { margin: 14px 0; }
 .trailer h4 { margin: 0 0 8px; }
 .trailer-frame {

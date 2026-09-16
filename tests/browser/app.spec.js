@@ -262,3 +262,24 @@ test("missing complementary file preserves historical dataset and explains missi
     "Synopsis non renseigné",
   );
 });
+test("favorites persist and can be filtered and removed from cards", async ({ page }) => {
+  const first = page.locator("#table-view tbody tr").first();
+  const title = await first.locator(".title-button").textContent();
+  await first.locator(".favorite-button").click();
+  await expect(first.locator(".favorite-button")).toHaveAttribute("aria-pressed", "true");
+  await page.reload();
+  await expect(page.locator("#favorites-only")).toHaveText("★ Favoris (1)");
+  await page.locator("#favorites-only").click();
+  await expect(page.locator("#table-view tbody tr")).toHaveCount(1);
+  await expect(page.locator("#table-view .title-button")).toHaveText(title);
+  await expect(page.locator("#result-count")).toHaveText("1 films dans votre sélection");
+  await page.locator("#view-cards").click();
+  await expect(page.locator("#cards-view .favorite-button")).toHaveAttribute("aria-pressed", "true");
+  await page.locator("#cards-view .favorite-button").click();
+  await expect(page.locator("#cards-view")).toContainText("Aucun favori");
+  await expect(page.locator("#favorites-only")).toHaveText("★ Favoris (0)");
+  await page.locator("#favorites-only").click();
+  await expect(page.locator("#cards-view .card")).toHaveCount(50);
+  await page.reload();
+  await expect(page.locator("#favorites-only")).toHaveText("★ Favoris (0)");
+});

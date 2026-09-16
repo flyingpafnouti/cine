@@ -930,3 +930,26 @@ dialog::backdrop {
 .header :focus-visible { outline-color: #91d4f5; }
 .primary:hover, .side-tabs .active:hover { background: #204c76; color: #fff; }
 ::selection { background: #c8e4f6; color: #102e50; }
+
+.favorite-button {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #fff;
+  color: #52657b;
+  font-size: 26px;
+  cursor: pointer;
+}
+.favorite-button[aria-pressed="true"] {
+  color: #926000;
+  background: #fff4cc;
+  border-color: #d9ac39;
+}
+#favorites-only[aria-pressed="true"] {
+  background: #fff4cc;
+  color: #785000;
+  border-color: #d9ac39;
+}
+.results-heading { flex-wrap: wrap; gap: 10px; }

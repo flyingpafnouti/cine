@@ -1,3 +1,4 @@
+import { writeFavorites } from "./storage/favorites.js";
 import { showDatasetInfo } from "./ui/dataset-ui.js";
 import { state, defaults } from "./state.js";
 import { $, el, fmt, modal, notice } from "./ui/dom.js";
@@ -48,12 +49,15 @@ async function refresh() {
     const data = await request("query", {
       config: state.config,
       page: state.page,
+      favoritesOnly: state.favoritesOnly,
+      favorites: [...state.favorites],
     });
     if (rev !== revision) return;
     state.page = data.page;
     renderResults(data, state, {
       detail,
       select: selectMovie,
+      favorite: toggleFavorite,
       sort: (field) => {
         const s = state.config.sorting;
         state.config.sorting = {
@@ -202,6 +206,23 @@ function activeFilters() {
     );
   $("#active-filters").replaceChildren(...nodes);
 }
+function toggleFavorite(id) {
+  const next = new Set(state.favorites);
+  next.has(id) ? next.delete(id) : next.add(id);
+  try {
+    writeFavorites(next);
+  } catch {
+    notice("Impossible d’enregistrer les favoris : le stockage du navigateur est indisponible.");
+    return;
+  }
+  state.favorites = next;
+  refresh();
+}
+$("#favorites-only").onclick = () => {
+  state.favoritesOnly = !state.favoritesOnly;
+  state.page = 1;
+  refresh();
+};
 function selectMovie(id, checked) {
   if (checked && state.selected.size >= 8) {
     notice("La comparaison est limitée à 8 films pour rester lisible.");
@@ -253,6 +274,7 @@ document.addEventListener("keydown", (e) => {
   }
 });
 $("#reset").onclick = () => {
+  state.favoritesOnly = false;
   state.config = defaults();
   state.page = 1;
   syncControls(state);

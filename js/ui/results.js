@@ -16,7 +16,20 @@ function scoreButton(m, detail) {
     ),
   );
 }
-export function renderResults(data, state, { detail, select, sort }) {
+export function renderResults(data, state, { detail, select, sort, favorite }) {
+  $("#favorites-only").setAttribute("aria-pressed", state.favoritesOnly);
+  $("#favorites-only").textContent = "★ Favoris (" + state.favorites.size + ")";
+  const favoriteButton = (m) => {
+    const active = state.favorites.has(m.id);
+    const label = (active ? "Retirer des favoris : " : "Ajouter aux favoris : ") + m.title;
+    return el("button", {
+      class: "favorite-button",
+      "aria-label": label,
+      "aria-pressed": active,
+      title: label,
+      onclick: () => favorite(m.id),
+    }, active ? "★" : "☆");
+  };
   const columns = [
     ["title", "Titre"],
     ["year", "Année"],
@@ -39,6 +52,7 @@ export function renderResults(data, state, { detail, select, sort }) {
         "tr",
         {},
         el("th", {}, "Choix"),
+        el("th", {}, "Favori"),
         ...columns.map(([k, title]) =>
           el(
             "th",
@@ -79,6 +93,7 @@ export function renderResults(data, state, { detail, select, sort }) {
         "tr",
         {},
         el("td", {}, checkbox(m)),
+        el("td", {}, favoriteButton(m)),
         el(
           "td",
           {},
@@ -111,8 +126,8 @@ export function renderResults(data, state, { detail, select, sort }) {
     el(
       "div",
       { class: "empty" },
-      el("strong", {}, "Aucun film ne correspond à ces contraintes."),
-      el("p", {}, "Élargissez les filtres ou réinitialisez la sélection."),
+      el("strong", {}, state.favoritesOnly ? "Aucun favori ne correspond à votre sélection." : "Aucun film ne correspond à ces contraintes."),
+      el("p", {}, state.favoritesOnly ? "Ajoutez des films avec l’étoile ☆ ou désactivez le filtre Favoris pour parcourir les films." : "Élargissez les filtres ou réinitialisez la sélection."),
     );
   $("#table-view").replaceChildren(data.rows.length ? table : empty());
   $("#cards-view").replaceChildren(
@@ -121,7 +136,7 @@ export function renderResults(data, state, { detail, select, sort }) {
           el(
             "article",
             { class: "card" },
-            el("div", { class: "check" }, checkbox(m), scoreButton(m, detail)),
+            el("div", { class: "check" }, checkbox(m), favoriteButton(m), scoreButton(m, detail)),
             el(
               "h3",
               {},

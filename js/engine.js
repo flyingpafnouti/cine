@@ -59,9 +59,11 @@ export function execute(type, p) {
   }
   if (type === "query") {
     const c = p.config;
+    const favorites = p.favoritesOnly ? new Set(p.favorites || []) : null;
     results = movies
       .filter(
         (m) =>
+          (!favorites || favorites.has(m.id)) &&
           matches(m, c.filters) &&
           !(c.sorting.field === "audienceRating" && m.audienceRating === null),
       )

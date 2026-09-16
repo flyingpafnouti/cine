@@ -453,3 +453,24 @@ coûteux reste hors du thread de rendu. Les temps dépendent de la machine.
 - Export JSON complet ; CSV aplati pour les listes, sans détail des contributions.
 - Les fichiers ZIP doivent être décompressés avant import.
 - Pas de graphiques ni de thème sombre : priorité à l’exploration tabulaire.
+
+## GitHub Pages
+
+Le site peut être publié tel quel, sans build ni backend. Les chemins du CSS,
+des modules JavaScript, du Worker et des CSV sont relatifs : ils fonctionnent
+sous un sous-répertoire comme `/cine/`. Le fichier `.nojekyll` désactive Jekyll.
+
+1. Pousser le projet, y compris `.nojekyll` et les deux CSV de `data/source/`.
+2. Dans GitHub : **Settings → Pages → Build and deployment**.
+3. Choisir **Deploy from a branch**, la branche contenant le projet, puis **/(root)**.
+4. Enregistrer et attendre la fin du déploiement.
+
+Pour le dépôt `flyingpafnouti/cine`, l’adresse attendue est
+https://flyingpafnouti.github.io/cine/ (une fois Pages activé).
+
+Les CSV représentent environ 31 Mo non compressés à télécharger au premier
+chargement. Les calculs et les imports personnels restent dans le navigateur ;
+les presets sont propres à cette origine et ne sont pas transférés depuis localhost.
+Aucun serveur Python ni Node.js n’est nécessaire sur GitHub Pages.
+
+Documentation : https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site

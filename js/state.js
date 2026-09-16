@@ -1,3 +1,4 @@
+import { readFavorites } from "./storage/favorites.js";
 export const defaults = () => ({
   filters: {
     query: "",
@@ -54,5 +55,7 @@ export const state = {
   config: defaults(),
   page: 1,
   selected: new Set(),
+  favorites: readFavorites(),
+  favoritesOnly: false,
   summary: null,
 };

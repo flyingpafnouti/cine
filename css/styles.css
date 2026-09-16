@@ -953,3 +953,25 @@ dialog::backdrop {
   border-color: #d9ac39;
 }
 .results-heading { flex-wrap: wrap; gap: 10px; }
+
+.trailer { margin: 14px 0; }
+.trailer h4 { margin: 0 0 8px; }
+.trailer-frame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #000;
+}
+.trailer-frame iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+.trailer-link {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 14px;
+}

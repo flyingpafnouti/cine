@@ -283,3 +283,14 @@ test("favorites persist and can be filtered and removed from cards", async ({ pa
   await page.reload();
   await expect(page.locator("#favorites-only")).toHaveText("★ Favoris (0)");
 });
+test("detail view embeds a YouTube trailer search for the film", async ({ page }) => {
+  const row = page.locator("#table-view tbody tr").first();
+  const title = (await row.locator(".title-button").textContent()).trim();
+  await row.locator(".title-button").click();
+  const iframe = page.locator("#modal .trailer-frame iframe");
+  await expect(iframe).toHaveCount(1);
+  const src = await iframe.getAttribute("src");
+  expect(src).toContain("youtube-nocookie.com/embed?listType=search");
+  expect(decodeURIComponent(src)).toContain(title);
+  await expect(page.locator("#modal .trailer-link")).toHaveAttribute("target", "_blank");
+});

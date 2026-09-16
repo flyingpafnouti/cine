@@ -1,5 +1,37 @@
 import { el, $, fmt, modal, labels } from "./dom.js";
 const tags = (m) => m.genres.map((g) => el("span", { class: "tag" }, g));
+function trailerSection(m) {
+  const query = [m.title, m.year, "bande annonce vf"].filter(Boolean).join(" ");
+  const list = encodeURIComponent(query);
+  return el(
+    "section",
+    { class: "trailer" },
+    el("h4", {}, "Bande-annonce"),
+    el(
+      "div",
+      { class: "trailer-frame" },
+      el("iframe", {
+        src:
+          "https://www.youtube-nocookie.com/embed?listType=search&list=" + list,
+        title: "Bande-annonce de " + m.title,
+        loading: "lazy",
+        referrerpolicy: "strict-origin-when-cross-origin",
+        allow: "encrypted-media; picture-in-picture; fullscreen",
+        allowfullscreen: "",
+      }),
+    ),
+    el(
+      "a",
+      {
+        class: "trailer-link",
+        href: "https://www.youtube.com/results?search_query=" + list,
+        target: "_blank",
+        rel: "noopener noreferrer",
+      },
+      "Ouvrir la recherche sur YouTube ↗",
+    ),
+  );
+}
 function scoreButton(m, detail) {
   return el(
     "button",
@@ -231,6 +263,7 @@ export function showDetails(movies) {
             el("h4", {}, "Synopsis"),
             el("p", {}, m.synopsis || "Synopsis non renseigné pour ce film."),
           ),
+          trailerSection(m),
           el(
             "p",
             { class: "hint" },

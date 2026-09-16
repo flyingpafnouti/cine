@@ -128,6 +128,18 @@
               sources fournies.
             </p>
           </div>
+          <div class="filter-section">
+            <label
+              >Films déjà vus<select name="watched">
+                <option value="all">Tous les films</option>
+                <option value="unseen">Masquer les films vus</option>
+                <option value="seen">Uniquement les films vus</option>
+              </select></label
+            >
+            <p class="hint">
+              Cochez les films avec « ✓ » pour tenir votre liste des films vus.
+            </p>
+          </div>
           <details class="filter-section">
             <summary>Autres contraintes</summary>
             <label
@@ -284,7 +296,8 @@
             ><button id="view-cards">Cartes</button
             ><button id="view-analysis">Analyse</button>
           </div>
-          <button id="favorites-only" class="button" aria-pressed="false">★ Favoris (0)</button>
+          <button id="favorites-only" class="button" aria-pressed="false">★ Favoris (0)</button
+          ><button id="watched-only" class="button" aria-pressed="false">✓ Vus (0)</button>
           <button id="compare" class="button">
             Comparer <span id="compare-count">0</span>
           </button>

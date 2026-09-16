@@ -952,6 +952,27 @@ dialog::backdrop {
   color: #785000;
   border-color: #d9ac39;
 }
+.watched-button {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #fff;
+  color: #52657b;
+  font-size: 22px;
+  cursor: pointer;
+}
+.watched-button[aria-pressed="true"] {
+  color: #1a7a3c;
+  background: #e3f6e8;
+  border-color: #4bab6d;
+}
+#watched-only[aria-pressed="true"] {
+  background: #e3f6e8;
+  color: #166132;
+  border-color: #4bab6d;
+}
 .results-heading { flex-wrap: wrap; gap: 10px; }
 
 .trailer { margin: 14px 0; }

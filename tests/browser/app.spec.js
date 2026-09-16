@@ -309,3 +309,25 @@ test("detail view asks for a YouTube key then embeds the trailer", async ({ page
   await expect(page.locator("#modal .trailer-frame iframe")).toHaveCount(1);
   await expect(page.locator("#modal .trailer-key")).toHaveCount(0);
 });
+test("watched films persist, filter as a tab and hide from hard constraints", async ({ page }) => {
+  const first = page.locator("#table-view tbody tr").first();
+  const title = await first.locator(".title-button").textContent();
+  await first.locator(".watched-button").click();
+  await expect(first.locator(".watched-button")).toHaveAttribute("aria-pressed", "true");
+  await page.reload();
+  await expect(page.locator("#watched-only")).toHaveText("✓ Vus (1)");
+  // Tab: only watched films.
+  await page.locator("#watched-only").click();
+  await expect(page.locator("#table-view tbody tr")).toHaveCount(1);
+  await expect(page.locator("#table-view .title-button")).toHaveText(title);
+  await page.locator("#watched-only").click();
+  // Hard constraint: hide already-watched films.
+  await page.locator("#hard-form [name=watched]").selectOption("unseen");
+  await expect(page.locator("#table-view tbody tr")).toHaveCount(50);
+  await expect(page.locator("#table-view .title-button").first()).not.toHaveText(title);
+  await expect(page.locator("#active-filters")).toContainText("Masquer les vus");
+  // Reset clears the watched filter and toggle but keeps the saved list.
+  await page.locator("#reset").click();
+  await expect(page.locator("#watched-only")).toHaveText("✓ Vus (1)");
+  await expect(page.locator("#hard-form [name=watched]")).toHaveValue("all");
+});

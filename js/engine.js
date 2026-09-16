@@ -60,10 +60,18 @@ export function execute(type, p) {
   if (type === "query") {
     const c = p.config;
     const favorites = p.favoritesOnly ? new Set(p.favorites || []) : null;
+    const watched = new Set(p.watched || []);
+    const watchedMode = c.filters.watched;
     results = movies
       .filter(
         (m) =>
           (!favorites || favorites.has(m.id)) &&
+          (!p.watchedOnly || watched.has(m.id)) &&
+          (watchedMode === "seen"
+            ? watched.has(m.id)
+            : watchedMode === "unseen"
+              ? !watched.has(m.id)
+              : true) &&
           matches(m, c.filters) &&
           !(c.sorting.field === "audienceRating" && m.audienceRating === null),
       )

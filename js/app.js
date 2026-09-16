@@ -1,4 +1,5 @@
 import { writeFavorites } from "./storage/favorites.js";
+import { writeWatched } from "./storage/watched.js";
 import { showDatasetInfo } from "./ui/dataset-ui.js";
 import { state, defaults } from "./state.js";
 import { $, el, fmt, modal, notice } from "./ui/dom.js";
@@ -51,6 +52,8 @@ async function refresh() {
       page: state.page,
       favoritesOnly: state.favoritesOnly,
       favorites: [...state.favorites],
+      watchedOnly: state.watchedOnly,
+      watched: [...state.watched],
     });
     if (rev !== revision) return;
     state.page = data.page;
@@ -58,6 +61,7 @@ async function refresh() {
       detail,
       select: selectMovie,
       favorite: toggleFavorite,
+      watch: toggleWatched,
       sort: (field) => {
         const s = state.config.sorting;
         state.config.sorting = {
@@ -177,6 +181,20 @@ function activeFilters() {
           " ×",
       ),
     );
+  if (f.watched !== "all")
+    nodes.push(
+      el(
+        "button",
+        {
+          onclick: () => {
+            f.watched = "all";
+            syncControls(state);
+            schedule();
+          },
+        },
+        (f.watched === "seen" ? "Vus uniquement" : "Masquer les vus") + " ×",
+      ),
+    );
   for (const g of f.genres)
     nodes.push(
       el(
@@ -220,6 +238,23 @@ function toggleFavorite(id) {
 }
 $("#favorites-only").onclick = () => {
   state.favoritesOnly = !state.favoritesOnly;
+  state.page = 1;
+  refresh();
+};
+function toggleWatched(id) {
+  const next = new Set(state.watched);
+  next.has(id) ? next.delete(id) : next.add(id);
+  try {
+    writeWatched(next);
+  } catch {
+    notice("Impossible d’enregistrer les films vus : le stockage du navigateur est indisponible.");
+    return;
+  }
+  state.watched = next;
+  refresh();
+}
+$("#watched-only").onclick = () => {
+  state.watchedOnly = !state.watchedOnly;
   state.page = 1;
   refresh();
 };
@@ -276,6 +311,7 @@ document.addEventListener("keydown", (e) => {
 });
 $("#reset").onclick = () => {
   state.favoritesOnly = false;
+  state.watchedOnly = false;
   state.config = defaults();
   state.page = 1;
   syncControls(state);

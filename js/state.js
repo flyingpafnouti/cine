@@ -1,4 +1,5 @@
 import { readFavorites } from "./storage/favorites.js";
+import { readWatched } from "./storage/watched.js";
 export const defaults = () => ({
   filters: {
     query: "",
@@ -16,6 +17,7 @@ export const defaults = () => ({
     durationMax: null,
     pressMin: null,
     vod: "all",
+    watched: "all",
     pivot: [],
   },
   scoring: {
@@ -57,5 +59,7 @@ export const state = {
   selected: new Set(),
   favorites: readFavorites(),
   favoritesOnly: false,
+  watched: readWatched(),
+  watchedOnly: false,
   summary: null,
 };

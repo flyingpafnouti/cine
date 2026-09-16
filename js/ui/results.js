@@ -116,9 +116,11 @@ function scoreButton(m, detail) {
     ),
   );
 }
-export function renderResults(data, state, { detail, select, sort, favorite }) {
+export function renderResults(data, state, { detail, select, sort, favorite, watch }) {
   $("#favorites-only").setAttribute("aria-pressed", state.favoritesOnly);
   $("#favorites-only").textContent = "★ Favoris (" + state.favorites.size + ")";
+  $("#watched-only").setAttribute("aria-pressed", state.watchedOnly);
+  $("#watched-only").textContent = "✓ Vus (" + state.watched.size + ")";
   const favoriteButton = (m) => {
     const active = state.favorites.has(m.id);
     const label = (active ? "Retirer des favoris : " : "Ajouter aux favoris : ") + m.title;
@@ -129,6 +131,17 @@ export function renderResults(data, state, { detail, select, sort, favorite }) {
       title: label,
       onclick: () => favorite(m.id),
     }, active ? "★" : "☆");
+  };
+  const watchedButton = (m) => {
+    const active = state.watched.has(m.id);
+    const label = (active ? "Marquer comme non vu : " : "Marquer comme vu : ") + m.title;
+    return el("button", {
+      class: "watched-button",
+      "aria-label": label,
+      "aria-pressed": active,
+      title: label,
+      onclick: () => watch(m.id),
+    }, active ? "✓" : "○");
   };
   const columns = [
     ["title", "Titre"],
@@ -153,6 +166,7 @@ export function renderResults(data, state, { detail, select, sort, favorite }) {
         {},
         el("th", {}, "Choix"),
         el("th", {}, "Favori"),
+        el("th", {}, "Vu"),
         ...columns.map(([k, title]) =>
           el(
             "th",
@@ -194,6 +208,7 @@ export function renderResults(data, state, { detail, select, sort, favorite }) {
         {},
         el("td", {}, checkbox(m)),
         el("td", {}, favoriteButton(m)),
+        el("td", {}, watchedButton(m)),
         el(
           "td",
           {},
@@ -226,8 +241,8 @@ export function renderResults(data, state, { detail, select, sort, favorite }) {
     el(
       "div",
       { class: "empty" },
-      el("strong", {}, state.favoritesOnly ? "Aucun favori ne correspond à votre sélection." : "Aucun film ne correspond à ces contraintes."),
-      el("p", {}, state.favoritesOnly ? "Ajoutez des films avec l’étoile ☆ ou désactivez le filtre Favoris pour parcourir les films." : "Élargissez les filtres ou réinitialisez la sélection."),
+      el("strong", {}, state.favoritesOnly ? "Aucun favori ne correspond à votre sélection." : state.watchedOnly ? "Aucun film vu ne correspond à votre sélection." : "Aucun film ne correspond à ces contraintes."),
+      el("p", {}, state.favoritesOnly ? "Ajoutez des films avec l’étoile ☆ ou désactivez le filtre Favoris pour parcourir les films." : state.watchedOnly ? "Cochez les films vus avec « ✓ » ou désactivez le filtre Vus pour parcourir les films." : "Élargissez les filtres ou réinitialisez la sélection."),
     );
   $("#table-view").replaceChildren(data.rows.length ? table : empty());
   $("#cards-view").replaceChildren(
@@ -236,7 +251,7 @@ export function renderResults(data, state, { detail, select, sort, favorite }) {
           el(
             "article",
             { class: "card" },
-            el("div", { class: "check" }, checkbox(m), favoriteButton(m), scoreButton(m, detail)),
+            el("div", { class: "check" }, checkbox(m), favoriteButton(m), watchedButton(m), scoreButton(m, detail)),
             el(
               "h3",
               {},

@@ -301,8 +301,10 @@ test("detail view asks for a YouTube key then embeds the trailer", async ({ page
   const iframe = page.locator("#modal .trailer-frame iframe");
   await expect(iframe).toHaveCount(1);
   await expect(iframe).toHaveAttribute("src", "https://www.youtube-nocookie.com/embed/abc123XYZ_0");
-  // Key persists: reopening a film loads the trailer without asking again.
+  // Closing the modal removes the iframe so the trailer stops playing.
   await page.locator("#modal-close").click();
+  await expect(page.locator("#modal .trailer-frame iframe")).toHaveCount(0);
+  // Key persists: reopening a film loads the trailer without asking again.
   await page.locator("#table-view tbody tr").nth(1).locator(".title-button").click();
   await expect(page.locator("#modal .trailer-frame iframe")).toHaveCount(1);
   await expect(page.locator("#modal .trailer-key")).toHaveCount(0);

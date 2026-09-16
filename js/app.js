@@ -260,6 +260,7 @@ async function updatePivot() {
 setupControls(state, schedule);
 syncControls(state);
 $("#modal-close").onclick = () => $("#modal").close();
+$("#modal").addEventListener("close", () => $("#modal-body").replaceChildren());
 $("#search").oninput = (e) => {
   state.config.filters.query = e.target.value;
   schedule();

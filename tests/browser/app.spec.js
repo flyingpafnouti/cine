@@ -79,7 +79,7 @@ test("real dataset, required filters, details, comparison, cards, presets, pivot
   await page.locator("#hard-form [name=yearMin]").fill("1990");
   await page.locator("#hard-form [name=yearMax]").fill("1999");
   await page.locator("#hard-form [name=ratingMin]").fill("4");
-  await page.locator("#hard-form [name=votesMin]").selectOption("100");
+  await page.locator("#hard-form [name=votesMin]").fill("100");
   await page.locator("#genre-list input[value=Thriller]").check();
   await expect(page.locator("#result-count")).toHaveText(
     "25 films dans votre sélection",

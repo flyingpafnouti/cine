@@ -89,14 +89,32 @@
           </div>
           <div class="filter-section">
             <label
-              >Votes spectateurs minimum<select name="votesMin">
-                <option value="">Aucun minimum</option>
-                <option value="10">10 votes</option>
-                <option value="100">100 votes</option>
-                <option value="1000">1 000 votes</option>
-                <option value="10000">10 000 votes</option>
-              </select></label
-            >
+              >Votes spectateurs minimum<input
+                name="votesMin"
+                type="number"
+                min="0"
+                step="1"
+                inputmode="numeric"
+                placeholder="Aucun minimum"
+            /></label>
+          </div>
+          <div class="filter-section">
+            <label
+              >Texte contenu dans le synopsis<input
+                name="synopsis"
+                placeholder="Ex. : 'voyage dans le temps'"
+            /></label>
+            <label
+              >Nationalité<input name="country" placeholder="Ex. français"
+            /></label>
+            <label
+              >Note presse minimum<input
+                name="pressMin"
+                type="number"
+                min="0"
+                max="5"
+                step="0.1"
+            /></label>
           </div>
           <div class="filter-section">
             <h3>Genres <span id="genre-count" class="scale"></span></h3>
@@ -175,14 +193,7 @@
                 placeholder="Nom du réalisateur" /></label
             ><label
               >Acteur<input name="actor" placeholder="Nom de l’acteur" /></label
-            ><label
-              >Nationalité<input name="country" placeholder="Ex. français"
-            /></label>
-            <label
-              >Texte contenu dans le synopsis<input
-                name="synopsis"
-                placeholder="Ex. : 'voyage dans le temps'"
-            /></label>
+            >
             <div class="pair">
               <label
                 >Durée min. (min)<input
@@ -196,14 +207,6 @@
                   min="0"
               /></label>
             </div>
-            <label
-              >Note presse minimum<input
-                name="pressMin"
-                type="number"
-                min="0"
-                max="5"
-                step="0.1"
-            /></label>
           </div>
         </form>
         <form id="soft-form" hidden>

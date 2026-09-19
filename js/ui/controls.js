@@ -87,12 +87,7 @@ export function setupControls(state, update) {
         state.config.filters.genres = [
           ...form.querySelectorAll('[name="genre-choice"]:checked'),
         ].map((e) => e.value);
-      else
-        dest[t.name] = ["votesMin"].includes(t.name)
-          ? value === ""
-            ? null
-            : Number(value)
-          : value;
+      else dest[t.name] = value;
       updateWeightLabels(state);
       update();
     };

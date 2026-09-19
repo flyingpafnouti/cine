@@ -167,8 +167,8 @@
               Cochez les films avec « ✓ » pour tenir votre liste des films vus.
             </p>
           </div>
-          <details class="filter-section">
-            <summary>Autres contraintes</summary>
+          <div class="filter-section">
+            <h3>Autres contraintes</h3>
             <label
               >Réalisateur<input
                 name="director"
@@ -181,12 +181,8 @@
             <label
               >Texte contenu dans le synopsis<input
                 name="synopsis"
-                placeholder="Ex. : voyage dans le temps"
-                aria-describedby="synopsis-help"
+                placeholder="Ex. : 'voyage dans le temps'"
             /></label>
-            <p id="synopsis-help" class="hint">
-              Sans distinction de majuscules ni d’accents.
-            </p>
             <div class="pair">
               <label
                 >Durée min. (min)<input
@@ -208,7 +204,7 @@
                 max="5"
                 step="0.1"
             /></label>
-          </details>
+          </div>
         </form>
         <form id="soft-form" hidden>
           <p class="hint">

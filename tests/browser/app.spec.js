@@ -7,7 +7,6 @@ test.beforeEach(async ({ page }) => {
   await expect(page.locator("#table-view tbody tr")).toHaveCount(50);
 });
 test("synopsis hard constraint filters results and resets", async ({ page }) => {
-  await page.getByText("Autres contraintes", { exact: true }).click();
   const field = page.getByLabel("Texte contenu dans le synopsis");
   await page.locator("#search").fill("Forrest Gump");
   await expect(page.locator("#table-view tbody tr")).toHaveCount(1);
@@ -18,6 +17,16 @@ test("synopsis hard constraint filters results and resets", async ({ page }) => 
   await chip.click();
   await expect(field).toHaveValue("");
   await expect(chip).toHaveCount(0);
+  await field.fill("'ODYSSEE'");
+  await expect(page.locator("#table-view tbody tr")).toHaveCount(1);
+  await expect(page.locator("#active-filters")).toContainText("Synopsis contient : 'ODYSSEE'");
+  await field.fill("'ODYSSEE' 'xyz123'");
+  await expect(page.locator("#result-count")).toHaveText("0 films dans votre sélection");
+  await field.fill("'ODYSSEE' OR 'xyz123'");
+  await expect(page.locator("#table-view tbody tr")).toHaveCount(1);
+  await expect(page.locator("#active-filters")).toContainText("'ODYSSEE' OR 'xyz123'");
+  await field.fill("'ODYSSEE' AND 'xyz123'");
+  await expect(page.locator("#result-count")).toHaveText("0 films dans votre sélection");
   await field.fill("texte absent du synopsis xyz123");
   await expect(page.locator("#result-count")).toHaveText("0 films dans votre sélection");
   await field.fill("");
@@ -31,7 +40,6 @@ test.describe("Android synopsis input", () => {
   const { defaultBrowserType, ...mobileOptions } = devices["Pixel 7"];
   test.use(mobileOptions);
   test("synopsis accepts keyboard composition and change, and removes its chip", async ({ page }) => {
-    await page.getByText("Autres contraintes", { exact: true }).tap();
     const field = page.getByLabel("Texte contenu dans le synopsis");
     await page.locator("#search").fill("Forrest Gump");
     await expect(page.locator("#table-view tbody tr")).toHaveCount(1);

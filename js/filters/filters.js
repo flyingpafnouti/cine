@@ -1,9 +1,46 @@
 import { fold } from "../utils/values.js";
 import { dimension } from "../analysis/pivot.js";
+function matchesSynopsisTerms(value, query) {
+  const normalize = (text) => fold(text).replace(/[‘’]/g, "'");
+  const terms = [];
+  // Quotes delimit phrases only at word boundaries, preserving French apostrophes.
+  const remaining = normalize(query).replace(
+    /(?:^|\s)'(.*?)'(?=\s|$)/g,
+    (_, phrase) => {
+      if (phrase) terms.push(phrase);
+      return " ";
+    },
+  ).trim();
+  if (remaining) terms.push(remaining);
+  const synopsis = normalize(value);
+  return terms.every((term) => synopsis.includes(term));
+}
+function matchesSynopsis(value, query) {
+  const text = String(query).replace(/[‘’]/g, "'");
+  const groups = [[]];
+  let start = 0;
+  // Match quoted phrases first so operators inside them stay literal.
+  const tokens = /(?:^|\s)(?:'(.*?)'(?=\s|$)|(AND|OR)(?=\s|$))/g;
+  for (const token of text.matchAll(tokens)) {
+    const operator = token[2];
+    if (!operator) continue;
+    const clause = text.slice(start, token.index).trim();
+    if (!clause) return false;
+    groups[groups.length - 1].push(clause);
+    if (operator === "OR") groups.push([]);
+    start = token.index + token[0].length;
+  }
+  const last = text.slice(start).trim();
+  if (start && !last) return false;
+  groups[groups.length - 1].push(last);
+  // AND binds more tightly than OR; adjacent quoted phrases also imply AND.
+  return groups.some((group) =>
+    group.every((clause) => matchesSynopsisTerms(value, clause)),
+  );
+}
 export function matches(m, f) {
   if (f.query && !m.search.includes(fold(f.query).trim())) return false;
-  const synopsis = fold(f.synopsis).trim();
-  if (synopsis && !fold(m.synopsis).includes(synopsis)) return false;
+  if (f.synopsis && !matchesSynopsis(m.synopsis, f.synopsis)) return false;
   for (const [key, field, mode] of [
     ["yearMin", "year", 1],
     ["yearMax", "year", -1],

@@ -80,6 +80,57 @@ test("synopsis constraint matches literal text only in synopsis, ignoring case a
   for (const synopsis of ["", "   ", undefined])
     assert.equal(matches({ ...movie, synopsis: null }, { ...f, synopsis }), true);
 });
+test("synopsis accepts quoted phrases and preserves French apostrophes", () => {
+  const movie = { ...movies[0], synopsis: "L’aventure commence par un voyage dans le temps, une odyssée." };
+  const accepts = (synopsis) => matches(movie, { ...defaults().filters, synopsis });
+  assert.equal(accepts("'voyage dans le temps'"), true);
+  assert.equal(accepts("'voyage dans le temps' 'UNE ODYSSEE'"), true);
+  assert.equal(accepts("'voyage dans le temps' 'sur Mars'"), false);
+  assert.equal(accepts("'voyage le temps'"), false);
+  assert.equal(accepts("'temps dans le voyage'"), false);
+  assert.equal(accepts("'l'aventure'"), true);
+  assert.equal(accepts("l'aventure"), true);
+  assert.equal(accepts("‘voyage dans le temps’"), true);
+  assert.equal(accepts("'voyage dans le temps' odyssée"), true);
+  assert.equal(accepts("'voyage dans le temps' absent"), false);
+  assert.equal(accepts("'voyage.*temps'"), false);
+  assert.equal(accepts("'voyage"), false);
+  assert.equal(matches({ ...movie, synopsis: null }, { ...defaults().filters, synopsis: "'voyage dans le temps'" }), false);
+});
+test("quoted synopsis preserves spaces to distinguish ski from Lebowski", () => {
+  const filters = { ...defaults().filters, synopsis: "' ski '" };
+  const accepts = (synopsis, f = filters) => matches({ ...movies[0], synopsis }, f);
+  assert.equal(accepts("Il fait du ski en montagne."), true);
+  assert.equal(accepts("Une aventure avec Lebowski et ses amis."), false);
+  assert.equal(accepts("Un skieur en montagne."), false);
+  assert.equal(accepts("Il fait du ski."), false);
+  assert.equal(accepts("Il fait du ski en montagne.", { ...filters, synopsis: "  ' ski '  " }), true);
+  assert.equal(accepts("Il fait du ski en montagne.", { ...filters, synopsis: "‘ ski ’" }), true);
+  assert.equal(accepts("Il fait du ski en montagne.", { ...filters, synopsis: "'  ski  '" }), false);
+  assert.equal(accepts("Une aventure avec Lebowski.", { ...filters, synopsis: "ski" }), true);
+});
+test("synopsis supports uppercase AND and OR outside quotes with AND precedence", () => {
+  const accepts = (synopsis, query) => matches({ ...movies[0], synopsis }, { ...defaults().filters, synopsis: query });
+  assert.equal(accepts("Du ski en montagne.", "' ski ' OR ' surf '"), true);
+  assert.equal(accepts("Du surf en mer.", "' ski ' OR ' surf '"), true);
+  assert.equal(accepts("Lebowski", "' ski ' OR ' surf '"), false);
+  assert.equal(accepts("Du ski en montagne.", "' ski ' AND montagne"), true);
+  assert.equal(accepts("Du ski en salle.", "' ski ' AND montagne"), false);
+  assert.equal(accepts("Du ski en salle.", "ski OR surf AND mer"), true);
+  assert.equal(accepts("Du surf en salle.", "ski OR surf AND mer"), false);
+  assert.equal(accepts("Du surf en mer.", "ski OR surf AND mer"), true);
+  assert.equal(accepts("Du ski en salle.", "surf AND mer OR ski"), true);
+  assert.equal(accepts("ski OR surf", "'ski OR surf'"), true);
+  assert.equal(accepts("ski", "'ski OR surf'"), false);
+  assert.equal(accepts("ski AND surf", "'ski AND surf'"), true);
+  assert.equal(accepts("ski", "ski or surf"), false);
+  assert.equal(accepts("ski or surf", "ski or surf"), true);
+  assert.equal(accepts("L’aventure en montagne", "‘l’aventure’ AND montagne"), true);
+  assert.equal(accepts("Une odyssée", "inconnu OR ODYSSEE"), true);
+  assert.equal(accepts(null, "ski OR surf"), false);
+  for (const query of ["OR ski", "ski OR", "ski AND", "ski OR AND surf"])
+    assert.equal(accepts("ski surf", query), false);
+});
 test("CSV: quotes, embedded delimiter, newline, BOM and escaped quote", () => {
   const v = parseCSV('\uFEFFtitle;genre\r\n"A;B";"line\nnext"\r\n"C""D";Drame');
   assert.deepEqual(v.rows, [

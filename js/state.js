@@ -3,6 +3,7 @@ import { readWatched } from "./storage/watched.js";
 export const defaults = () => ({
   filters: {
     query: "",
+    synopsis: "",
     yearMin: null,
     yearMax: null,
     ratingMin: null,

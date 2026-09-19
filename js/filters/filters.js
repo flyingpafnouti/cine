@@ -2,6 +2,8 @@ import { fold } from "../utils/values.js";
 import { dimension } from "../analysis/pivot.js";
 export function matches(m, f) {
   if (f.query && !m.search.includes(fold(f.query).trim())) return false;
+  const synopsis = fold(f.synopsis).trim();
+  if (synopsis && !fold(m.synopsis).includes(synopsis)) return false;
   for (const [key, field, mode] of [
     ["yearMin", "year", 1],
     ["yearMax", "year", -1],

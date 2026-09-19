@@ -6,6 +6,21 @@ test.beforeEach(async ({ page }) => {
   });
   await expect(page.locator("#table-view tbody tr")).toHaveCount(50);
 });
+test("synopsis hard constraint filters results and resets", async ({ page }) => {
+  const field = page.getByLabel("Texte contenu dans le synopsis");
+  await page.locator("#search").fill("Forrest Gump");
+  await expect(page.locator("#table-view tbody tr")).toHaveCount(1);
+  await field.fill("ODYSSEE");
+  await expect(page.locator("#table-view tbody tr")).toHaveCount(1);
+  await field.fill("texte absent du synopsis xyz123");
+  await expect(page.locator("#result-count")).toHaveText("0 films dans votre sélection");
+  await field.fill("");
+  await expect(page.locator("#table-view tbody tr")).toHaveCount(1);
+  await field.fill("ODYSSEE");
+  await page.locator("#reset").click();
+  await expect(field).toHaveValue("");
+  await expect(page.locator("#table-view tbody tr")).toHaveCount(50);
+});
 test("real dataset, required filters, details, comparison, cards, presets, pivot and export", async ({
   page,
 }) => {

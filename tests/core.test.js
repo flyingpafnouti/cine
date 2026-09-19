@@ -68,6 +68,18 @@ const rows = [
   },
 ];
 const movies = normalize(rows).movies;
+test("synopsis constraint matches literal text only in synopsis, ignoring case and accents", () => {
+  const f = { ...defaults().filters, synopsis: "  UNE ODYSSEE  " };
+  const movie = { ...movies[0], synopsis: "Une odyssée à travers le temps." };
+  assert.equal(matches(movie, f), true);
+  assert.equal(matches({ ...movie, synopsis: "Une autre aventure", search: "une odyssee" }, f), false);
+  for (const synopsis of [null, undefined, ""])
+    assert.equal(matches({ ...movie, synopsis }, f), false);
+  assert.equal(matches(movie, { ...f, synopsis: ".*" }), false);
+  assert.equal(matches(movie, { ...f, yearMin: 2000 }), false);
+  for (const synopsis of ["", "   ", undefined])
+    assert.equal(matches({ ...movie, synopsis: null }, { ...f, synopsis }), true);
+});
 test("CSV: quotes, embedded delimiter, newline, BOM and escaped quote", () => {
   const v = parseCSV('\uFEFFtitle;genre\r\n"A;B";"line\nnext"\r\n"C""D";Drame');
   assert.deepEqual(v.rows, [

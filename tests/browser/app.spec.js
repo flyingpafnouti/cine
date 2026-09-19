@@ -7,6 +7,7 @@ test.beforeEach(async ({ page }) => {
   await expect(page.locator("#table-view tbody tr")).toHaveCount(50);
 });
 test("synopsis hard constraint filters results and resets", async ({ page }) => {
+  await page.getByText("Autres contraintes", { exact: true }).click();
   const field = page.getByLabel("Texte contenu dans le synopsis");
   await page.locator("#search").fill("Forrest Gump");
   await expect(page.locator("#table-view tbody tr")).toHaveCount(1);
@@ -30,9 +31,17 @@ test.describe("Android synopsis input", () => {
   const { defaultBrowserType, ...mobileOptions } = devices["Pixel 7"];
   test.use(mobileOptions);
   test("synopsis accepts keyboard composition and change, and removes its chip", async ({ page }) => {
+    await page.getByText("Autres contraintes", { exact: true }).tap();
     const field = page.getByLabel("Texte contenu dans le synopsis");
     await page.locator("#search").fill("Forrest Gump");
     await expect(page.locator("#table-view tbody tr")).toHaveCount(1);
+    const country = page.locator('#hard-form [name="country"]');
+    await country.fill("nationalité absente xyz123");
+    await expect(page.locator("#result-count")).toHaveText("0 films dans votre sélection");
+    await country.fill("");
+    await expect(page.locator("#table-view tbody tr")).toHaveCount(1);
+    await field.fill("texte absent xyz123");
+    await expect(page.locator("#result-count")).toHaveText("0 films dans votre sélection");
     await field.fill("ODYSSEE");
     const chip = page.locator("#active-filters").getByRole("button", { name: "Synopsis contient : ODYSSEE ×" });
     await expect(chip).toBeVisible();

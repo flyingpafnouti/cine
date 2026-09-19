@@ -50,19 +50,6 @@
         </div>
         <form id="hard-form">
           <div class="filter-section">
-            <h3>Synopsis</h3>
-            <label
-              >Texte contenu dans le synopsis<input
-                type="text"
-                name="synopsis"
-                placeholder="Ex. : voyage dans le temps"
-                aria-describedby="synopsis-help"
-            /></label>
-            <p id="synopsis-help" class="muted">
-              Sans distinction de majuscules ni d’accents.
-            </p>
-          </div>
-          <div class="filter-section">
             <h3>Année de sortie</h3>
             <div class="pair">
               <label
@@ -191,6 +178,15 @@
             ><label
               >Nationalité<input name="country" placeholder="Ex. français"
             /></label>
+            <label
+              >Texte contenu dans le synopsis<input
+                name="synopsis"
+                placeholder="Ex. : voyage dans le temps"
+                aria-describedby="synopsis-help"
+            /></label>
+            <p id="synopsis-help" class="hint">
+              Sans distinction de majuscules ni d’accents.
+            </p>
             <div class="pair">
               <label
                 >Durée min. (min)<input

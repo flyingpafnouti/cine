@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, devices } from "@playwright/test";
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
   await expect(page.locator("#result-count")).toContainText("90", {
@@ -12,6 +12,11 @@ test("synopsis hard constraint filters results and resets", async ({ page }) => 
   await expect(page.locator("#table-view tbody tr")).toHaveCount(1);
   await field.fill("ODYSSEE");
   await expect(page.locator("#table-view tbody tr")).toHaveCount(1);
+  const chip = page.locator("#active-filters").getByRole("button", { name: "Synopsis contient : ODYSSEE ×" });
+  await expect(chip).toBeVisible();
+  await chip.click();
+  await expect(field).toHaveValue("");
+  await expect(chip).toHaveCount(0);
   await field.fill("texte absent du synopsis xyz123");
   await expect(page.locator("#result-count")).toHaveText("0 films dans votre sélection");
   await field.fill("");
@@ -20,6 +25,33 @@ test("synopsis hard constraint filters results and resets", async ({ page }) => 
   await page.locator("#reset").click();
   await expect(field).toHaveValue("");
   await expect(page.locator("#table-view tbody tr")).toHaveCount(50);
+});
+test.describe("Android synopsis input", () => {
+  const { defaultBrowserType, ...mobileOptions } = devices["Pixel 7"];
+  test.use(mobileOptions);
+  test("synopsis accepts keyboard composition and change, and removes its chip", async ({ page }) => {
+    const field = page.getByLabel("Texte contenu dans le synopsis");
+    await page.locator("#search").fill("Forrest Gump");
+    await expect(page.locator("#table-view tbody tr")).toHaveCount(1);
+    await field.fill("ODYSSEE");
+    const chip = page.locator("#active-filters").getByRole("button", { name: "Synopsis contient : ODYSSEE ×" });
+    await expect(chip).toBeVisible();
+    await expect(page.locator("#table-view tbody tr")).toHaveCount(1);
+    await field.evaluate((input) => {
+      input.value = "texte absent xyz123";
+      input.dispatchEvent(new CompositionEvent("compositionend", { bubbles: true, data: input.value }));
+    });
+    await expect(page.locator("#result-count")).toHaveText("0 films dans votre sélection");
+    await field.evaluate((input) => {
+      input.value = "ODYSSEE";
+      input.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+    await expect(page.locator("#table-view tbody tr")).toHaveCount(1);
+    await chip.tap();
+    await expect(field).toHaveValue("");
+    await expect(chip).toHaveCount(0);
+    await expect(page.locator("#active-filters")).toContainText("Recherche Forrest Gump");
+  });
 });
 test("real dataset, required filters, details, comparison, cards, presets, pivot and export", async ({
   page,

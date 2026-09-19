@@ -66,7 +66,7 @@ export function setupControls(state, update) {
   for (const kind of ["hard", "soft"]) {
     const form = $("#" + kind + "-form");
     form.onsubmit = (e) => e.preventDefault();
-    form.addEventListener("input", (e) => {
+    const applyInput = (e) => {
       const t = e.target;
       if (!t.name || !t.checkValidity()) return;
       const dest =
@@ -95,7 +95,10 @@ export function setupControls(state, update) {
           : value;
       updateWeightLabels(state);
       update();
-    });
+    };
+    form.addEventListener("input", applyInput);
+    form.addEventListener("change", applyInput);
+    form.addEventListener("compositionend", applyInput);
   }
   $("#genre-search").oninput = (e) => {
     const q = e.target.value.toLocaleLowerCase("fr");

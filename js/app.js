@@ -123,6 +123,7 @@ function activeFilters() {
     nodes = [];
   const names = {
     query: "Recherche",
+    synopsis: "Synopsis contient :",
     yearMin: "Année ≥",
     yearMax: "Année ≤",
     ratingMin: "Note ≥",
@@ -135,7 +136,7 @@ function activeFilters() {
     pressMin: "Presse ≥",
   };
   for (const [k, label] of Object.entries(names))
-    if (f[k] !== null && f[k] !== "")
+    if (f[k] != null && String(f[k]).trim() !== "")
       nodes.push(
         el(
           "button",

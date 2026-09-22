@@ -34,6 +34,7 @@ export const labels = {
   vod: "Disponibilité VOD",
 };
 export function modal(title, ...nodes) {
+  delete $("#modal").dataset.film;
   $("#modal-title").textContent = title;
   $("#modal-notice").textContent = "";
   $("#modal-body").replaceChildren(...nodes);

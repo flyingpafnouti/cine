@@ -59,7 +59,7 @@ for (const legacyEngine of [false, true]) {
 test(`readable archive preserves titles with ${legacyEngine ? "older cached" : "current"} engine`, async ({ page }) => {
   let legacyEngineServed = false;
   if (legacyEngine) {
-    await page.route("**/js/engine.js", async (route) => {
+    await page.route("**/js/engine.js*", async (route) => {
       const response = await route.fetch();
       const body = (await response.text()).replace('if (type === "listMetadata")', 'if (type === "unsupportedMetadata")');
       legacyEngineServed = true;

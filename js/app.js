@@ -9,7 +9,7 @@ import { renderResults, showDetails, renderPivot } from "./ui/results.js";
 import { importDialog, mappingDialog } from "./ui/import.js";
 import { setupPresets } from "./ui/presets-ui.js";
 import { csv, download } from "./export/export.js";
-const worker = new Worker(new URL("./worker.js", import.meta.url), {
+const worker = new Worker(new URL("./worker.js?v=film-navigation-1", import.meta.url), {
   type: "module",
 });
 const requests = new Map();
@@ -344,13 +344,20 @@ function selectMovie(id, checked) {
   checked ? state.selected.add(id) : state.selected.delete(id);
   $("#compare-count").textContent = state.selected.size;
 }
+let detailRevision = 0;
 async function detail(id) {
+  const revision = ++detailRevision;
   try {
-    showDetails(
-      await request("details", { ids: [id], scoring: state.config.scoring }),
-    );
+    const movies = await request("details", { ids: [id], scoring: state.config.scoring, navigation: true });
+    if (revision !== detailRevision) return;
+    const focusedButton = document.activeElement.id;
+    showDetails(movies, detail);
+    if (["film-previous", "film-next"].includes(focusedButton)) {
+      const button = $("#" + focusedButton);
+      (button && !button.disabled ? button : $("#modal-close")).focus({ preventScroll: true });
+    }
   } catch (e) {
-    notice(e.message);
+    if (revision === detailRevision) notice(e.message);
   }
 }
 async function updatePivot() {
@@ -372,7 +379,35 @@ async function updatePivot() {
 setupControls(state, schedule);
 syncControls(state);
 $("#modal-close").onclick = () => $("#modal").close();
-$("#modal").addEventListener("close", () => $("#modal-body").replaceChildren());
+$("#modal").addEventListener("close", () => {
+  detailRevision++;
+  $("#modal-body").replaceChildren();
+});
+let backdropPointerDown = false;
+function outsideDialog(event) {
+  const box = $("#modal").getBoundingClientRect();
+  return event.clientX < box.left || event.clientX > box.right ||
+    event.clientY < box.top || event.clientY > box.bottom;
+}
+$("#modal").addEventListener("pointerdown", (event) => {
+  backdropPointerDown = event.target === $("#modal") && outsideDialog(event);
+});
+$("#modal").addEventListener("click", (event) => {
+  if (backdropPointerDown && event.target === $("#modal") && outsideDialog(event) &&
+      $("#modal").dataset.film === "true") $("#modal").close();
+  backdropPointerDown = false;
+});
+$("#modal").addEventListener("keydown", (event) => {
+  if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey ||
+      event.target.closest("input, textarea, select, [contenteditable], video")) return;
+  const selector = event.key === "ArrowLeft" ? "#film-previous" :
+    event.key === "ArrowRight" ? "#film-next" : null;
+  const button = selector && $(selector);
+  if (button && !button.disabled) {
+    event.preventDefault();
+    button.click();
+  }
+});
 $("#search").oninput = (e) => {
   state.config.filters.query = e.target.value;
   schedule();

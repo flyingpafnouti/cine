@@ -329,9 +329,17 @@ export function renderResults(data, state, { detail, select, sort, favorite, wat
     $("#view-" + view).setAttribute("aria-pressed", state.config.view === view);
   }
 }
-export function showDetails(movies) {
+export function showDetails(movies, onNavigate) {
+  const navigation = movies.length === 1 && onNavigate ? movies[0].navigation : null;
   modal(
     movies.length > 1 ? "Comparer les films" : "Comprendre ce film",
+    ...(navigation ? [el("nav", { class: "film-navigation", "aria-label": "Parcourir les films" },
+      el("button", { id: "film-previous", "aria-label": "Film précédent", disabled: !navigation.previous,
+        onclick: () => onNavigate(navigation.previous) }, "←"),
+      el("span", { role: "status" }, `${navigation.position} / ${navigation.total}`),
+      el("button", { id: "film-next", "aria-label": "Film suivant", disabled: !navigation.next,
+        onclick: () => onNavigate(navigation.next) }, "→"),
+    )] : []),
     el(
       "div",
       { class: "detail-grid" },
@@ -419,6 +427,8 @@ export function showDetails(movies) {
       ),
     ),
   );
+  $("#modal").dataset.film = "true";
+  $("#modal").scrollTop = 0;
 }
 export function renderPivot(data, onCell) {
   const cells = new Map(data.cells.map((c) => [c.key, c]));

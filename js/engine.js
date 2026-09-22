@@ -101,6 +101,15 @@ export function execute(type, p) {
   if (type === "details")
     return movies
       .filter((m) => p.ids.includes(m.id))
-      .map((m) => ({ ...m, ...score(m, p.scoring, ctx) }));
+      .map((m) => {
+        const index = p.navigation ? results.findIndex((row) => row.id === m.id) : -1;
+        return { ...m, ...score(m, p.scoring, ctx),
+          navigation: index < 0 ? null : {
+            previous: results[index - 1]?.id ?? null,
+            next: results[index + 1]?.id ?? null,
+            position: index + 1, total: results.length,
+          },
+        };
+      });
   throw Error("Opération inconnue.");
 }

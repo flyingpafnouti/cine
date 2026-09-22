@@ -1,5 +1,6 @@
 import { writeFavorites } from "./storage/favorites.js";
 import { writeWatched } from "./storage/watched.js";
+import { exportLists, parseLists, readListMetadata, saveImportedLists } from "./storage/lists.js";
 import { showDatasetInfo } from "./ui/dataset-ui.js";
 import { state, defaults } from "./state.js";
 import { $, el, fmt, modal, notice } from "./ui/dom.js";
@@ -239,6 +240,67 @@ function activeFilters() {
     );
   $("#active-filters").replaceChildren(...nodes);
 }
+$("#lists-export").onclick = async () => {
+  if (!state.summary) {
+    notice("Attendez la fin du chargement du catalogue pour exporter les titres et les années.");
+    return;
+  }
+  $("#lists-export").disabled = true;
+  try {
+    const favorites = new Set(state.favorites), watched = new Set(state.watched);
+    const ids = [...new Set([...favorites, ...watched])];
+    let films;
+    try {
+      films = await request("listMetadata", { ids });
+    } catch (error) {
+      if (error.message !== "Opération inconnue.") throw error;
+      // An older cached engine still supports the details operation.
+      const details = await request("details", { ids, scoring: state.config.scoring });
+      films = details.map(({ id, title, year }) => ({ id, titre: title, annee: year ?? null }));
+    }
+    const metadata = new Map(readListMetadata().map((film) => [film.id, film]));
+    for (const film of films) {
+      const old = metadata.get(film.id);
+      metadata.set(film.id, { ...film, annee: film.annee ?? old?.annee ?? null });
+    }
+    download(exportLists(favorites, watched, [...metadata.values()]),
+      `cinescope-mes-listes-${new Date().toISOString().slice(0, 10)}.json`, "application/json");
+  } catch (error) {
+    notice("Export impossible : " + error.message);
+  } finally {
+    $("#lists-export").disabled = false;
+  }
+};
+$("#lists-import").onclick = () => $("#lists-file").click();
+$("#lists-file").onchange = async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+  $("#lists-import").disabled = true;
+  try {
+    if (file.size > 10 * 1024 * 1024) throw Error("Ce fichier est trop volumineux (maximum 10 Mo).");
+    const imported = parseLists(await file.text());
+    const favorites = new Set([...state.favorites, ...imported.favorites]);
+    const watched = new Set([...state.watched, ...imported.watched]);
+    const addedFavorites = favorites.size - state.favorites.size;
+    const addedWatched = watched.size - state.watched.size;
+    try {
+      saveImportedLists(favorites, watched, imported.films);
+    } catch {
+      throw Error("Impossible d’enregistrer les listes : le stockage du navigateur est indisponible ou plein.");
+    }
+    state.favorites = favorites;
+    state.watched = watched;
+    state.page = 1;
+    await refresh();
+    notice(`Listes fusionnées : ${addedFavorites} favori(s) et ${addedWatched} film(s) déjà vu(s) ajoutés. Les films absents du catalogue restent mémorisés.`);
+  } catch (error) {
+    notice(error.message);
+  } finally {
+    event.target.value = "";
+    $("#lists-import").disabled = false;
+  }
+};
+
 function toggleFavorite(id) {
   const next = new Set(state.favorites);
   next.has(id) ? next.delete(id) : next.add(id);

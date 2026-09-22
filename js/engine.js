@@ -91,6 +91,11 @@ export function execute(type, p) {
       total: results.length,
     };
   }
+  if (type === "listMetadata") {
+    const ids = new Set(p.ids);
+    return movies.filter((movie) => ids.has(movie.id))
+      .map(({ id, title, year }) => ({ id, titre: title, annee: year ?? null }));
+  }
   if (type === "pivot") return pivot(results, p.row, p.col, p.metric);
   if (type === "export") return results.map(({ search, ...m }) => m);
   if (type === "details")

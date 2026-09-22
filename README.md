@@ -155,6 +155,29 @@ Les statistiques, tableaux croisés et exports portent sur toute la sélection
 courante, **Top N compris**, indépendamment de la pagination. Le Top suit le tri
 choisi ; sélectionner le tri par score pour obtenir un Top selon les préférences.
 
+## Transférer les favoris et les films déjà vus
+
+Sous les boutons d’affichage, cliquez sur **Exporter mes listes** pour télécharger
+un fichier JSON contenant tous vos favoris et films déjà vus, quels que soient les
+filtres actifs. Transférez ce fichier sur l’autre machine puis cliquez sur
+**Charger mes listes** et sélectionnez-le.
+
+Le chargement fusionne les deux listes avec celles du navigateur, sans doublons
+ni suppression. Les listes sont conservées après rechargement de la page.
+Les identifiants absents du catalogue restent mémorisés ; pour retrouver les mêmes
+films, utilisez le même catalogue sur les deux machines. Les suppressions ne sont
+pas propagées et il n’y a pas de synchronisation automatique.
+
+Le fichier contient une section `films` lisible avec les titres (`titre`), années
+(`annee`) et statuts (`favori`, `dejaVu`), ainsi que les identifiants nécessaires
+à l’import. Il peut être lu dans un éditeur de texte sans l’application.
+Une valeur `null` indique un titre ou une année inconnus. Les anciens fichiers
+contenant seulement les identifiants restent acceptés. Les titres et années
+importés sont conservés pour les exports suivants, même si le film est absent
+du catalogue. Attendez le chargement du catalogue avant d’exporter. Cette fonction
+est distincte de l’import de dataset et des exports CSV/JSON des résultats.
+Les fichiers invalides ou supérieurs à 10 Mo sont refusés.
+
 ## Disponibilité en VOD
 
 Ce critère est disponible comme **contrainte forte** et comme **préférence

@@ -35,6 +35,7 @@ export const labels = {
 };
 export function modal(title, ...nodes) {
   delete $("#modal").dataset.film;
+  $("#modal").navigateFilm = null;
   $("#modal-title").textContent = title;
   $("#modal-notice").textContent = "";
   $("#modal-body").replaceChildren(...nodes);

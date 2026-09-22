@@ -350,12 +350,8 @@ async function detail(id) {
   try {
     const movies = await request("details", { ids: [id], scoring: state.config.scoring, navigation: true });
     if (revision !== detailRevision) return;
-    const focusedButton = document.activeElement.id;
     showDetails(movies, detail);
-    if (["film-previous", "film-next"].includes(focusedButton)) {
-      const button = $("#" + focusedButton);
-      (button && !button.disabled ? button : $("#modal-close")).focus({ preventScroll: true });
-    }
+    $("#modal-close").focus({ preventScroll: true });
   } catch (e) {
     if (revision === detailRevision) notice(e.message);
   }
@@ -400,14 +396,29 @@ $("#modal").addEventListener("click", (event) => {
 $("#modal").addEventListener("keydown", (event) => {
   if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey ||
       event.target.closest("input, textarea, select, [contenteditable], video")) return;
-  const selector = event.key === "ArrowLeft" ? "#film-previous" :
-    event.key === "ArrowRight" ? "#film-next" : null;
-  const button = selector && $(selector);
-  if (button && !button.disabled) {
-    event.preventDefault();
-    button.click();
-  }
+  const direction = event.key === "ArrowLeft" ? "previous" :
+    event.key === "ArrowRight" ? "next" : null;
+  if (direction && $("#modal").navigateFilm?.(direction)) event.preventDefault();
 });
+let swipeStart = null;
+$("#modal").addEventListener("touchstart", (event) => {
+  swipeStart = null;
+  if (event.touches.length !== 1 ||
+      event.target.closest("input, textarea, select, [contenteditable], video, iframe, button, a")) return;
+  const touch = event.touches[0];
+  swipeStart = { x: touch.clientX, y: touch.clientY };
+}, { passive: true });
+$("#modal").addEventListener("touchcancel", () => { swipeStart = null; });
+$("#modal").addEventListener("touchend", (event) => {
+  const start = swipeStart;
+  swipeStart = null;
+  if (!start || event.touches.length || event.changedTouches.length !== 1) return;
+  const touch = event.changedTouches[0];
+  const dx = touch.clientX - start.x, dy = touch.clientY - start.y;
+  if (Math.abs(dx) >= 70 && Math.abs(dx) > Math.abs(dy) * 2) {
+    $("#modal").navigateFilm?.(dx < 0 ? "next" : "previous");
+  }
+}, { passive: true });
 $("#search").oninput = (e) => {
   state.config.filters.query = e.target.value;
   schedule();

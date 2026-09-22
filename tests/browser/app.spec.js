@@ -4,7 +4,7 @@ test.beforeEach(async ({ page }) => {
   await expect(page.locator("#result-count")).toContainText("90", {
     timeout: 15000,
   });
-  await expect(page.locator("#table-view tbody tr")).toHaveCount(50);
+  await expect(page.locator("#table-view tbody tr")).toHaveCount(250);
 });
 test("synopsis hard constraint filters results and resets", async ({ page }) => {
   const field = page.getByLabel("Texte contenu dans le synopsis");
@@ -34,7 +34,7 @@ test("synopsis hard constraint filters results and resets", async ({ page }) => 
   await field.fill("ODYSSEE");
   await page.locator("#reset").click();
   await expect(field).toHaveValue("");
-  await expect(page.locator("#table-view tbody tr")).toHaveCount(50);
+  await expect(page.locator("#table-view tbody tr")).toHaveCount(250);
 });
 test.describe("Android synopsis input", () => {
   const { defaultBrowserType, ...mobileOptions } = devices["Pixel 7"];
@@ -224,7 +224,9 @@ test("pagination, persistent preset rename/delete, CSV export and real mobile da
   page,
 }) => {
   await page.locator("#next").click();
-  await expect(page.locator("#page-label")).toHaveText("2 / 1816");
+  await expect(page.locator("#page-label")).toHaveText("2 / 364");
+  await page.locator("#page-size").selectOption("50");
+  await expect(page.locator("#table-view tbody tr")).toHaveCount(50);
   await page.locator("#page-size").selectOption("250");
   await expect(page.locator("#table-view tbody tr")).toHaveCount(250);
   await expect(page.locator("#page-label")).toHaveText("1 / 364");
@@ -236,7 +238,7 @@ test("pagination, persistent preset rename/delete, CSV export and real mobile da
   await page.getByLabel("Nom de la configuration").fill("Classiques");
   await page.locator("#modal-body button").click();
   await page.reload();
-  await expect(page.locator("#table-view tbody tr")).toHaveCount(50);
+  await expect(page.locator("#table-view tbody tr")).toHaveCount(250);
   await page.locator("#preset-select").selectOption({ label: "Classiques" });
   await page.locator("#preset-load").click();
   await expect(page.locator("#table-view tbody tr")).toHaveCount(250);
@@ -258,7 +260,7 @@ test("pagination, persistent preset rename/delete, CSV export and real mobile da
   const file = await pending;
   await file.saveAs("artifacts/top10.csv");
   await page.locator("#reset").click();
-  await expect(page.locator("#table-view tbody tr")).toHaveCount(50);
+  await expect(page.locator("#table-view tbody tr")).toHaveCount(250);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.screenshot({ path: "artifacts/mobile-real.png", fullPage: true });
   expect(
@@ -343,7 +345,7 @@ test("favorites persist and can be filtered and removed from cards", async ({ pa
   await expect(page.locator("#cards-view")).toContainText("Aucun favori");
   await expect(page.locator("#favorites-only")).toHaveText("★ Favoris (0)");
   await page.locator("#favorites-only").click();
-  await expect(page.locator("#cards-view .card")).toHaveCount(50);
+  await expect(page.locator("#cards-view .card")).toHaveCount(250);
   await page.reload();
   await expect(page.locator("#favorites-only")).toHaveText("★ Favoris (0)");
 });
@@ -387,7 +389,7 @@ test("watched films persist, filter as a tab and hide from hard constraints", as
   await page.locator("#watched-only").click();
   // Hard constraint: hide already-watched films.
   await page.locator("#hard-form [name=watched]").selectOption("unseen");
-  await expect(page.locator("#table-view tbody tr")).toHaveCount(50);
+  await expect(page.locator("#table-view tbody tr")).toHaveCount(250);
   await expect(page.locator("#table-view .title-button").first()).not.toHaveText(title);
   await expect(page.locator("#active-filters")).toContainText("Masquer les vus");
   // Reset clears the watched filter and toggle but keeps the saved list.

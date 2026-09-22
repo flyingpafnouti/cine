@@ -3,6 +3,14 @@ import { readPresets, writePresets } from "../storage/presets.js";
 import { defaults } from "../state.js";
 import { syncControls } from "./controls.js";
 export function setupPresets(state, refresh) {
+  let loadedId = "";
+  function updateButton() {
+    const loaded = readPresets().find((preset) => preset.id === loadedId);
+    if (!loaded) loadedId = "";
+    const button = $("#preset-update");
+    button.disabled = !loaded || $("#preset-select").value !== loadedId;
+    button.textContent = loaded ? `Mettre à jour « ${loaded.name} »` : "Mettre à jour";
+  }
   function presetsUI(selected = "") {
     const p = readPresets();
     $("#preset-select").replaceChildren(
@@ -10,6 +18,7 @@ export function setupPresets(state, refresh) {
       ...p.map((v) => el("option", { value: v.id }, v.name)),
     );
     $("#preset-select").value = selected;
+    updateButton();
   }
   function savePresets(p, id) {
     try {
@@ -17,8 +26,10 @@ export function setupPresets(state, refresh) {
       presetsUI(id);
       notice("Configuration enregistrée dans ce navigateur.");
       $("#modal").close();
+      return true;
     } catch {
       notice("Stockage local indisponible ou plein.");
+      return false;
     }
   }
   function nameDialog(title, initial, callback) {
@@ -55,7 +66,10 @@ export function setupPresets(state, refresh) {
           crypto.randomUUID?.() ??
           Date.now() + "-" + Math.random().toString(36).slice(2);
       p.push({ id, name, config: structuredClone(state.config) });
-      savePresets(p, id);
+      if (savePresets(p, id)) {
+        loadedId = id;
+        updateButton();
+      }
     });
   $("#preset-load").onclick = () => {
     const p = readPresets().find((p) => p.id === $("#preset-select").value);
@@ -75,9 +89,25 @@ export function setupPresets(state, refresh) {
       },
     };
     state.page = 1;
+    loadedId = p.id;
+    updateButton();
     syncControls(state);
     refresh();
     notice("Configuration « " + p.name + " » chargée.");
+  };
+  $("#preset-select").addEventListener("change", updateButton);
+  $("#preset-update").onclick = () => {
+    const presets = readPresets();
+    const loaded = presets.find((preset) => preset.id === loadedId);
+    if (!loaded || $("#preset-select").value !== loadedId) {
+      updateButton();
+      notice("Chargez la configuration à mettre à jour.");
+      return;
+    }
+    loaded.config = structuredClone(state.config);
+    if (savePresets(presets, loaded.id)) {
+      notice(`Configuration « ${loaded.name} » mise à jour avec les réglages actuels.`);
+    }
   };
   $("#preset-rename").onclick = () => {
     const p = readPresets(),

@@ -141,7 +141,10 @@ sur la date de collecte ni sur des sorties effectivement réalisées.
 5. Cliquer sur un titre ou sur son score pour voir le détail des contributions.
 6. Cocher jusqu’à huit films puis **Comparer**.
 7. Choisir Tous / Top 10 / 25 / 50 / 100, puis exporter en CSV ou JSON, ou copier.
-8. Enregistrer, charger, renommer et supprimer les configurations.
+8. Enregistrer, charger, renommer et supprimer les configurations. Après avoir
+   chargé une configuration et ajusté les réglages, cliquer sur **Mettre à jour**
+   pour remplacer son contenu en conservant son nom. **Enregistrer** crée une
+   nouvelle configuration.
 9. Dans **Analyse**, choisir deux dimensions et une mesure ; cliquer une cellule
    ajoute exactement ses deux contraintes à la sélection.
 
@@ -415,7 +418,7 @@ transmis à l’interface. La recherche normalisée est précalculée par film.
 Les entrées sont temporisées de 180 ms ; les réponses devenues obsolètes
 ne remplacent pas la dernière sélection.
 
-Pagination 50 / 100 / 250, indépendamment du Top N.
+Pagination 50 / 100 / 250, avec 250 films par page par défaut, indépendamment du Top N.
 Les tableaux croisés très larges défilent horizontalement ; croiser Année × Année
 produit davantage de cellules DOM et peut être moins confortable sur mobile.
 

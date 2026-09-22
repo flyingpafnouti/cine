@@ -333,13 +333,8 @@ export function showDetails(movies, onNavigate) {
   const navigation = movies.length === 1 && onNavigate ? movies[0].navigation : null;
   modal(
     movies.length > 1 ? "Comparer les films" : "Comprendre ce film",
-    ...(navigation ? [el("nav", { class: "film-navigation", "aria-label": "Parcourir les films" },
-      el("button", { id: "film-previous", "aria-label": "Film précédent", disabled: !navigation.previous,
-        onclick: () => onNavigate(navigation.previous) }, "←"),
-      el("span", { role: "status" }, `${navigation.position} / ${navigation.total}`),
-      el("button", { id: "film-next", "aria-label": "Film suivant", disabled: !navigation.next,
-        onclick: () => onNavigate(navigation.next) }, "→"),
-    )] : []),
+    ...(navigation ? [el("p", { class: "hint", role: "status", id: "film-position" },
+      `${navigation.position} / ${navigation.total} · Navigation : touches ← → ou balayage horizontal.`)] : []),
     el(
       "div",
       { class: "detail-grid" },
@@ -427,6 +422,12 @@ export function showDetails(movies, onNavigate) {
       ),
     ),
   );
+  $("#modal").navigateFilm = navigation ? (direction) => {
+    const id = navigation[direction];
+    if (!id || !$("#modal").open) return false;
+    onNavigate(id);
+    return true;
+  } : null;
   $("#modal").dataset.film = "true";
   $("#modal").scrollTop = 0;
 }

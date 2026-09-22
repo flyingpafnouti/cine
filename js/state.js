@@ -53,7 +53,7 @@ export const defaults = () => ({
   },
   sorting: { field: "score", direction: "desc" },
   view: "table",
-  pageSize: 50,
+  pageSize: 250,
   top: 0,
 });
 export const state = {

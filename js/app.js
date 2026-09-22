@@ -8,6 +8,7 @@ import { setupControls, syncControls, renderGenres } from "./ui/controls.js";
 import { renderResults, showDetails, renderPivot } from "./ui/results.js";
 import { importDialog, mappingDialog } from "./ui/import.js";
 import { setupPresets } from "./ui/presets-ui.js";
+import { setupApiSettings } from "./ui/api-settings.js";
 import { csv, download } from "./export/export.js";
 const worker = new Worker(new URL("./worker.js?v=film-navigation-1", import.meta.url), {
   type: "module",
@@ -373,6 +374,7 @@ async function updatePivot() {
   });
 }
 setupControls(state, schedule);
+setupApiSettings();
 syncControls(state);
 $("#modal-close").onclick = () => $("#modal").close();
 $("#modal").addEventListener("close", () => {

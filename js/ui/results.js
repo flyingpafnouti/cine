@@ -1,7 +1,6 @@
 import { el, $, fmt, modal, labels } from "./dom.js";
 import {
-  readApiKey,
-  writeApiKey,
+  readApiKeys,
   findTrailer,
 } from "../storage/youtube.js";
 const tags = (m) => m.genres.map((g) => el("span", { class: "tag" }, g));
@@ -39,65 +38,20 @@ function embed(section, videoId, title) {
 function trailerSection(m) {
   const query = [m.title, m.year, "bande annonce vf"].filter(Boolean).join(" ");
   const section = el("section", { class: "trailer" });
-  const keyForm = (message) => {
-    const input = el("input", {
-      type: "password",
-      class: "trailer-key",
-      placeholder: "Clé API YouTube Data v3",
-      value: readApiKey(),
-      "aria-label": "Clé API YouTube Data",
-    });
-    section.replaceChildren(
-      el("h4", {}, "Bande-annonce"),
-      message ? el("p", { class: "hint" }, message) : null,
-      el(
-        "p",
-        { class: "hint" },
-        "Saisissez une clé API YouTube pour afficher la bande-annonce. Elle reste dans votre navigateur.",
-      ),
-      el(
-        "div",
-        { class: "trailer-key-row" },
-        input,
-        el(
-          "button",
-          {
-            class: "button",
-            onclick: () => {
-              writeApiKey(input.value);
-              if (input.value.trim()) load();
-              else keyForm("Clé effacée.");
-            },
-          },
-          "Enregistrer et charger",
-        ),
-      ),
-      searchLink(query),
-    );
-  };
-  const load = () => {
-    const apiKey = readApiKey();
-    if (!apiKey) return keyForm();
-    section.replaceChildren(
-      el("h4", {}, "Bande-annonce"),
-      el("p", { class: "hint" }, "Recherche de la bande-annonce…"),
-    );
-    findTrailer(query, apiKey)
+  const unavailable = (message) => section.replaceChildren(
+    el("h4", {}, "Bande-annonce"),
+    el("p", { class: "hint" }, message),
+    searchLink(query),
+  );
+  if (!readApiKeys().length) {
+    unavailable("Bande-annonce disponible via la recherche YouTube.");
+  } else {
+    section.replaceChildren(el("h4", {}, "Bande-annonce"),
+      el("p", { class: "hint" }, "Recherche de la bande-annonce…"));
+    findTrailer(query)
       .then((videoId) => embed(section, videoId, m.title))
-      .catch((e) =>
-        section.replaceChildren(
-          el("h4", {}, "Bande-annonce"),
-          el("p", { class: "hint" }, e.message),
-          el(
-            "button",
-            { class: "button", onclick: () => keyForm() },
-            "Modifier la clé API",
-          ),
-          searchLink(query),
-        ),
-      );
-  };
-  load();
+      .catch((error) => unavailable(error.message));
+  }
   return section;
 }
 function scoreButton(m, detail) {

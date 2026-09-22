@@ -33,6 +33,22 @@
       ><span class="local">Traitement 100 % local</span>
     </div>
     <div id="notice" role="status" aria-live="polite"></div>
+    <div class="api-settings-row">
+      <details id="api-settings">
+        <summary>Clés API</summary>
+        <div class="api-settings-panel">
+          <label>Clé YouTube utilisée<select id="api-key-select"></select></label>
+          <p class="hint">Passage automatique à la suivante si le quota est épuisé.</p>
+          <div id="api-key-inputs" class="trailer-keys"></div>
+          <div class="api-settings-actions">
+            <button id="api-key-add" class="button">Ajouter une clé</button>
+            <button id="api-key-save" class="button">Enregistrer les clés</button>
+          </div>
+          <p class="hint">Clés conservées dans ce navigateur. Videz un champ pour supprimer une clé, puis enregistrez.</p>
+          <p id="api-key-notice" role="status"></p>
+        </div>
+      </details>
+    </div>
     <main class="layout">
       <aside class="sidebar" aria-label="Configuration de la sélection">
         <div class="section-heading">

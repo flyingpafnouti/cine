@@ -158,6 +158,27 @@ Les statistiques, tableaux croisés et exports portent sur toute la sélection
 courante, **Top N compris**, indépendamment de la pagination. Le Top suit le tri
 choisi ; sélectionner le tri par score pour obtenir un Top selon les préférences.
 
+## Clés API des bandes-annonces
+
+Sur la page principale, le panneau replié **Clés API**, sous la barre des données,
+permet de sélectionner la clé YouTube utilisée et de gérer les clés enregistrées.
+Le choix est conservé après rechargement. Aucun réglage API ne figure dans les fiches.
+Cliquez sur **Ajouter une clé**, saisissez une clé par champ, puis cliquez sur
+**Enregistrer les clés**. Les champs sont masqués ; vider un champ supprime
+la clé lors de l’enregistrement. La clé unique des anciennes versions est reprise.
+
+Lors d’une erreur explicite de quota, la recherche passe à la clé suivante.
+La dernière clé fonctionnelle est réutilisée et les clés épuisées sont ignorées
+jusqu’au jour suivant, selon la date du Pacifique. Chaque clé est essayée au plus
+une fois par recherche. Une erreur réseau ou de configuration ne déclenche pas
+la rotation. Si toutes les clés sont épuisées, le lien de recherche YouTube reste
+disponible. Le cache des bandes-annonces évite les requêtes déjà effectuées.
+
+Les clés sont enregistrées dans le stockage local du navigateur et transmises
+à Google pour les recherches ; elles ne figurent pas dans l’export des listes.
+Plusieurs clés d’un même projet Google partagent son quota, comme décrit dans
+la [documentation YouTube](https://developers.google.com/youtube/v3/getting-started#quota).
+
 ## Transférer les favoris et les films déjà vus
 
 Sous les boutons d’affichage, cliquez sur **Exporter mes listes** pour télécharger

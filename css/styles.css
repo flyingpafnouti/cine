@@ -1042,3 +1042,45 @@ dialog::backdrop {
   border: 1px solid #cbd5e1;
   border-radius: 8px;
 }
+.trailer-keys {
+  display: grid;
+  gap: 8px;
+  flex: 1 1 220px;
+  min-width: 0;
+}
+.trailer-keys .trailer-key {
+  width: 100%;
+  min-width: 0;
+}
+.api-settings-row {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 24px;
+}
+#api-settings {
+  max-width: 100%;
+  font-size: 13px;
+  color: var(--muted);
+}
+#api-settings > summary {
+  cursor: pointer;
+  padding: 6px 0;
+  text-align: right;
+}
+.api-settings-panel {
+  width: min(360px, 100%);
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+}
+.api-settings-panel label {
+  display: grid;
+  gap: 5px;
+}
+.api-settings-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}

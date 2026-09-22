@@ -349,7 +349,7 @@ test("favorites persist and can be filtered and removed from cards", async ({ pa
   await page.reload();
   await expect(page.locator("#favorites-only")).toHaveText("★ Favoris (0)");
 });
-test("detail view asks for a YouTube key then embeds the trailer", async ({ page }) => {
+test("main panel configures a YouTube key and detail embeds the trailer", async ({ page }) => {
   await page.route("**/youtube/v3/search**", (route) =>
     route.fulfill({
       status: 200,
@@ -359,11 +359,13 @@ test("detail view asks for a YouTube key then embeds the trailer", async ({ page
   );
   const row = page.locator("#table-view tbody tr").first();
   await row.locator(".title-button").click();
-  // No key yet: the key form and the fallback search link are shown.
-  await expect(page.locator("#modal .trailer-key")).toHaveCount(1);
+  await expect(page.locator("#modal .trailer-key")).toHaveCount(0);
   await expect(page.locator("#modal .trailer-link")).toHaveAttribute("target", "_blank");
-  await page.locator("#modal .trailer-key").fill("test-key");
-  await page.locator("#modal .trailer button", { hasText: "Enregistrer" }).click();
+  await page.locator("#modal-close").click();
+  await page.locator("#api-settings summary").click();
+  await page.locator("#api-settings .trailer-key").fill("test-key");
+  await page.locator("#api-key-save").click();
+  await row.locator(".title-button").click();
   const iframe = page.locator("#modal .trailer-frame iframe");
   await expect(iframe).toHaveCount(1);
   await expect(iframe).toHaveAttribute("src", "https://www.youtube-nocookie.com/embed/abc123XYZ_0");

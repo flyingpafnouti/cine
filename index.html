@@ -34,6 +34,18 @@
     </div>
     <div id="notice" role="status" aria-live="polite"></div>
     <div class="api-settings-row">
+      <details id="lists-settings">
+        <summary>Mes listes</summary>
+        <div class="api-settings-panel">
+          <p class="hint">Transférer les favoris et les films déjà vus.</p>
+          <div class="api-settings-actions">
+            <button id="lists-export" class="button">↓ Exporter mes listes</button>
+            <button id="lists-import" class="button">↑ Charger mes listes</button>
+          </div>
+          <input id="lists-file" type="file" accept=".json,application/json" hidden />
+          <p class="hint">Le chargement fusionne vos listes sans suppression.</p>
+        </div>
+      </details>
       <details id="api-settings">
         <summary>Clés API</summary>
         <div class="api-settings-panel">
@@ -355,12 +367,6 @@
           </button>
         </div>
         <div id="active-filters" class="active-filters"></div>
-        <div class="results-heading" role="group" aria-label="Transférer mes listes">
-          <button id="lists-export" class="button">↓ Exporter mes listes</button>
-          <button id="lists-import" class="button">↑ Charger mes listes</button>
-          <input id="lists-file" type="file" accept=".json,application/json" hidden />
-          <span>Favoris et films déjà vus · Le chargement fusionne vos listes sans suppression.</span>
-        </div>
         <div class="toolbar">
           <strong id="result-count">Préparation des films…</strong
           ><label

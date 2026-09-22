@@ -9,6 +9,8 @@ test("lists transfer between browsers, merge, persist and reject invalid input",
   await page.reload();
   await expect(page.locator("#result-count")).toContainText("90", { timeout: 15000 });
   const downloadPromise = page.waitForEvent("download");
+  await expect(page.locator("#lists-export")).not.toBeVisible();
+  await page.locator("#lists-settings summary").click();
   await page.locator("#lists-export").click();
   const download = await downloadPromise;
   const path = await download.path();
@@ -81,6 +83,8 @@ test(`readable archive preserves titles with ${legacyEngine ? "older cached" : "
   await page.locator("#search").fill("aucunfilmxyz123");
   await expect(page.locator("#result-count")).toContainText("0 films");
   const pending = page.waitForEvent("download");
+  await expect(page.locator("#lists-export")).not.toBeVisible();
+  await page.locator("#lists-settings summary").click();
   await page.locator("#lists-export").click();
   const stream = await (await pending).createReadStream();
   const chunks = [];

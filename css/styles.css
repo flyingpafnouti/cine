@@ -1055,14 +1055,17 @@ dialog::backdrop {
 .api-settings-row {
   display: flex;
   justify-content: flex-end;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 0 18px;
   padding: 0 24px;
 }
-#api-settings {
+.api-settings-row > details {
   max-width: 100%;
   font-size: 13px;
   color: var(--muted);
 }
-#api-settings > summary {
+.api-settings-row > details > summary {
   cursor: pointer;
   padding: 6px 0;
   text-align: right;

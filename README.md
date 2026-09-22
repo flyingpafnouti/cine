@@ -181,7 +181,8 @@ la [documentation YouTube](https://developers.google.com/youtube/v3/getting-star
 
 ## Transférer les favoris et les films déjà vus
 
-Sous les boutons d’affichage, cliquez sur **Exporter mes listes** pour télécharger
+En haut à droite, à côté de **Clés API**, dépliez **Mes listes**, puis cliquez sur
+**Exporter mes listes** pour télécharger
 un fichier JSON contenant tous vos favoris et films déjà vus, quels que soient les
 filtres actifs. Transférez ce fichier sur l’autre machine puis cliquez sur
 **Charger mes listes** et sélectionnez-le.

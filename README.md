@@ -30,6 +30,24 @@ Les presets sont conservés dans le stockage local de cette origine
 exportez votre travail avant de fermer la page. Au rechargement, les deux datasets fournis
 sont à nouveau chargés ; les presets restent disponibles.
 
+## Analytics
+
+Le site utilise Cloudflare Web Analytics pour mesurer anonymement sa fréquentation
+et ses performances. Le snippet officiel se trouve à la fin de `index.html`, juste
+après le script principal de l’application.
+
+Pour terminer ou modifier la configuration :
+
+1. ouvrir **Web Analytics** dans le dashboard Cloudflare ;
+2. ajouter ou sélectionner le site correspondant au hostname public GitHub Pages ;
+3. récupérer le snippet et le token associés au site ;
+4. dans `index.html`, remplacer `CLOUDFLARE_ANALYTICS_TOKEN` par ce token, ou
+   remplacer le bloc Cloudflare complet par le snippet fourni par le dashboard ;
+5. redéployer GitHub Pages.
+
+Le token de site utilisé par le beacon n’est pas une clé API Cloudflare. Aucune
+clé API ni autre secret Cloudflare ne doit être ajouté au repository.
+
 ## Complément Allociné 2026 et synopsis
 
 Le brut historique est conservé et enrichi au démarrage avec le CSV

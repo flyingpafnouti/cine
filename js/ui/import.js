@@ -42,7 +42,7 @@ export function importDialog(onLoad) {
     el(
       "p",
       {},
-      "Le fichier reste dans votre navigateur. Le format Allociné est reconnu automatiquement ; les autres colonnes peuvent être associées manuellement.",
+      "Le fichier reste dans votre navigateur, fusionne avec la collection actuelle et sera restauré aux prochains chargements. Le format Allociné est reconnu automatiquement ; les autres colonnes peuvent être associées manuellement.",
     ),
     el("label", {}, "Fichier", file),
     el("label", {}, "Encodage", encoding),

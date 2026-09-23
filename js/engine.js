@@ -10,12 +10,13 @@ let movies = [],
   results = [],
   summary = {};
 export function execute(type, p) {
-  if (type === "load" || type === "loadCollection") {
+  if (type === "load" || type === "merge" || type === "loadCollection") {
     const inputs = type === "loadCollection" ? p.sources : [p];
-    let next = [],
-      skipped = 0,
-      matched = 0;
-    const sources = [];
+    const append = type === "merge";
+    let next = append ? movies : [],
+      skipped = append ? summary.skipped || 0 : 0,
+      matched = append ? summary.matched || 0 : 0;
+    const sources = append ? [...(summary.sources || [])] : [];
     for (const input of inputs) {
       const source = parseSource(input.text, input.name),
         map = input.mapping || detectMapping(source.headers);

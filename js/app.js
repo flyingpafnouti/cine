@@ -1,5 +1,9 @@
 import { writeFavorites } from "./storage/favorites.js";
 import { writeWatched } from "./storage/watched.js";
+import {
+  readImportedDatasets,
+  saveImportedDataset,
+} from "./storage/datasets.js";
 import { exportLists, parseLists, readListMetadata, saveImportedLists } from "./storage/lists.js";
 import { showDatasetInfo } from "./ui/dataset-ui.js";
 import { state, defaults } from "./state.js";
@@ -10,7 +14,7 @@ import { importDialog, mappingDialog } from "./ui/import.js";
 import { setupPresets } from "./ui/presets-ui.js";
 import { setupApiSettings } from "./ui/api-settings.js";
 import { csv, download } from "./export/export.js";
-const worker = new Worker(new URL("./worker.js?v=film-navigation-1", import.meta.url), {
+const worker = new Worker(new URL("./worker.js?v=dataset-merge-1", import.meta.url), {
   type: "module",
 });
 const requests = new Map();
@@ -81,23 +85,35 @@ async function refresh() {
     notice(e.message);
   }
 }
-async function load(source) {
+async function load(source, merge = false, persist = false) {
   notice("Lecture et normalisation du fichier…");
   try {
     const result = await request(
-      source.sources ? "loadCollection" : "load",
+      source.sources ? "loadCollection" : merge ? "merge" : "load",
       source,
     );
     if (result.mappingRequired) {
       notice("Ce fichier nécessite une association des colonnes.");
-      mappingDialog(result.headers, (map) => load({ ...source, mapping: map }));
+      mappingDialog(result.headers, (map) =>
+        load({ ...source, mapping: map }, merge, persist),
+      );
       return;
+    }
+    let persistenceFailed = false;
+    if (persist) {
+      try {
+        await saveImportedDataset(source);
+      } catch {
+        persistenceFailed = true;
+      }
     }
     state.summary = result;
     state.config = defaults();
     state.page = 1;
     state.selected.clear();
-    datasetName = source.name;
+    datasetName = merge && datasetName
+      ? datasetName + " + " + source.name
+      : source.name;
     $("#compare-count").textContent = "0";
     renderGenres(state);
     syncControls(state);
@@ -111,7 +127,9 @@ async function load(source) {
       datasetName;
     $("#modal").close();
     notice(
-      result.skipped
+      persistenceFailed
+        ? "Dataset fusionné, mais sa conservation après rechargement a échoué."
+        : result.skipped
         ? fmt(result.skipped) + " lignes sans titre ignorées."
         : "",
     );
@@ -443,7 +461,8 @@ $("#reset").onclick = () => {
   notice("");
   refresh();
 };
-$("#import-open").onclick = () => importDialog(load);
+$("#import-open").onclick = () =>
+  importDialog((source) => load(source, true, true));
 $("#sort").onchange = (e) => {
   const [field, direction] = e.target.value.split(":");
   state.config.sorting = { field, direction };
@@ -587,4 +606,10 @@ if (sources.length) {
     "Datasets locaux absents. Placez les CSV dans data/source/ ou utilisez « Importer un dataset ».",
   );
   $("#dataset-status").textContent = "Aucun dataset chargé";
+}
+try {
+  const importedDatasets = await readImportedDatasets();
+  for (const source of importedDatasets) await load(source, true);
+} catch {
+  notice("Les datasets importés enregistrés n’ont pas pu être relus.");
 }

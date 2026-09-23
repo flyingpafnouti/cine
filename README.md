@@ -110,8 +110,9 @@ Mapping automatique du complément :
 
 Les listes de ce format sont séparées par des virgules, contrairement aux listes
 Python du brut. Le format est reconnu à l’import sans mapping manuel.
-Un import utilisateur remplace toujours la collection en mémoire ; le rapprochement
-automatique concerne les deux fichiers livrés. Si l’un des fichiers manque au
+Un import utilisateur fusionne avec la collection en mémoire en utilisant le même
+rapprochement prudent que les deux fichiers livrés. Il est conservé dans IndexedDB
+et restauré après un rechargement de la page. Si l’un des fichiers manque au
 démarrage, l’autre reste utilisable et un message précise lequel a été chargé.
 
 ## Source historique et inventaire réellement mesuré
@@ -239,7 +240,8 @@ Pour utiliser ce critère, importer un CSV Allociné enrichi avec :
 
 Pour un JSON normalisé, utiliser `vodAvailable`, `vodProviders`, `vodCountry`
 et `vodCheckedAt`. Les colonnes peuvent également être associées manuellement.
-L’import remplace le dataset en mémoire ; il ne fusionne pas deux sources.
+L’import fusionne le dataset avec la collection en mémoire. Les correspondances
+certaines enrichissent la fiche existante ; les autres films sont ajoutés.
 
 La disponibilité dépend du territoire et du moment. L’application affiche les
 informations importées et ne vérifie pas les catalogues en direct. Aucune clé API,
@@ -513,7 +515,7 @@ coûteux reste hors du thread de rendu. Les temps dépendent de la machine.
 
 - Notes et métadonnées historiques, pas de mise à jour automatique.
 - VOD utilisable après enrichissement/import, aucune couverture native.
-- Pas de fusion d’imports personnels, de serveur, de comptes ou de synchronisation de presets.
+- Pas de serveur, de comptes ou de synchronisation de presets.
 - Rapprochement prudent : des doublons incertains subsistent ; pas de traduction/fusion des genres.
 - Comparaison limitée à huit films ; presets locaux au navigateur et à l’origine.
 - Export JSON complet ; CSV aplati pour les listes, sans détail des contributions.

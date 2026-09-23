@@ -168,7 +168,7 @@ test("generic CSV manual mapping, VOD, normalized JSON, errors and mobile layout
     .getByRole("button", { name: "Charger les films", exact: true })
     .click();
   await expect(page.locator("#result-count")).toHaveText(
-    "2 films dans votre sélection",
+    "90 766 films dans votre sélection",
   );
   await page.locator("#hard-form [name=vod]").selectOption("yes");
   await expect(page.locator("#result-count")).toHaveText(
@@ -193,16 +193,31 @@ test("generic CSV manual mapping, VOD, normalized JSON, errors and mobile layout
     ),
   });
   await page.locator("#modal-body button").click();
+  await expect(page.locator("#result-count")).toHaveText(
+    "90 767 films dans votre sélection",
+  );
   await expect(page.locator("#table-view")).toContainText(
     "<img src=x onerror=alert(1)>",
   );
   await expect(page.locator("#table-view img")).toHaveCount(0);
-  await page.locator("#table-view .title-button").click();
+  await page
+    .getByRole("button", { name: "<img src=x onerror=alert(1)>", exact: true })
+    .click();
   await expect(page.locator(".synopsis")).toContainText(
     "Un synopsis <img src=x onerror=alert(1)>",
   );
   await expect(page.locator("#modal-body img")).toHaveCount(0);
   await page.locator("#modal-close").click();
+  await page.reload();
+  await expect(page.locator("#result-count")).toHaveText(
+    "90 767 films dans votre sélection",
+    { timeout: 15000 },
+  );
+  await page.locator("#search").fill("<img src=x onerror=alert(1)>");
+  await expect(page.locator("#table-view")).toContainText(
+    "<img src=x onerror=alert(1)>",
+  );
+  await page.locator("#reset").click();
   await page.locator("#import-open").click();
   await page.getByLabel("Fichier CSV ou JSON").setInputFiles({
     name: "bad.csv",

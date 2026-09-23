@@ -74,6 +74,26 @@ test("Conservative merge enriches original date, updates rating/count pairs and 
     null,
   );
 });
+test("A user dataset merges into the current collection instead of replacing it", () => {
+  execute("load", {
+    name: "base.json",
+    text: JSON.stringify([{ title: "Film existant", year: 2001 }]),
+  });
+  const result = execute("merge", {
+    name: "ajout.json",
+    text: JSON.stringify([{ title: "Film ajouté", year: 2024 }]),
+  });
+  assert.equal(result.count, 2);
+  assert.deepEqual(result.sources.map((source) => source.name), [
+    "base.json",
+    "ajout.json",
+  ]);
+  const rows = execute("query", { config: defaults(), page: 1 }).rows;
+  assert.deepEqual(new Set(rows.map((movie) => movie.title)), new Set([
+    "Film existant",
+    "Film ajouté",
+  ]));
+});
 test("Ambiguous titles, different directors/years and conflicting explicit IDs remain separate", () => {
   const base = normalize([old]).movies;
   for (const change of [

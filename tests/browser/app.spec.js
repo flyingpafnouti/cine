@@ -70,7 +70,7 @@ test.describe("Android synopsis input", () => {
     await expect(page.locator("#active-filters")).toContainText("Recherche Forrest Gump");
   });
 });
-test("real dataset, required filters, details, comparison, cards, presets, pivot and export", async ({
+test("real dataset, required filters, details, presets, pivot and export", async ({
   page,
 }) => {
   const errors = [];
@@ -89,13 +89,6 @@ test("real dataset, required filters, details, comparison, cards, presets, pivot
   await expect(page.locator("#modal-body")).toContainText("Score :");
   await expect(page.locator("#modal-body")).toContainText("Note utilisée");
   await page.locator("#modal-close").click();
-  await page.locator("#table-view input[type=checkbox]").nth(0).check();
-  await page.locator("#table-view input[type=checkbox]").nth(1).check();
-  await page.locator("#compare").click();
-  await expect(page.locator("#modal-body .detail")).toHaveCount(2);
-  await page.locator("#modal-close").click();
-  await page.locator("#view-cards").click();
-  await expect(page.locator("#cards-view .card")).toHaveCount(25);
   await page.locator("#preset-save").click();
   await page.getByLabel("Nom de la configuration").fill("Thrillers 90s");
   await page.locator("#modal-body button").click();
@@ -286,7 +279,7 @@ test("pagination, persistent preset rename/delete, CSV export and real mobile da
   await page.locator("#hard-form [name=ratingMin]").fill("4.5");
   await expect(page.locator("#result-count")).not.toContainText("90 764");
 });
-test("combined sources show a real synopsis from table and cards, with rated 2026 films", async ({
+test("combined sources show a real synopsis and rated 2026 films", async ({
   page,
 }) => {
   await page.locator("#dataset-info").click();
@@ -308,10 +301,6 @@ test("combined sources show a real synopsis from table and cards, with rated 202
       () => document.documentElement.scrollWidth <= innerWidth,
     ),
   ).toBe(true);
-  await page.locator("#modal-close").click();
-  await page.locator("#view-cards").click();
-  await page.locator("#cards-view .title-button").click();
-  await expect(page.locator(".synopsis")).toContainText("odyssée");
   await page.locator("#modal-close").click();
   await page.locator("#reset").click();
   await page.locator("#hard-form [name=yearMin]").fill("2026");
@@ -343,7 +332,7 @@ test("missing complementary file preserves historical dataset and explains missi
     "Synopsis non renseigné",
   );
 });
-test("favorites persist and can be filtered and removed from cards", async ({ page }) => {
+test("favorites persist and can be filtered and removed from the table", async ({ page }) => {
   const first = page.locator("#table-view tbody tr").first();
   const title = await first.locator(".title-button").textContent();
   await first.locator(".favorite-button").click();
@@ -354,13 +343,12 @@ test("favorites persist and can be filtered and removed from cards", async ({ pa
   await expect(page.locator("#table-view tbody tr")).toHaveCount(1);
   await expect(page.locator("#table-view .title-button")).toHaveText(title);
   await expect(page.locator("#result-count")).toHaveText("1 films dans votre sélection");
-  await page.locator("#view-cards").click();
-  await expect(page.locator("#cards-view .favorite-button")).toHaveAttribute("aria-pressed", "true");
-  await page.locator("#cards-view .favorite-button").click();
-  await expect(page.locator("#cards-view")).toContainText("Aucun favori");
+  await expect(page.locator("#table-view .favorite-button")).toHaveAttribute("aria-pressed", "true");
+  await page.locator("#table-view .favorite-button").click();
+  await expect(page.locator("#table-view")).toContainText("Aucun favori");
   await expect(page.locator("#favorites-only")).toHaveText("★ Favoris (0)");
   await page.locator("#favorites-only").click();
-  await expect(page.locator("#cards-view .card")).toHaveCount(250);
+  await expect(page.locator("#table-view tbody tr")).toHaveCount(250);
   await page.reload();
   await expect(page.locator("#favorites-only")).toHaveText("★ Favoris (0)");
 });
@@ -372,6 +360,9 @@ test("detail shows and updates favorite and watched markings without closing", a
   const detail = page.locator("#modal .detail").first();
   const favorite = detail.locator(".favorite-button");
   const watched = detail.locator(".watched-button");
+  await expect(detail.locator(".detail-rating")).toHaveCount(2);
+  await expect(detail.locator(".detail-rating").nth(0)).toContainText("S :");
+  await expect(detail.locator(".detail-rating").nth(1)).toContainText("P :");
   await expect(favorite).toHaveAttribute("aria-pressed", "false");
   await expect(watched).toHaveAttribute("aria-pressed", "false");
 
@@ -387,6 +378,46 @@ test("detail shows and updates favorite and watched markings without closing", a
   const first = page.locator("#table-view tbody tr").first();
   await expect(first.locator(".favorite-button")).toHaveAttribute("aria-pressed", "true");
   await expect(first.locator(".watched-button")).toHaveAttribute("aria-pressed", "true");
+});
+
+test("clicking a table row opens its film detail without hijacking row actions", async ({ page }) => {
+  const row = page.locator("#table-view tbody tr").first();
+  const title = await row.locator(".title-button").textContent();
+  await row.locator("td").nth(4).click();
+  await expect(page.locator("#modal")).toBeVisible();
+  await expect(page.locator("#modal .detail h3").first()).toHaveText(title);
+  await page.locator("#modal-close").click();
+
+  await row.locator(".favorite-button").click();
+  await expect(page.locator("#modal")).not.toBeVisible();
+  await expect(row.locator(".favorite-button")).toHaveAttribute("aria-pressed", "true");
+
+  await row.focus();
+  await row.press("Enter");
+  await expect(page.locator("#modal")).toBeVisible();
+});
+
+test("tracking statistics are calculated only in their dedicated tab", async ({ page }) => {
+  const first = page.locator("#table-view tbody tr").first();
+  await first.locator(".favorite-button").click();
+  await first.locator(".watched-button").click();
+  await page.locator("#table-view tbody tr").nth(1).locator(".watched-button").click();
+
+  await page.locator("#view-tracking").click();
+  await expect(page.locator("#tracking-view")).toBeVisible();
+  await expect(page.locator("#tracking-view")).toContainText("Votre cinéma en chiffres");
+  await expect(page.locator(".tracking-summary").nth(0)).toContainText("1");
+  await expect(page.locator(".tracking-summary").nth(1)).toContainText("2");
+  await expect(page.locator(".tracking-overlap")).toContainText("1");
+  for (const title of ["Genres", "Nationalités", "Décennies", "Réalisateurs", "Acteurs et actrices"])
+    await expect(page.locator(".tracking-group", { hasText: title })).toBeVisible();
+  await expect(page.locator(".tracking-group", { hasText: "Évolution chronologique" })).toBeVisible();
+  await expect(page.locator(".tracking-group", { hasText: "Distribution des notes spectateurs" })).toBeVisible();
+  await expect(page.locator(".toolbar")).not.toBeVisible();
+
+  await page.locator("#view-table").click();
+  await expect(page.locator("#table-view")).toBeVisible();
+  await expect(page.locator(".toolbar")).toBeVisible();
 });
 test("main panel configures a YouTube key and detail embeds the trailer", async ({ page }) => {
   await page.route("**/youtube/v3/search**", (route) =>

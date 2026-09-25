@@ -70,7 +70,7 @@ function scoreButton(m, detail) {
     ),
   );
 }
-export function renderResults(data, state, { detail, select, sort, favorite, watch }) {
+export function renderResults(data, state, { detail, sort, favorite, watch }) {
   $("#favorites-only").setAttribute("aria-pressed", state.favoritesOnly);
   $("#favorites-only").textContent = "★ Favoris (" + state.favorites.size + ")";
   $("#watched-only").setAttribute("aria-pressed", state.watchedOnly);
@@ -118,7 +118,6 @@ export function renderResults(data, state, { detail, select, sort, favorite, wat
       el(
         "tr",
         {},
-        el("th", {}, "Choix"),
         el("th", {}, "Favori"),
         el("th", {}, "Vu"),
         ...columns.map(([k, title]) =>
@@ -148,19 +147,23 @@ export function renderResults(data, state, { detail, select, sort, favorite, wat
     ),
   );
   const body = el("tbody");
-  const checkbox = (m) =>
-    el("input", {
-      type: "checkbox",
-      checked: state.selected.has(m.id),
-      "aria-label": "Comparer " + m.title,
-      onchange: (e) => select(m.id, e.target.checked),
-    });
   for (const m of data.rows) {
+    const openFromRow = (event) => {
+      if (event.target.closest("button, input, select, a, label")) return;
+      if (event.type === "keydown" && !["Enter", " "].includes(event.key)) return;
+      if (event.type === "keydown") event.preventDefault();
+      detail(m.id);
+    };
     body.append(
       el(
         "tr",
-        {},
-        el("td", {}, checkbox(m)),
+        {
+          class: "movie-row",
+          tabindex: 0,
+          "aria-label": "Ouvrir la fiche de " + m.title,
+          onclick: openFromRow,
+          onkeydown: openFromRow,
+        },
         el("td", {}, favoriteButton(m)),
         el("td", {}, watchedButton(m)),
         el(
@@ -199,45 +202,6 @@ export function renderResults(data, state, { detail, select, sort, favorite, wat
       el("p", {}, state.favoritesOnly ? "Ajoutez des films avec l’étoile ☆ ou désactivez le filtre Favoris pour parcourir les films." : state.watchedOnly ? "Cochez les films vus avec « ✓ » ou désactivez le filtre Vus pour parcourir les films." : "Élargissez les filtres ou réinitialisez la sélection."),
     );
   $("#table-view").replaceChildren(data.rows.length ? table : empty());
-  $("#cards-view").replaceChildren(
-    ...(data.rows.length
-      ? data.rows.map((m) =>
-          el(
-            "article",
-            { class: "card" },
-            el("div", { class: "check" }, checkbox(m), favoriteButton(m), watchedButton(m), scoreButton(m, detail)),
-            el(
-              "h3",
-              {},
-              el(
-                "button",
-                { class: "title-button", onclick: () => detail(m.id) },
-                m.title,
-              ),
-            ),
-            el(
-              "p",
-              {},
-              (m.year ?? "—") +
-                " · " +
-                (m.duration === null
-                  ? "Durée inconnue"
-                  : fmt(m.duration) + " min"),
-            ),
-            el("div", {}, tags(m)),
-            el(
-              "p",
-              {},
-              "★ " +
-                fmt(m.audienceRating, 1) +
-                " / 5 · " +
-                fmt(m.audienceRatingCount) +
-                " votes",
-            ),
-          ),
-        )
-      : [empty()]),
-  );
   $("#result-count").textContent =
     fmt(data.total) + " films dans votre sélection";
   $("#page-label").textContent = data.page + " / " + data.pages;
@@ -277,11 +241,90 @@ export function renderResults(data, state, { detail, select, sort, favorite, wat
           .join(" · "),
     ),
   );
-  for (const view of ["table", "cards", "analysis"]) {
+  for (const view of ["table", "analysis", "tracking"]) {
     $("#" + view + "-view").hidden = state.config.view !== view;
     $("#view-" + view).classList.toggle("active", state.config.view === view);
     $("#view-" + view).setAttribute("aria-pressed", state.config.view === view);
   }
+}
+
+const trackingNumber = (value, digits = 0) => value === null ? "—" : fmt(value, digits);
+
+function trackingSummary(title, data) {
+  return el("article", { class: "tracking-summary" },
+    el("h3", {}, title),
+    el("strong", { class: "tracking-total" }, fmt(data.saved)),
+    el("span", { class: "hint" }, " films enregistrés"),
+    el("dl", {},
+      el("div", {}, el("dt", {}, "Note moyenne"), el("dd", {}, trackingNumber(data.averageRating, 2) + " / 5")),
+      el("div", {}, el("dt", {}, "Films notés"), el("dd", {}, trackingNumber(data.ratedPercent, 1) + " %")),
+      el("div", {}, el("dt", {}, "Année médiane"), el("dd", {}, trackingNumber(data.medianYear))),
+      el("div", {}, el("dt", {}, "Durée moyenne"), el("dd", {}, data.averageDuration === null ? "—" : trackingNumber(data.averageDuration) + " min")),
+      el("div", {}, el("dt", {}, "Temps cumulé"), el("dd", {}, trackingNumber(data.totalHours) + " h")),
+      ...(data.missing ? [el("div", {}, el("dt", {}, "Hors catalogue"), el("dd", {}, fmt(data.missing)))] : []),
+    ),
+  );
+}
+
+function trackingGroup(title, rows, totals) {
+  const max = Math.max(1, ...rows.flatMap((row) => [row.favorites, row.watched]));
+  return el("section", { class: "tracking-group" },
+    el("h3", {}, title),
+    rows.length ? el("div", { class: "tracking-bars" }, rows.map((row) =>
+      el("div", { class: "tracking-row" },
+        el("span", { class: "tracking-label", title: row.label }, row.label),
+        el("div", { class: "tracking-measures" },
+          el("div", { class: "tracking-measure favorite", title: `${row.favorites} favori(s)` },
+            el("i", { style: `width:${row.favorites / max * 100}%` }),
+            el("span", {}, fmt(row.favorites), totals.favorites ? ` · ${fmt(row.favorites * 100 / totals.favorites, 1)} %` : "")),
+          el("div", { class: "tracking-measure watched", title: `${row.watched} film(s) vu(s)` },
+            el("i", { style: `width:${row.watched / max * 100}%` }),
+            el("span", {}, fmt(row.watched), totals.watched ? ` · ${fmt(row.watched * 100 / totals.watched, 1)} %` : "")),
+        ),
+      ))) : el("p", { class: "hint" }, "Aucune donnée pour le moment."),
+  );
+}
+
+export function renderTrackingStatistics(data) {
+  const view = $("#tracking-view");
+  const totals = { favorites: data.favorites.count, watched: data.watched.count };
+  const distributionTotals = (rows) => ({
+    favorites: rows.reduce((sum, row) => sum + row.favorites, 0),
+    watched: rows.reduce((sum, row) => sum + row.watched, 0),
+  });
+  if (!data.favorites.saved && !data.watched.saved) {
+    view.replaceChildren(el("div", { class: "empty" },
+      el("strong", {}, "Aucun suivi à analyser."),
+      el("p", {}, "Ajoutez des favoris ou marquez des films comme déjà vus pour faire apparaître les statistiques.")));
+    return;
+  }
+  view.replaceChildren(
+    el("header", { class: "tracking-heading" },
+      el("div", {}, el("h2", {}, "Votre cinéma en chiffres"),
+        el("p", { class: "hint" }, "Les pourcentages des catégories sont calculés sur les films présents dans le catalogue.")),
+      el("div", { class: "tracking-legend" },
+        el("span", { class: "favorite" }, "★ Favoris"),
+        el("span", { class: "watched" }, "✓ Déjà vus"))),
+    el("div", { class: "tracking-summaries" },
+      trackingSummary("Favoris", data.favorites),
+      trackingSummary("Films déjà vus", data.watched),
+      el("article", { class: "tracking-summary tracking-overlap" },
+        el("h3", {}, "Favoris déjà vus"),
+        el("strong", { class: "tracking-total" }, fmt(data.overlap)),
+        el("p", { class: "hint" }, data.favorites.count ?
+          fmt(data.overlap * 100 / data.favorites.count, 1) + " % de vos favoris" : "Aucun favori"))),
+    el("div", { class: "tracking-distributions" },
+      trackingGroup("Évolution chronologique (périodes de 5 ans)", data.groups.chronology,
+        distributionTotals(data.groups.chronology)),
+      trackingGroup("Distribution des notes spectateurs", data.groups.ratings,
+        distributionTotals(data.groups.ratings))),
+    el("div", { class: "tracking-groups" },
+      trackingGroup("Genres", data.groups.genres, totals),
+      trackingGroup("Nationalités", data.groups.countries, totals),
+      trackingGroup("Décennies", data.groups.decades, totals),
+      trackingGroup("Réalisateurs", data.groups.directors, totals),
+      trackingGroup("Acteurs et actrices", data.groups.actors, totals)),
+  );
 }
 function markingControls(m, marking) {
   if (!marking) return null;
@@ -313,6 +356,16 @@ function markingControls(m, marking) {
           render();
         },
       }, watched ? "✓" : "○"),
+      el("span", {
+        class: "detail-rating",
+        title: "Note spectateurs",
+        "aria-label": "Note spectateurs : " + (m.audienceRating === null ? "non renseignée" : fmt(m.audienceRating, 1) + " sur 5"),
+      }, "S : " + (m.audienceRating === null ? "—" : fmt(m.audienceRating, 1))),
+      el("span", {
+        class: "detail-rating",
+        title: "Note presse",
+        "aria-label": "Note presse : " + (m.pressRating === null ? "non renseignée" : fmt(m.pressRating, 1) + " sur 5"),
+      }, "P : " + (m.pressRating === null ? "—" : fmt(m.pressRating, 1))),
     );
   };
   render();

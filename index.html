@@ -357,14 +357,11 @@
         <div class="results-heading">
           <div class="view-tabs" role="group" aria-label="Affichage">
             <button id="view-table" class="active">Tableau</button
-            ><button id="view-cards">Cartes</button
-            ><button id="view-analysis">Analyse</button>
+            ><button id="view-analysis">Analyse</button
+            ><button id="view-tracking">Statistiques de suivi</button>
           </div>
           <button id="favorites-only" class="button" aria-pressed="false">★ Favoris (0)</button
           ><button id="watched-only" class="button" aria-pressed="false">✓ Vus (0)</button>
-          <button id="compare" class="button">
-            Comparer <span id="compare-count">0</span>
-          </button>
         </div>
         <div id="active-filters" class="active-filters"></div>
         <div class="toolbar">
@@ -393,7 +390,6 @@
           >
         </div>
         <div id="table-view" class="table-scroll"></div>
-        <div id="cards-view" class="cards" hidden></div>
         <section id="analysis-view" hidden>
           <div class="pivot-controls">
             <label>Lignes<select id="pivot-row"></select></label
@@ -414,6 +410,7 @@
           </p>
           <div id="pivot-table" class="table-scroll"></div>
         </section>
+        <section id="tracking-view" aria-live="polite" hidden></section>
         <div class="bottom-bar">
           <label
             >Par page<select id="page-size">

@@ -15,7 +15,29 @@ import {
 } from "../js/scoring/scoring.js";
 import { pivot } from "../js/analysis/pivot.js";
 import { statistics } from "../js/analysis/statistics.js";
+import { trackingStatistics } from "../js/analysis/tracking.js";
 import { defaults } from "../js/state.js";
+
+test("tracking statistics compare favorites and watched films", () => {
+  const sample = [
+    { id: "a", audienceRating: 4, duration: 120, year: 1995, genres: ["Drame"], countries: ["France"], directors: ["A"], actors: ["X", "Y"] },
+    { id: "b", audienceRating: null, duration: 90, year: 2001, genres: ["Comédie"], countries: ["France"], directors: ["B"], actors: ["Y"] },
+  ];
+  const result = trackingStatistics(sample, new Set(["a", "absent"]), new Set(["a", "b"]));
+  assert.equal(result.favorites.count, 1);
+  assert.equal(result.favorites.missing, 1);
+  assert.equal(result.watched.count, 2);
+  assert.equal(result.overlap, 1);
+  assert.deepEqual(result.groups.countries[0], { label: "France", favorites: 1, watched: 2 });
+  assert.equal(result.groups.actors.find((row) => row.label === "Y").watched, 2);
+  assert.deepEqual(result.groups.chronology, [
+    { label: "1995–1999", favorites: 1, watched: 1 },
+    { label: "2000–2004", favorites: 0, watched: 1 },
+  ]);
+  assert.deepEqual(result.groups.ratings, [
+    { label: "4–4,4", favorites: 1, watched: 1 },
+  ]);
+});
 import { execute } from "../js/engine.js";
 import { csv } from "../js/export/export.js";
 // Synthetic records are used only in tests, never as the application dataset.

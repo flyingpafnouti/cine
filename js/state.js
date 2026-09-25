@@ -59,7 +59,6 @@ export const defaults = () => ({
 export const state = {
   config: defaults(),
   page: 1,
-  selected: new Set(),
   favorites: readFavorites(),
   favoritesOnly: false,
   watched: readWatched(),

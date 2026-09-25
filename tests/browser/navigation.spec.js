@@ -38,9 +38,4 @@ test("film navigation follows results across pages and closes only on outside cl
   await expect(page.locator("#film-next")).toHaveCount(0);
   await expect(page.locator("#film-previous")).toHaveCount(0);
   await page.locator("#modal-close").click();
-  await page.locator("#view-cards").click();
-  await page.locator("#cards-view .title-button").click();
-  await expect(page.locator(".detail h3").first()).toHaveText("Forrest Gump");
-  await page.mouse.click(2, 2);
-  await expect(page.locator("#modal")).not.toBeVisible();
 });

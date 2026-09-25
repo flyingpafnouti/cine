@@ -9,12 +9,12 @@ import { showDatasetInfo } from "./ui/dataset-ui.js";
 import { state, defaults } from "./state.js";
 import { $, el, fmt, modal, notice } from "./ui/dom.js";
 import { setupControls, syncControls, renderGenres } from "./ui/controls.js";
-import { renderResults, showDetails, renderPivot } from "./ui/results.js";
+import { renderResults, showDetails, renderPivot, renderTrackingStatistics } from "./ui/results.js";
 import { importDialog, mappingDialog } from "./ui/import.js";
 import { setupPresets } from "./ui/presets-ui.js";
 import { setupApiSettings } from "./ui/api-settings.js";
 import { csv, download } from "./export/export.js";
-const worker = new Worker(new URL("./worker.js?v=dataset-merge-1", import.meta.url), {
+const worker = new Worker(new URL("./worker.js?v=tracking-statistics-2", import.meta.url), {
   type: "module",
 });
 const requests = new Map();
@@ -65,7 +65,6 @@ async function refresh() {
     state.page = data.page;
     renderResults(data, state, {
       detail,
-      select: selectMovie,
       favorite: toggleFavorite,
       watch: toggleWatched,
       sort: (field) => {
@@ -110,11 +109,9 @@ async function load(source, merge = false, persist = false) {
     state.summary = result;
     state.config = defaults();
     state.page = 1;
-    state.selected.clear();
     datasetName = merge && datasetName
       ? datasetName + " + " + source.name
       : source.name;
-    $("#compare-count").textContent = "0";
     renderGenres(state);
     syncControls(state);
     $("#dataset-status").textContent =
@@ -354,15 +351,6 @@ $("#watched-only").onclick = () => {
   state.page = 1;
   refresh();
 };
-function selectMovie(id, checked) {
-  if (checked && state.selected.size >= 8) {
-    notice("La comparaison est limitée à 8 films pour rester lisible.");
-    refresh();
-    return;
-  }
-  checked ? state.selected.add(id) : state.selected.delete(id);
-  $("#compare-count").textContent = state.selected.size;
-}
 let detailRevision = 0;
 async function detail(id) {
   const revision = ++detailRevision;
@@ -489,11 +477,42 @@ $("#next").onclick = () => {
   state.page++;
   refresh();
 };
-for (const view of ["table", "cards", "analysis"])
+for (const view of ["table", "analysis"])
   $("#view-" + view).onclick = () => {
     state.config.view = view;
+    $("#results").classList.remove("tracking-mode");
     refresh();
   };
+let trackingRevision = 0;
+$("#view-tracking").onclick = async () => {
+  state.config.view = "tracking";
+  $("#results").classList.add("tracking-mode");
+  for (const view of ["table", "analysis", "tracking"]) {
+    $("#" + view + "-view").hidden = view !== "tracking";
+    $("#view-" + view).classList.toggle("active", view === "tracking");
+    $("#view-" + view).setAttribute("aria-pressed", view === "tracking");
+  }
+  const revision = ++trackingRevision;
+  $("#tracking-view").replaceChildren(el("p", { class: "tracking-loading" }, "Calcul des statistiques de suivi…"));
+  try {
+    const data = await request("trackingStatistics", {
+      favorites: [...state.favorites],
+      watched: [...state.watched],
+    });
+    if (revision === trackingRevision && state.config.view === "tracking")
+      renderTrackingStatistics(data);
+  } catch (error) {
+    if (revision === trackingRevision) {
+      $("#tracking-view").replaceChildren(
+        el("div", { class: "empty" },
+          el("strong", {}, "Les statistiques n’ont pas pu être calculées."),
+          el("p", {}, error.message),
+        ),
+      );
+      notice(error.message);
+    }
+  }
+};
 for (const id of ["pivot-row", "pivot-col"]) {
   for (const [value, label] of [
     ["genres", "Genre"],
@@ -508,29 +527,6 @@ for (const id of ["pivot-row", "pivot-col"]) {
 $("#pivot-row").value = "decade";
 $("#pivot-metric").onchange = () =>
   updatePivot().catch((e) => notice(e.message));
-$("#compare").onclick = async () => {
-  if (!state.selected.size) {
-    notice("Cochez les films à comparer dans les résultats.");
-    return;
-  }
-  try {
-    showDetails(
-      await request("details", {
-        ids: [...state.selected],
-        scoring: state.config.scoring,
-      }),
-      null,
-      {
-        isFavorite: (movieId) => state.favorites.has(movieId),
-        isWatched: (movieId) => state.watched.has(movieId),
-        favorite: toggleFavorite,
-        watch: toggleWatched,
-      },
-    );
-  } catch (e) {
-    notice(e.message);
-  }
-};
 $("#dataset-info").onclick = () => showDatasetInfo(state.summary, datasetName);
 async function exportResults(format) {
   try {

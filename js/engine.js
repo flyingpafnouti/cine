@@ -5,6 +5,7 @@ import { context, score } from "./scoring/scoring.js";
 import { matches, sortMovies } from "./filters/filters.js";
 import { statistics } from "./analysis/statistics.js";
 import { pivot } from "./analysis/pivot.js";
+import { trackingStatistics } from "./analysis/tracking.js";
 let movies = [],
   ctx = {},
   results = [],
@@ -98,6 +99,8 @@ export function execute(type, p) {
       .map(({ id, title, year }) => ({ id, titre: title, annee: year ?? null }));
   }
   if (type === "pivot") return pivot(results, p.row, p.col, p.metric);
+  if (type === "trackingStatistics")
+    return trackingStatistics(movies, new Set(p.favorites || []), new Set(p.watched || []));
   if (type === "export") return results.map(({ search, ...m }) => m);
   if (type === "details")
     return movies

@@ -369,7 +369,12 @@ async function detail(id) {
   try {
     const movies = await request("details", { ids: [id], scoring: state.config.scoring, navigation: true });
     if (revision !== detailRevision) return;
-    showDetails(movies, detail);
+    showDetails(movies, detail, {
+      isFavorite: (movieId) => state.favorites.has(movieId),
+      isWatched: (movieId) => state.watched.has(movieId),
+      favorite: toggleFavorite,
+      watch: toggleWatched,
+    });
     $("#modal-close").focus({ preventScroll: true });
   } catch (e) {
     if (revision === detailRevision) notice(e.message);
@@ -514,6 +519,13 @@ $("#compare").onclick = async () => {
         ids: [...state.selected],
         scoring: state.config.scoring,
       }),
+      null,
+      {
+        isFavorite: (movieId) => state.favorites.has(movieId),
+        isWatched: (movieId) => state.watched.has(movieId),
+        favorite: toggleFavorite,
+        watch: toggleWatched,
+      },
     );
   } catch (e) {
     notice(e.message);

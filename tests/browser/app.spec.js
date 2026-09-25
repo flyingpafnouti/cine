@@ -364,6 +364,30 @@ test("favorites persist and can be filtered and removed from cards", async ({ pa
   await page.reload();
   await expect(page.locator("#favorites-only")).toHaveText("★ Favoris (0)");
 });
+
+test("detail shows and updates favorite and watched markings without closing", async ({ page }) => {
+  await page.goto("/");
+  await page.locator("#table-view .title-button").first().click();
+
+  const detail = page.locator("#modal .detail").first();
+  const favorite = detail.locator(".favorite-button");
+  const watched = detail.locator(".watched-button");
+  await expect(favorite).toHaveAttribute("aria-pressed", "false");
+  await expect(watched).toHaveAttribute("aria-pressed", "false");
+
+  await favorite.click();
+  await watched.click();
+  await expect(page.locator("#modal")).toBeVisible();
+  await expect(favorite).toHaveAttribute("aria-pressed", "true");
+  await expect(watched).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator("#favorites-only")).toContainText("(1)");
+  await expect(page.locator("#watched-only")).toContainText("(1)");
+
+  await page.locator("#modal-close").click();
+  const first = page.locator("#table-view tbody tr").first();
+  await expect(first.locator(".favorite-button")).toHaveAttribute("aria-pressed", "true");
+  await expect(first.locator(".watched-button")).toHaveAttribute("aria-pressed", "true");
+});
 test("main panel configures a YouTube key and detail embeds the trailer", async ({ page }) => {
   await page.route("**/youtube/v3/search**", (route) =>
     route.fulfill({

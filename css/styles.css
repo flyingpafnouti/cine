@@ -706,6 +706,21 @@ dialog::backdrop {
 .detail p {
   font-size: 12px;
 }
+.detail-markings {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: -4px 0 10px;
+}
+.detail-marking-button {
+  width: 30px;
+  height: 30px;
+  min-width: 0;
+  padding: 0;
+  border-color: transparent;
+  background: transparent;
+  font-size: 17px;
+}
 .breakdown {
   border-top: 1px solid var(--line);
   padding-top: 10px;

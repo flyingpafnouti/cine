@@ -283,7 +283,42 @@ export function renderResults(data, state, { detail, select, sort, favorite, wat
     $("#view-" + view).setAttribute("aria-pressed", state.config.view === view);
   }
 }
-export function showDetails(movies, onNavigate) {
+function markingControls(m, marking) {
+  if (!marking) return null;
+  const controls = el("section", {
+    class: "detail-markings",
+    "aria-label": "Marquage de " + m.title,
+  });
+  const render = () => {
+    const favorite = marking.isFavorite(m.id);
+    const watched = marking.isWatched(m.id);
+    controls.replaceChildren(
+      el("button", {
+        class: "favorite-button detail-marking-button",
+        "aria-pressed": favorite,
+        "aria-label": (favorite ? "Retirer des favoris : " : "Ajouter aux favoris : ") + m.title,
+        title: favorite ? "Retirer des favoris" : "Ajouter aux favoris",
+        onclick: () => {
+          marking.favorite(m.id);
+          render();
+        },
+      }, favorite ? "★" : "☆"),
+      el("button", {
+        class: "watched-button detail-marking-button",
+        "aria-pressed": watched,
+        "aria-label": (watched ? "Marquer comme non vu : " : "Marquer comme déjà vu : ") + m.title,
+        title: watched ? "Marquer comme non vu" : "Marquer comme déjà vu",
+        onclick: () => {
+          marking.watch(m.id);
+          render();
+        },
+      }, watched ? "✓" : "○"),
+    );
+  };
+  render();
+  return controls;
+}
+export function showDetails(movies, onNavigate, marking) {
   const navigation = movies.length === 1 && onNavigate ? movies[0].navigation : null;
   modal(
     movies.length > 1 ? "Comparer les films" : "Comprendre ce film",
@@ -297,6 +332,7 @@ export function showDetails(movies, onNavigate) {
           "article",
           { class: "detail" },
           el("h3", {}, m.title),
+          markingControls(m, marking),
           el(
             "section",
             { class: "synopsis" },

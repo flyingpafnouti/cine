@@ -1206,3 +1206,21 @@ dialog::backdrop {
   gap: 8px;
   margin-top: 12px;
 }
+.api-settings-panel h3 {
+  margin: 0 0 10px;
+  color: var(--navy);
+  font-size: 14px;
+}
+.api-settings-panel hr {
+  margin: 16px 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+}
+#cloud-account {
+  display: grid;
+  gap: 8px;
+}
+.cloud-user {
+  margin: 0;
+  overflow-wrap: anywhere;
+}

@@ -13,6 +13,8 @@ import { renderResults, showDetails, renderPivot, renderTrackingStatistics } fro
 import { importDialog, mappingDialog } from "./ui/import.js";
 import { setupPresets } from "./ui/presets-ui.js";
 import { setupApiSettings } from "./ui/api-settings.js";
+import { setupCloudLists } from "./ui/cloud-lists.js";
+import { createCloudLists } from "./storage/cloud-lists.js";
 import { csv, download } from "./export/export.js";
 const worker = new Worker(new URL("./worker.js?v=tracking-statistics-2", import.meta.url), {
   type: "module",
@@ -84,6 +86,18 @@ async function refresh() {
     notice(e.message);
   }
 }
+const cloudLists = createCloudLists({
+  readLocal: () => ({ favorites: new Set(state.favorites), watched: new Set(state.watched) }),
+  replaceLocal: (favorites, watched) => {
+    writeFavorites(favorites);
+    writeWatched(watched);
+    state.favorites = favorites;
+    state.watched = watched;
+    state.page = 1;
+  },
+  changed: () => refresh(),
+  status: (text) => { $("#cloud-status").textContent = text; },
+});
 async function load(source, merge = false, persist = false) {
   notice("Lecture et normalisation du fichier…");
   try {
@@ -306,6 +320,7 @@ $("#lists-file").onchange = async (event) => {
     }
     state.favorites = favorites;
     state.watched = watched;
+    await cloudLists.pushSnapshot({ favorites, watched });
     state.page = 1;
     await refresh();
     notice(`Listes fusionnées : ${addedFavorites} favori(s) et ${addedWatched} film(s) déjà vu(s) ajoutés. Les films absents du catalogue restent mémorisés.`);
@@ -327,6 +342,7 @@ function toggleFavorite(id) {
     return;
   }
   state.favorites = next;
+  cloudLists.saveMark(id, next.has(id), state.watched.has(id));
   refresh();
 }
 $("#favorites-only").onclick = () => {
@@ -344,6 +360,7 @@ function toggleWatched(id) {
     return;
   }
   state.watched = next;
+  cloudLists.saveMark(id, state.favorites.has(id), next.has(id));
   refresh();
 }
 $("#watched-only").onclick = () => {
@@ -386,6 +403,7 @@ async function updatePivot() {
 }
 setupControls(state, schedule);
 setupApiSettings();
+setupCloudLists(cloudLists);
 syncControls(state);
 $("#modal-close").onclick = () => $("#modal").close();
 $("#modal").addEventListener("close", () => {

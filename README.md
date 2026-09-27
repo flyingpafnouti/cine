@@ -200,6 +200,27 @@ la [documentation YouTube](https://developers.google.com/youtube/v3/getting-star
 
 ## Transférer les favoris et les films déjà vus
 
+### Synchronisation entre appareils
+
+Le panneau **Mes listes** permet de créer un compte ou de se connecter avec un
+e-mail et un mot de passe. À la première connexion, si le compte cloud est vide,
+les listes présentes dans le navigateur y sont copiées. Les changements suivants
+sont envoyés à Supabase et les autres appareils connectés les récupèrent au
+chargement, manuellement avec **Synchroniser**, puis automatiquement toutes les
+30 secondes. En cas de coupure réseau, les changements restent en attente dans le
+navigateur et sont envoyés lors de la prochaine synchronisation.
+
+Avant la première utilisation, ouvrez **SQL Editor** dans le projet Supabase,
+copiez le contenu de [`supabase/schema.sql`](supabase/schema.sql), puis exécutez-le.
+Le script active les règles RLS : chaque compte ne peut lire et modifier que ses
+propres listes. Dans **Authentication → URL Configuration**, indiquez l’adresse
+GitHub Pages comme `Site URL` afin que les liens de confirmation reviennent vers
+le site. Seules l’URL du projet et la clé publique `publishable` figurent dans le
+code ; le mot de passe de la base et la clé `service_role` ne doivent jamais y être
+ajoutés.
+
+### Sauvegarde manuelle
+
 En haut à droite, à côté de **Clés API**, dépliez **Mes listes**, puis cliquez sur
 **Exporter mes listes** pour télécharger
 un fichier JSON contenant tous vos favoris et films déjà vus, quels que soient les

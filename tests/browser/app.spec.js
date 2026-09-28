@@ -6,6 +6,22 @@ test.beforeEach(async ({ page }) => {
   });
   await expect(page.locator("#table-view tbody tr")).toHaveCount(250);
 });
+test("duration is the last column and sorts shortest to longest or conversely", async ({ page }) => {
+  const headers = page.locator("#table-view thead th");
+  await expect(headers.last()).toHaveText("Durée (min)");
+
+  await page.locator("#sort").selectOption("duration:asc");
+  await expect(headers.last()).toHaveAttribute("aria-sort", "ascending");
+  const ascending = await page.locator("#table-view tbody tr td:last-child").allTextContents();
+  const knownAscending = ascending.filter((value) => value.trim() !== "—").map(Number);
+  expect(knownAscending).toEqual([...knownAscending].sort((a, b) => a - b));
+
+  await page.locator("#sort").selectOption("duration:desc");
+  await expect(headers.last()).toHaveAttribute("aria-sort", "descending");
+  const descending = await page.locator("#table-view tbody tr td:last-child").allTextContents();
+  const knownDescending = descending.filter((value) => value.trim() !== "—").map(Number);
+  expect(knownDescending).toEqual([...knownDescending].sort((a, b) => b - a));
+});
 test("synopsis hard constraint filters results and resets", async ({ page }) => {
   const field = page.getByLabel("Texte contenu dans le synopsis");
   await page.locator("#search").fill("Forrest Gump");

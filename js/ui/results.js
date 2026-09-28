@@ -105,6 +105,7 @@ export function renderResults(data, state, { detail, sort, favorite, watch }) {
     ["audienceRatingCount", "Votes"],
     ["pressRating", "Presse"],
     ["score", "Score"],
+    ["duration", "Durée (min)"],
   ];
   const table = el(
     "table",
@@ -190,6 +191,7 @@ export function renderResults(data, state, { detail, sort, favorite, watch }) {
         el("td", {}, fmt(m.audienceRatingCount)),
         el("td", {}, fmt(m.pressRating, 1)),
         el("td", {}, scoreButton(m, detail)),
+        el("td", {}, m.duration === null ? "—" : fmt(m.duration)),
       ),
     );
   }

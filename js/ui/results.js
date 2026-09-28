@@ -373,7 +373,21 @@ function markingControls(m, marking) {
   render();
   return controls;
 }
-export function showDetails(movies, onNavigate, marking) {
+function peopleLinks(people, kind, onSearchPerson) {
+  if (!people.length) return "—";
+  return people.flatMap((name, index) => [
+    index ? ", " : null,
+    el("a", {
+      class: "detail-person-link",
+      href: "#",
+      onclick: (event) => {
+        event.preventDefault();
+        onSearchPerson(kind, name);
+      },
+    }, name),
+  ]);
+}
+export function showDetails(movies, onNavigate, marking, onSearchPerson) {
   const navigation = movies.length === 1 && onNavigate ? movies[0].navigation : null;
   modal(
     movies.length > 1 ? "Comparer les films" : "Comprendre ce film",
@@ -410,8 +424,8 @@ export function showDetails(movies, onNavigate, marking) {
             "Sources : " + (m.sources?.join(" · ") || "Import personnel"),
           ),
           el("p", {}, (m.year ?? "—") + " · " + m.genres.join(", ")),
-          el("p", {}, "Réalisation : " + (m.directors.join(", ") || "—")),
-          el("p", {}, "Avec : " + (m.actors.join(", ") || "—")),
+          el("p", {}, "Réalisation : ", peopleLinks(m.directors, "director", onSearchPerson)),
+          el("p", {}, "Avec : ", peopleLinks(m.actors, "actor", onSearchPerson)),
           el("p", {}, "Nationalités : " + (m.countries.join(", ") || "—")),
           el("p", {}, "Durée : " + fmt(m.duration) + " min"),
           el(

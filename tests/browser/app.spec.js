@@ -22,6 +22,28 @@ test("duration is the last column and sorts shortest to longest or conversely", 
   const knownDescending = descending.filter((value) => value.trim() !== "—").map(Number);
   expect(knownDescending).toEqual([...knownDescending].sort((a, b) => b - a));
 });
+test("director and actor links in details filter the table", async ({ page }) => {
+  await page.locator("#table-view .watched-button").first().click();
+  await page.locator("#watched-only").click();
+  await expect(page.locator("#watched-only")).toHaveAttribute("aria-pressed", "true");
+  await page.locator("#table-view .title-button").first().click();
+  const directorLink = page.locator("#modal-body .detail-person-link").first();
+  const director = await directorLink.textContent();
+  await directorLink.click();
+  await expect(page.locator("#modal")).not.toBeVisible();
+  await expect(page.locator('#hard-form [name="director"]')).toHaveValue(director);
+  await expect(page.locator("#active-filters")).toContainText("Réalisateur " + director);
+  await expect(page.locator("#watched-only")).toHaveAttribute("aria-pressed", "false");
+  await expect(page.locator("#table-view .detail-person-link")).toHaveCount(0);
+
+  await page.locator("#reset").click();
+  await page.locator("#table-view .title-button").first().click();
+  const actorLink = page.locator("#modal-body .detail-person-link").nth(1);
+  const actor = await actorLink.textContent();
+  await actorLink.click();
+  await expect(page.locator('#hard-form [name="actor"]')).toHaveValue(actor);
+  await expect(page.locator("#active-filters")).toContainText("Acteur " + actor);
+});
 test("synopsis hard constraint filters results and resets", async ({ page }) => {
   const field = page.getByLabel("Texte contenu dans le synopsis");
   await page.locator("#search").fill("Forrest Gump");
@@ -151,6 +173,33 @@ test("soft constraints, zero weights and native keyboard search", async ({
   await page.locator("[name=weight-vod]").fill("100");
   await expect(page.locator("#weight-output-vod")).toHaveText("100 %");
   await expect(page.locator("#result-count")).toContainText("90");
+});
+test("Backspace resets all filters outside interactive controls", async ({ page }) => {
+  await page.locator("#search").fill("Forrest Gump");
+  await expect(page.locator("#table-view tbody tr")).toHaveCount(1);
+  await page.locator("#search").evaluate((input) => input.blur());
+  await page.keyboard.press("Backspace");
+  await expect(page.locator("#search")).toHaveValue("");
+  await expect(page.locator("#table-view tbody tr")).toHaveCount(250);
+
+  await page.locator("#search").fill("Forrest Gump");
+  await page.locator("#search").press("Backspace");
+  await expect(page.locator("#search")).toHaveValue("Forrest Gum");
+});
+test("V and F toggle watched and favorite filters outside inputs", async ({ page }) => {
+  await page.keyboard.press("v");
+  await expect(page.locator("#watched-only")).toHaveAttribute("aria-pressed", "true");
+  await page.keyboard.press("v");
+  await expect(page.locator("#watched-only")).toHaveAttribute("aria-pressed", "false");
+
+  await page.keyboard.press("f");
+  await expect(page.locator("#favorites-only")).toHaveAttribute("aria-pressed", "true");
+  await page.keyboard.press("f");
+  await expect(page.locator("#favorites-only")).toHaveAttribute("aria-pressed", "false");
+
+  await page.locator("#search").fill("v");
+  await expect(page.locator("#watched-only")).toHaveAttribute("aria-pressed", "false");
+  await expect(page.locator("#search")).toHaveValue("v");
 });
 test("generic CSV manual mapping, VOD, normalized JSON, errors and mobile layout", async ({
   page,

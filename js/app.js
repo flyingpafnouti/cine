@@ -379,6 +379,16 @@ async function detail(id) {
       isWatched: (movieId) => state.watched.has(movieId),
       favorite: toggleFavorite,
       watch: toggleWatched,
+    }, (kind, name) => {
+      state.favoritesOnly = false;
+      state.watchedOnly = false;
+      state.config = defaults();
+      state.config.filters[kind] = name;
+      state.config.view = "table";
+      state.page = 1;
+      syncControls(state);
+      $("#modal").close();
+      refresh();
     });
     $("#modal-close").focus({ preventScroll: true });
   } catch (e) {
@@ -455,6 +465,18 @@ $("#search").oninput = (e) => {
   schedule();
 };
 document.addEventListener("keydown", (e) => {
+  const pageShortcut = document.activeElement === document.body &&
+    !$("#modal").open && !e.altKey && !e.ctrlKey && !e.metaKey;
+  if (pageShortcut && ["f", "v"].includes(e.key.toLowerCase())) {
+    e.preventDefault();
+    $(e.key.toLowerCase() === "f" ? "#favorites-only" : "#watched-only").click();
+    return;
+  }
+  if (e.key === "Backspace" && document.activeElement === document.body && !$("#modal").open) {
+    e.preventDefault();
+    resetFilters();
+    return;
+  }
   if (
     e.key === "/" &&
     !["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement.tagName)
@@ -463,7 +485,7 @@ document.addEventListener("keydown", (e) => {
     $("#search").focus();
   }
 });
-$("#reset").onclick = () => {
+function resetFilters() {
   state.favoritesOnly = false;
   state.watchedOnly = false;
   state.config = defaults();
@@ -471,7 +493,8 @@ $("#reset").onclick = () => {
   syncControls(state);
   notice("");
   refresh();
-};
+}
+$("#reset").onclick = resetFilters;
 $("#import-open").onclick = () =>
   importDialog((source) => load(source, true, true));
 $("#sort").onchange = (e) => {

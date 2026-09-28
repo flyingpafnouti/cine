@@ -802,6 +802,14 @@ dialog::backdrop {
 .detail p {
   font-size: 12px;
 }
+.detail-person-link {
+  color: var(--navy);
+  font-weight: 600;
+  text-underline-offset: 2px;
+}
+.detail-person-link:hover {
+  text-decoration-thickness: 2px;
+}
 .detail-markings {
   display: flex;
   align-items: center;

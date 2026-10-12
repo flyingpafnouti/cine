@@ -268,13 +268,23 @@ function trackingSummary(title, data) {
   );
 }
 
-function trackingGroup(title, rows, totals) {
+function trackingGroup(title, rows, totals, group, onFilter) {
   const max = Math.max(1, ...rows.flatMap((row) => [row.favorites, row.watched]));
+  const label = (row) => onFilter
+    ? el("button", {
+        type: "button",
+        class: "tracking-label",
+        title: "Filtrer la sélection sur « " + row.label + " »",
+        onclick: () => onFilter(group, row.label),
+      },
+      row.label,
+      el("span", { class: "sr-only" }, " (filtrer la sélection)"))
+    : el("span", { class: "tracking-label", title: row.label }, row.label);
   return el("section", { class: "tracking-group" },
     el("h3", {}, title),
     rows.length ? el("div", { class: "tracking-bars" }, rows.map((row) =>
       el("div", { class: "tracking-row" },
-        el("span", { class: "tracking-label", title: row.label }, row.label),
+        label(row),
         el("div", { class: "tracking-measures" },
           el("div", { class: "tracking-measure favorite", title: `${row.favorites} favori(s)` },
             el("i", { style: `width:${row.favorites / max * 100}%` }),
@@ -287,7 +297,7 @@ function trackingGroup(title, rows, totals) {
   );
 }
 
-export function renderTrackingStatistics(data) {
+export function renderTrackingStatistics(data, onFilter) {
   const view = $("#tracking-view");
   const totals = { favorites: data.favorites.count, watched: data.watched.count };
   const distributionTotals = (rows) => ({
@@ -303,7 +313,8 @@ export function renderTrackingStatistics(data) {
   view.replaceChildren(
     el("header", { class: "tracking-heading" },
       el("div", {}, el("h2", {}, "Votre cinéma en chiffres"),
-        el("p", { class: "hint" }, "Les pourcentages des catégories sont calculés sur les films présents dans le catalogue.")),
+        el("p", { class: "hint" }, "Les pourcentages des catégories sont calculés sur les films présents dans le catalogue."),
+        onFilter ? el("p", { class: "hint" }, "Cliquez sur une étiquette pour ouvrir ces films dans le tableau.") : null),
       el("div", { class: "tracking-legend" },
         el("span", { class: "favorite" }, "★ Favoris"),
         el("span", { class: "watched" }, "✓ Déjà vus"))),
@@ -317,15 +328,15 @@ export function renderTrackingStatistics(data) {
           fmt(data.overlap * 100 / data.favorites.count, 1) + " % de vos favoris" : "Aucun favori"))),
     el("div", { class: "tracking-distributions" },
       trackingGroup("Évolution chronologique (périodes de 5 ans)", data.groups.chronology,
-        distributionTotals(data.groups.chronology)),
+        distributionTotals(data.groups.chronology), "chronology", onFilter),
       trackingGroup("Distribution des notes spectateurs", data.groups.ratings,
-        distributionTotals(data.groups.ratings))),
+        distributionTotals(data.groups.ratings), "ratings", onFilter)),
     el("div", { class: "tracking-groups" },
-      trackingGroup("Genres", data.groups.genres, totals),
-      trackingGroup("Nationalités", data.groups.countries, totals),
-      trackingGroup("Décennies", data.groups.decades, totals),
-      trackingGroup("Réalisateurs", data.groups.directors, totals),
-      trackingGroup("Acteurs et actrices", data.groups.actors, totals)),
+      trackingGroup("Genres", data.groups.genres, totals, "genres", onFilter),
+      trackingGroup("Nationalités", data.groups.countries, totals, "countries", onFilter),
+      trackingGroup("Décennies", data.groups.decades, totals, "decades", onFilter),
+      trackingGroup("Réalisateurs", data.groups.directors, totals, "directors", onFilter),
+      trackingGroup("Acteurs et actrices", data.groups.actors, totals, "actors", onFilter)),
   );
 }
 function markingControls(m, marking) {

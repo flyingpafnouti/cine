@@ -105,15 +105,26 @@
           </div>
           <div class="filter-section">
             <h3>Note spectateur <span class="scale">/ 5</span></h3>
-            <label
-              >Note minimum<input
-                type="number"
-                name="ratingMin"
-                step="0.1"
-                min="0"
-                max="5"
-                placeholder="Aucune"
-            /></label>
+            <div class="pair">
+              <label
+                >Note minimum<input
+                  type="number"
+                  name="ratingMin"
+                  step="0.1"
+                  min="0"
+                  max="5"
+                  placeholder="Aucune"
+              /></label
+              ><label
+                >Note maximum<input
+                  type="number"
+                  name="ratingMax"
+                  step="0.1"
+                  min="0"
+                  max="5"
+                  placeholder="Aucune"
+              /></label>
+            </div>
             <div class="chips" id="rating-shortcuts"></div>
             <label class="check"
               ><input type="checkbox" name="onlyRated" /> Uniquement les films

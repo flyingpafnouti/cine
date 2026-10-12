@@ -53,7 +53,16 @@ function compareOrdered(favorites, watched, getValues, order) {
     }));
 }
 
-const ratingBands = ["Moins de 2", "2–2,9", "3–3,4", "3,5–3,9", "4–4,4", "4,5–5"];
+// Filtres équivalents à chaque tranche, utilisés quand on clique sur un libellé.
+export const ratingBandFilters = {
+  "Moins de 2": { ratingMax: 1.9 },
+  "2–2,9": { ratingMin: 2, ratingMax: 2.9 },
+  "3–3,4": { ratingMin: 3, ratingMax: 3.4 },
+  "3,5–3,9": { ratingMin: 3.5, ratingMax: 3.9 },
+  "4–4,4": { ratingMin: 4, ratingMax: 4.4 },
+  "4,5–5": { ratingMin: 4.5 },
+};
+const ratingBands = Object.keys(ratingBandFilters);
 const ratingBand = (rating) => rating === null ? [] : [
   rating < 2 ? ratingBands[0] :
   rating < 3 ? ratingBands[1] :

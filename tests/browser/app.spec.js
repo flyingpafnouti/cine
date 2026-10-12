@@ -484,6 +484,38 @@ test("tracking statistics are calculated only in their dedicated tab", async ({ 
   await expect(page.locator("#table-view")).toBeVisible();
   await expect(page.locator(".toolbar")).toBeVisible();
 });
+
+test("tracking labels open the table view with the matching filter", async ({ page }) => {
+  await page.locator("#table-view tbody tr").first().locator(".favorite-button").click();
+
+  await page.locator("#view-tracking").click();
+  await expect(page.locator("#tracking-view")).toContainText("Votre cinéma en chiffres");
+
+  const nationalities = page.locator(".tracking-group", { hasText: "Nationalités" });
+  const countryLabel = nationalities.locator("button.tracking-label").first();
+  const country = await countryLabel.evaluate((n) => n.firstChild.textContent);
+  await countryLabel.click();
+  await expect(page.locator("#table-view")).toBeVisible();
+  await expect(page.locator("#tracking-view")).toBeHidden();
+  await expect(page.locator("#view-table")).toHaveClass(/active/);
+  await expect(page.locator(".toolbar")).toBeVisible();
+  await expect(page.locator("#active-filters")).toContainText(country + " ×");
+  await expect(page.locator("#country-selected")).toContainText(country);
+  await expect(page.locator("#table-view tbody tr")).not.toHaveCount(0);
+
+  await page.locator("#view-tracking").click();
+  await expect(page.locator("#tracking-view")).toContainText("Votre cinéma en chiffres");
+  const chronology = page.locator(".tracking-group", { hasText: "Évolution chronologique" });
+  const periodLabel = chronology.locator("button.tracking-label").first();
+  const period = await periodLabel.evaluate((n) => n.firstChild.textContent);
+  const [yearMin, yearMax] = period.split("–");
+  await periodLabel.click();
+  await expect(page.locator("#table-view")).toBeVisible();
+  await expect(page.locator('#hard-form [name="yearMin"]')).toHaveValue(yearMin);
+  await expect(page.locator('#hard-form [name="yearMax"]')).toHaveValue(yearMax);
+  await expect(page.locator("#active-filters")).toContainText("Année ≥ " + yearMin);
+  await expect(page.locator("#active-filters")).toContainText("Année ≤ " + yearMax);
+});
 test("main panel configures a YouTube key and detail embeds the trailer", async ({ page }) => {
   await page.route("**/youtube/v3/search**", (route) =>
     route.fulfill({

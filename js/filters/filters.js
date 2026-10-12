@@ -45,6 +45,7 @@ export function matches(m, f) {
     ["yearMin", "year", 1],
     ["yearMax", "year", -1],
     ["ratingMin", "audienceRating", 1],
+    ["ratingMax", "audienceRating", -1],
     ["votesMin", "audienceRatingCount", 1],
     ["durationMin", "duration", 1],
     ["durationMax", "duration", -1],

@@ -15,7 +15,7 @@ import {
 } from "../js/scoring/scoring.js";
 import { pivot } from "../js/analysis/pivot.js";
 import { statistics } from "../js/analysis/statistics.js";
-import { trackingStatistics } from "../js/analysis/tracking.js";
+import { trackingStatistics, ratingBandFilters } from "../js/analysis/tracking.js";
 import { defaults } from "../js/state.js";
 
 test("tracking statistics compare favorites and watched films", () => {
@@ -37,6 +37,42 @@ test("tracking statistics compare favorites and watched films", () => {
   assert.deepEqual(result.groups.ratings, [
     { label: "4–4,4", favorites: 1, watched: 1 },
   ]);
+});
+
+test("tracking rating band filters match exactly the films of their band", () => {
+  const probe = (rating) => ({
+    id: "r" + rating,
+    title: "r" + rating,
+    audienceRating: rating,
+    duration: null,
+    year: null,
+    genres: [],
+    countries: [],
+    directors: [],
+    actors: [],
+    synopsis: "",
+    search: "",
+  });
+  for (let i = 1; i <= 50; i++) {
+    const movie = probe(i / 10);
+    const band = trackingStatistics([movie], new Set([movie.id]), new Set())
+      .groups.ratings[0].label;
+    for (const [label, filter] of Object.entries(ratingBandFilters)) {
+      const f = { ...defaults().filters, ...filter };
+      assert.equal(matches(movie, f), label === band,
+        `rating ${movie.audienceRating} should ${label === band ? "match" : "not match"} ${label}`);
+    }
+  }
+  const unrated = probe(null);
+  for (const filter of Object.values(ratingBandFilters))
+    assert.equal(matches(unrated, { ...defaults().filters, ...filter }), false);
+});
+
+test("ratingMax excludes films rated above the maximum and unrated films", () => {
+  const f = { ...defaults().filters, ratingMax: 3 };
+  assert.equal(matches({ ...movies[0], audienceRating: 3 }, f), true);
+  assert.equal(matches({ ...movies[0], audienceRating: 3.1 }, f), false);
+  assert.equal(matches({ ...movies[0], audienceRating: null }, f), false);
 });
 import { execute } from "../js/engine.js";
 import { csv } from "../js/export/export.js";

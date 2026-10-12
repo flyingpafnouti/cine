@@ -16,7 +16,8 @@ import { setupApiSettings } from "./ui/api-settings.js";
 import { setupCloudLists } from "./ui/cloud-lists.js";
 import { createCloudLists } from "./storage/cloud-lists.js";
 import { csv, download } from "./export/export.js";
-const worker = new Worker(new URL("./worker.js?v=tracking-statistics-2", import.meta.url), {
+import { ratingBandFilters } from "./analysis/tracking.js";
+const worker = new Worker(new URL("./worker.js?v=tracking-statistics-3", import.meta.url), {
   type: "module",
 });
 const requests = new Map();
@@ -158,6 +159,7 @@ function activeFilters() {
     yearMin: "Année ≥",
     yearMax: "Année ≤",
     ratingMin: "Note ≥",
+    ratingMax: "Note ≤",
     votesMin: "Votes ≥",
     director: "Réalisateur",
     actor: "Acteur",
@@ -525,6 +527,29 @@ for (const view of ["table", "analysis"])
     refresh();
   };
 let trackingRevision = 0;
+function applyTrackingFilter(group, label) {
+  const filters = defaults().filters;
+  if (group === "genres") {
+    filters.genres = [label];
+    filters.genreMode = "any";
+  } else if (group === "countries") {
+    filters.countries = [label];
+    filters.countryMode = "any";
+  } else if (group === "directors") filters.director = label;
+  else if (group === "actors") filters.actor = label;
+  else if (group === "decades" || group === "chronology") {
+    const [yearMin, yearMax] = label.split("–").map(Number);
+    filters.yearMin = yearMin;
+    filters.yearMax = yearMax;
+  } else if (group === "ratings") Object.assign(filters, ratingBandFilters[label]);
+  state.favoritesOnly = false;
+  state.watchedOnly = false;
+  state.config = { ...defaults(), filters };
+  state.page = 1;
+  $("#results").classList.remove("tracking-mode");
+  syncControls(state);
+  refresh();
+}
 $("#view-tracking").onclick = async () => {
   state.config.view = "tracking";
   $("#results").classList.add("tracking-mode");
@@ -541,7 +566,7 @@ $("#view-tracking").onclick = async () => {
       watched: [...state.watched],
     });
     if (revision === trackingRevision && state.config.view === "tracking")
-      renderTrackingStatistics(data);
+      renderTrackingStatistics(data, applyTrackingFilter);
   } catch (error) {
     if (revision === trackingRevision) {
       $("#tracking-view").replaceChildren(

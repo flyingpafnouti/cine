@@ -706,6 +706,20 @@ footer {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+button.tracking-label {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--navy);
+  font-weight: 600;
+  text-align: left;
+}
+button.tracking-label:hover {
+  background: none;
+  border: 0;
+  text-decoration: underline;
+}
 .tracking-measures { display: grid; gap: 3px; }
 .tracking-measure {
   position: relative;

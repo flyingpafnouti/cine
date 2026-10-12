@@ -7,6 +7,7 @@ export const defaults = () => ({
     yearMin: null,
     yearMax: null,
     ratingMin: null,
+    ratingMax: null,
     votesMin: null,
     onlyRated: false,
     genres: [],

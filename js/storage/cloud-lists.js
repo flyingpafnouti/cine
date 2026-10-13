@@ -69,6 +69,10 @@ export async function signOut() {
   if (session) await api("/auth/v1/logout", { method: "POST", token: session.access_token }).catch(() => {});
 }
 
+export async function resetPassword(email) {
+  await api("/auth/v1/recover", { method: "POST", body: { email } });
+}
+
 export function currentUser() {
   return readSession()?.user || null;
 }

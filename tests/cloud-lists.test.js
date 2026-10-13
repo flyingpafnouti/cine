@@ -1,6 +1,6 @@
 import { test, beforeEach, afterEach } from "node:test";
 import assert from "node:assert/strict";
-import { createCloudLists, currentUser, signIn, signOut } from "../js/storage/cloud-lists.js";
+import { createCloudLists, currentUser, resetPassword, signIn, signOut } from "../js/storage/cloud-lists.js";
 
 const originalFetch = globalThis.fetch;
 const originalStorage = globalThis.localStorage;
@@ -36,6 +36,19 @@ test("Supabase password sign-in stores the public session and sign-out clears it
   assert.ok(calls[0].options.headers.apikey.startsWith("sb_publishable_"));
   await signOut();
   assert.equal(currentUser(), null);
+});
+
+test("resetPassword calls Supabase recover endpoint with the email", async () => {
+  const calls = [];
+  globalThis.fetch = async (url, options) => {
+    calls.push({ url, options });
+    return new Response(null, { status: 204 });
+  };
+  await resetPassword("cine@example.test");
+  assert.match(calls[0].url, /\/auth\/v1\/recover$/);
+  assert.equal(calls[0].options.method, "POST");
+  assert.deepEqual(JSON.parse(calls[0].options.body), { email: "cine@example.test" });
+  assert.ok(calls[0].options.headers.apikey.startsWith("sb_publishable_"));
 });
 
 test("first connection uploads local lists when the cloud is empty", async () => {

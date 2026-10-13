@@ -1,5 +1,5 @@
 import { $, el } from "./dom.js";
-import { currentUser, signIn, signOut, signUp } from "../storage/cloud-lists.js";
+import { currentUser, resetPassword, signIn, signOut, signUp } from "../storage/cloud-lists.js";
 
 export function setupCloudLists(sync) {
   const container = $("#cloud-account");
@@ -28,6 +28,7 @@ export function setupCloudLists(sync) {
     container.replaceChildren(
       el("label", {}, "E-mail", el("input", { id: "cloud-email", type: "email", autocomplete: "email" })),
       el("label", {}, "Mot de passe", el("input", { id: "cloud-password", type: "password", minlength: 6, autocomplete: "current-password" })),
+      el("button", { class: "text-button", id: "cloud-forgot", type: "button" }, "Mot de passe oublié ?"),
       el("div", { class: "api-settings-actions" },
         el("button", { class: "button", id: "cloud-signin" }, "Se connecter"),
         el("button", { class: "button", id: "cloud-signup" }, "Créer un compte"),
@@ -55,6 +56,22 @@ export function setupCloudLists(sync) {
         container.querySelectorAll("button").forEach((button) => { button.disabled = false; });
       }
     }
+    $("#cloud-forgot").onclick = async () => {
+      const email = $("#cloud-email").value.trim();
+      if (!email) {
+        message("Saisissez votre e-mail pour recevoir un lien de réinitialisation.");
+        return;
+      }
+      $("#cloud-forgot").disabled = true;
+      try {
+        await resetPassword(email);
+        message("E-mail de réinitialisation envoyé. Vérifiez votre boîte de réception.");
+      } catch (error) {
+        message("Envoi impossible : " + error.message);
+      } finally {
+        $("#cloud-forgot").disabled = false;
+      }
+    };
     $("#cloud-signin").onclick = () => authenticate(false);
     $("#cloud-signup").onclick = () => authenticate(true);
   }

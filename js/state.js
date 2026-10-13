@@ -1,5 +1,6 @@
 import { readFavorites } from "./storage/favorites.js";
 import { readWatched } from "./storage/watched.js";
+import { readSidebarOpen } from "./storage/ui.js";
 export const defaults = () => ({
   filters: {
     query: "",
@@ -60,6 +61,7 @@ export const defaults = () => ({
 export const state = {
   config: defaults(),
   page: 1,
+  sidebarOpen: readSidebarOpen(),
   favorites: readFavorites(),
   favoritesOnly: false,
   watched: readWatched(),

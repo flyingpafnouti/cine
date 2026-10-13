@@ -71,7 +71,10 @@
       <aside class="sidebar" aria-label="Configuration de la sélection">
         <div class="section-heading">
           <h2>Votre sélection</h2>
-          <button id="reset" class="text-button">Réinitialiser</button>
+          <div class="section-actions">
+            <button id="reset" class="text-button">Réinitialiser</button>
+            <button id="sidebar-close" class="sidebar-close" aria-label="Masquer le volet de sélection" title="Masquer le volet de sélection">✕</button>
+          </div>
         </div>
         <p class="muted intro">
           Définissez ce qui est indispensable.<br />Puis ce qui fait la
@@ -356,22 +359,9 @@
         </div>
       </aside>
       <section class="content" id="results">
-        <div class="eyebrow">VOTRE PROCHAIN GRAND FILM EST ICI</div>
-        <div class="title-row">
-          <div>
-            <h1>Explorez le cinéma.</h1>
-            <p class="muted">
-              Des critères précis. Une sélection qui vous ressemble.
-            </p>
-          </div>
-          <span class="edition"
-            >COLLECTION ENRICHIE<br /><strong
-              >Édition explorateur</strong
-            ></span
-          >
-        </div>
         <div class="metrics" id="stats"></div>
         <div class="results-heading">
+          <button id="sidebar-open" class="button" hidden>☰ Votre sélection</button>
           <div class="view-tabs" role="group" aria-label="Affichage">
             <button id="view-table" class="active">Tableau</button
             ><button id="view-analysis">Analyse</button

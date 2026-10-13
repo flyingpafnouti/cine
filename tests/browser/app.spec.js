@@ -516,6 +516,27 @@ test("tracking labels open the table view with the matching filter", async ({ pa
   await expect(page.locator("#active-filters")).toContainText("Année ≥ " + yearMin);
   await expect(page.locator("#active-filters")).toContainText("Année ≤ " + yearMax);
 });
+
+test("sidebar is visible by default and collapses to widen the table", async ({ page }) => {
+  await expect(page.locator(".sidebar")).toBeVisible();
+  await expect(page.locator("#sidebar-open")).toBeHidden();
+  const before = (await page.locator(".content").boundingBox()).width;
+
+  await page.locator("#sidebar-close").click();
+  await expect(page.locator(".sidebar")).toBeHidden();
+  await expect(page.locator("#sidebar-open")).toBeVisible();
+  const after = (await page.locator(".content").boundingBox()).width;
+  expect(after).toBeGreaterThan(before);
+
+  await page.reload();
+  await expect(page.locator("#table-view tbody tr")).toHaveCount(250);
+  await expect(page.locator(".sidebar")).toBeHidden();
+  await expect(page.locator("#sidebar-open")).toBeVisible();
+
+  await page.locator("#sidebar-open").click();
+  await expect(page.locator(".sidebar")).toBeVisible();
+  await expect(page.locator("#sidebar-open")).toBeHidden();
+});
 test("main panel configures a YouTube key and detail embeds the trailer", async ({ page }) => {
   await page.route("**/youtube/v3/search**", (route) =>
     route.fulfill({

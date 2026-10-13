@@ -1,5 +1,6 @@
 import { writeFavorites } from "./storage/favorites.js";
 import { writeWatched } from "./storage/watched.js";
+import { writeSidebarOpen } from "./storage/ui.js";
 import {
   readImportedDatasets,
   saveImportedDataset,
@@ -417,6 +418,16 @@ setupControls(state, schedule);
 setupApiSettings();
 setupCloudLists(cloudLists);
 syncControls(state);
+function applySidebar(open) {
+  state.sidebarOpen = open;
+  writeSidebarOpen(open);
+  document.body.classList.toggle("sidebar-closed", !open);
+  $("#sidebar-open").hidden = open;
+  $("#sidebar-close").hidden = !open;
+}
+$("#sidebar-open").onclick = () => applySidebar(true);
+$("#sidebar-close").onclick = () => applySidebar(false);
+applySidebar(state.sidebarOpen);
 $("#modal-close").onclick = () => $("#modal").close();
 $("#modal").addEventListener("close", () => {
   detailRevision++;

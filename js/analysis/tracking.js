@@ -103,6 +103,8 @@ export function trackingStatistics(movies, favoriteIds, watchedIds, ratings) {
     rating: ratingMap.get(movie.id),
   }));
   function averageRatingBy(getValues, limit = 15) {
+    const m = 3;
+    const globalAverage = mean(userRatings);
     const groups = new Map();
     for (const movie of ratedMovies) {
       const rating = ratingMap.get(movie.id);
@@ -114,12 +116,12 @@ export function trackingStatistics(movies, favoriteIds, watchedIds, ratings) {
       }
     }
     return [...groups.entries()]
-      .map(([label, { total, count }]) => ({
-        label,
-        average: total / count,
-        count,
-      }))
-      .sort((a, b) => b.average - a.average || b.count - a.count || a.label.localeCompare(b.label, "fr"))
+      .map(([label, { total, count }]) => {
+        const average = total / count;
+        const score = (count / (count + m)) * average + (m / (count + m)) * globalAverage;
+        return { label, average, count, score };
+      })
+      .sort((a, b) => b.score - a.score || b.count - a.count || a.label.localeCompare(b.label, "fr"))
       .slice(0, limit);
   }
   return {

@@ -91,12 +91,14 @@ async function refresh() {
   }
 }
 const cloudLists = createCloudLists({
-  readLocal: () => ({ favorites: new Set(state.favorites), watched: new Set(state.watched) }),
-  replaceLocal: (favorites, watched) => {
+  readLocal: () => ({ favorites: new Set(state.favorites), watched: new Set(state.watched), ratings: new Map(state.ratings) }),
+  replaceLocal: (favorites, watched, ratings) => {
     writeFavorites(favorites);
     writeWatched(watched);
+    writeRatings(ratings);
     state.favorites = favorites;
     state.watched = watched;
+    state.ratings = ratings;
     state.page = 1;
   },
   changed: () => refresh(),
@@ -325,7 +327,7 @@ $("#lists-file").onchange = async (event) => {
     }
     state.favorites = favorites;
     state.watched = watched;
-    await cloudLists.pushSnapshot({ favorites, watched });
+    await cloudLists.pushSnapshot({ favorites, watched, ratings: state.ratings });
     state.page = 1;
     await refresh();
     notice(`Listes fusionnées : ${addedFavorites} favori(s) et ${addedWatched} film(s) déjà vu(s) ajoutés. Les films absents du catalogue restent mémorisés.`);
@@ -347,7 +349,7 @@ function toggleFavorite(id) {
     return;
   }
   state.favorites = next;
-  cloudLists.saveMark(id, next.has(id), state.watched.has(id));
+  cloudLists.saveMark(id, next.has(id), state.watched.has(id), state.ratings.get(id) ?? null);
   refresh();
 }
 $("#favorites-only").onclick = () => {
@@ -365,7 +367,7 @@ function toggleWatched(id) {
     return;
   }
   state.watched = next;
-  cloudLists.saveMark(id, state.favorites.has(id), next.has(id));
+  cloudLists.saveMark(id, state.favorites.has(id), next.has(id), state.ratings.get(id) ?? null);
   refresh();
 }
 function toggleRating(id, value) {
@@ -379,6 +381,7 @@ function toggleRating(id, value) {
     return;
   }
   state.ratings = next;
+  cloudLists.saveMark(id, state.favorites.has(id), state.watched.has(id), next.get(id) ?? null);
   refresh();
 }
 $("#watched-only").onclick = () => {

@@ -82,7 +82,7 @@ export function createCloudLists({ readLocal, replaceLocal, changed, status }) {
   let syncing = false;
 
   async function rows(session) {
-    return api("/rest/v1/film_marks?select=film_id,favorite,watched", { token: session.access_token });
+    return api("/rest/v1/film_marks?select=film_id,favorite,watched,user_rating", { token: session.access_token });
   }
 
   async function pull({ initial = false } = {}) {
@@ -94,14 +94,15 @@ export function createCloudLists({ readLocal, replaceLocal, changed, status }) {
       await flushPending(session);
       const remote = await rows(session);
       const local = readLocal();
-      if (initial && remote.length === 0 && (local.favorites.size || local.watched.size)) {
+      if (initial && remote.length === 0 && (local.favorites.size || local.watched.size || local.ratings.size)) {
         await pushSnapshot(local, session);
         status("Listes locales sauvegardées dans le cloud.");
         return;
       }
       const favorites = new Set(remote.filter((row) => row.favorite).map((row) => row.film_id));
       const watched = new Set(remote.filter((row) => row.watched).map((row) => row.film_id));
-      replaceLocal(favorites, watched);
+      const ratings = new Map(remote.filter((row) => row.user_rating !== null).map((row) => [row.film_id, row.user_rating]));
+      replaceLocal(favorites, watched, ratings);
       changed();
       if (initial) status("Listes synchronisées.");
     } catch (error) {
@@ -114,7 +115,7 @@ export function createCloudLists({ readLocal, replaceLocal, changed, status }) {
   async function pushSnapshot(lists, providedSession) {
     const session = providedSession || await validSession();
     if (!session) return;
-    const ids = [...new Set([...lists.favorites, ...lists.watched])];
+    const ids = [...new Set([...lists.favorites, ...lists.watched, ...lists.ratings.keys()])];
     if (!ids.length) return;
     await api("/rest/v1/film_marks?on_conflict=user_id,film_id", {
       method: "POST", token: session.access_token, prefer: "resolution=merge-duplicates",
@@ -123,14 +124,15 @@ export function createCloudLists({ readLocal, replaceLocal, changed, status }) {
         film_id: filmId,
         favorite: lists.favorites.has(filmId),
         watched: lists.watched.has(filmId),
+        user_rating: lists.ratings.get(filmId) ?? null,
       })),
     });
   }
 
-  async function saveMark(filmId, favorite, watched) {
+  async function saveMark(filmId, favorite, watched, userRating) {
     if (!currentUser()) return;
     const pending = readPending();
-    pending[filmId] = { favorite, watched };
+    pending[filmId] = { favorite, watched, userRating };
     savePending(pending);
     try {
       const session = await validSession();
@@ -171,6 +173,7 @@ export function createCloudLists({ readLocal, replaceLocal, changed, status }) {
         film_id: filmId,
         favorite: Boolean(mark.favorite),
         watched: Boolean(mark.watched),
+        user_rating: mark.userRating ?? null,
       })),
     });
     savePending({});

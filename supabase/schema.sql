@@ -4,9 +4,13 @@
     film_id text not null,
     favorite boolean not null default false,
     watched boolean not null default false,
+    user_rating integer check (user_rating between 1 and 5),
     updated_at timestamptz not null default now(),
     primary key (user_id, film_id)
   );
+
+  -- Migration pour les bases existantes : ajouter la colonne user_rating si elle n'existe pas.
+  alter table public.film_marks add column if not exists user_rating integer check (user_rating between 1 and 5);
 
   alter table public.film_marks enable row level security;
 

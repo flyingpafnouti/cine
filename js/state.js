@@ -1,5 +1,6 @@
 import { readFavorites } from "./storage/favorites.js";
 import { readWatched } from "./storage/watched.js";
+import { readRatings } from "./storage/ratings.js";
 import { readSidebarOpen } from "./storage/ui.js";
 export const defaults = () => ({
   filters: {
@@ -66,5 +67,6 @@ export const state = {
   favoritesOnly: false,
   watched: readWatched(),
   watchedOnly: false,
+  ratings: readRatings(),
   summary: null,
 };

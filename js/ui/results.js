@@ -106,6 +106,7 @@ export function renderResults(data, state, { detail, sort, favorite, watch }) {
     ["pressRating", "Presse"],
     ["score", "Score"],
     ["duration", "Durée (min)"],
+    ["userRating", "Ma note"],
   ];
   const table = el(
     "table",
@@ -192,6 +193,7 @@ export function renderResults(data, state, { detail, sort, favorite, watch }) {
         el("td", {}, fmt(m.pressRating, 1)),
         el("td", {}, scoreButton(m, detail)),
         el("td", {}, m.duration === null ? "—" : fmt(m.duration)),
+        el("td", { class: "user-rating" }, m.userRating === null ? "—" : m.userRating),
       ),
     );
   }
@@ -297,17 +299,77 @@ function trackingGroup(title, rows, totals, group, onFilter) {
   );
 }
 
+function userRatingSummary(data) {
+  return el("article", { class: "tracking-summary user-rating-summary" },
+    el("h3", {}, "Vos notes"),
+    el("strong", { class: "tracking-total" }, fmt(data.count)),
+    el("span", { class: "hint" }, " films notés"),
+    el("dl", {},
+      el("div", {}, el("dt", {}, "Note moyenne"), el("dd", {}, data.average === null ? "—" : fmt(data.average, 2) + " / 5")),
+    ),
+  );
+}
+
+function userRatingDistribution(data) {
+  const max = Math.max(1, ...data.distribution.map((row) => row.count));
+  return el("section", { class: "tracking-group user-rating-distribution" },
+    el("h3", {}, "Distribution de vos notes"),
+    data.distribution.some((row) => row.count > 0)
+      ? el("div", { class: "tracking-bars" }, data.distribution.map((row) =>
+          el("div", { class: "tracking-row" },
+            el("span", { class: "tracking-label user-rating-label", title: row.value + " / 5" }, row.label),
+            el("div", { class: "tracking-measures" },
+              el("div", { class: "tracking-measure user-rating", title: `${row.count} film(s) noté(s) ${row.value}/5` },
+                el("i", { style: `width:${row.count / max * 100}%` }),
+                el("span", {}, fmt(row.count))),
+            ),
+          )))
+      : el("p", { class: "hint" }, "Aucune note attribuée pour le moment."),
+  );
+}
+
+function userRatingRanking(title, movies, emptyMessage) {
+  return el("section", { class: "tracking-group user-rating-ranking" },
+    el("h3", {}, title),
+    movies.length
+      ? el("ol", { class: "user-rating-list" }, movies.map((movie) =>
+          el("li", {},
+            el("span", { class: "user-rating-stars" }, "★ ".repeat(movie.rating).trim()),
+            el("span", { class: "user-rating-title" }, movie.title),
+            movie.year ? el("span", { class: "user-rating-year" }, "(" + movie.year + ")") : null,
+          )))
+      : el("p", { class: "hint" }, emptyMessage),
+  );
+}
+
+function userRatingAverageGroup(title, rows) {
+  const max = Math.max(1, ...rows.map((row) => row.average));
+  return el("section", { class: "tracking-group user-rating-average-group" },
+    el("h3", {}, title),
+    rows.length ? el("div", { class: "tracking-bars" }, rows.map((row) =>
+      el("div", { class: "tracking-row" },
+        el("span", { class: "tracking-label", title: row.label }, row.label),
+        el("div", { class: "tracking-measures" },
+          el("div", { class: "tracking-measure user-rating", title: `${row.count} film(s) · moyenne ${fmt(row.average, 2)}/5` },
+            el("i", { style: `width:${row.average / 5 * 100}%` }),
+            el("span", {}, fmt(row.average, 2), el("small", {}, " / 5 · " + fmt(row.count) + " film(s)"))),
+        ),
+      ))) : el("p", { class: "hint" }, "Aucune donnée pour le moment."),
+  );
+}
+
 export function renderTrackingStatistics(data, onFilter) {
   const view = $("#tracking-view");
   const totals = { favorites: data.favorites.count, watched: data.watched.count };
+  const hasUserRatings = data.userRatings && data.userRatings.count > 0;
   const distributionTotals = (rows) => ({
     favorites: rows.reduce((sum, row) => sum + row.favorites, 0),
     watched: rows.reduce((sum, row) => sum + row.watched, 0),
   });
-  if (!data.favorites.saved && !data.watched.saved) {
+  if (!data.favorites.saved && !data.watched.saved && !hasUserRatings) {
     view.replaceChildren(el("div", { class: "empty" },
       el("strong", {}, "Aucun suivi à analyser."),
-      el("p", {}, "Ajoutez des favoris ou marquez des films comme déjà vus pour faire apparaître les statistiques.")));
+      el("p", {}, "Ajoutez des favoris, marquez des films comme déjà vus ou attribuez des notes pour faire apparaître les statistiques.")));
     return;
   }
   view.replaceChildren(
@@ -317,7 +379,8 @@ export function renderTrackingStatistics(data, onFilter) {
         onFilter ? el("p", { class: "hint" }, "Cliquez sur une étiquette pour ouvrir ces films dans le tableau.") : null),
       el("div", { class: "tracking-legend" },
         el("span", { class: "favorite" }, "★ Favoris"),
-        el("span", { class: "watched" }, "✓ Déjà vus"))),
+        el("span", { class: "watched" }, "✓ Déjà vus"),
+        hasUserRatings ? el("span", { class: "user-rating" }, "● Vos notes") : null)),
     el("div", { class: "tracking-summaries" },
       trackingSummary("Favoris", data.favorites),
       trackingSummary("Films déjà vus", data.watched),
@@ -325,7 +388,24 @@ export function renderTrackingStatistics(data, onFilter) {
         el("h3", {}, "Favoris déjà vus"),
         el("strong", { class: "tracking-total" }, fmt(data.overlap)),
         el("p", { class: "hint" }, data.favorites.count ?
-          fmt(data.overlap * 100 / data.favorites.count, 1) + " % de vos favoris" : "Aucun favori"))),
+          fmt(data.overlap * 100 / data.favorites.count, 1) + " % de vos favoris" : "Aucun favori")),
+      ...(hasUserRatings ? [userRatingSummary(data.userRatings)] : [])),
+    ...(hasUserRatings ? [
+      el("div", { class: "user-rating-section" },
+        el("h2", {}, "Vos notes personnelles"),
+        el("div", { class: "user-rating-section-grid" },
+          userRatingDistribution(data.userRatings),
+          userRatingAverageGroup("Genres préférés (note moyenne)", data.userRatings.genres),
+          userRatingAverageGroup("Réalisateurs préférés (note moyenne)", data.userRatings.directors),
+          userRatingAverageGroup("Acteurs préférés (note moyenne)", data.userRatings.actors),
+          userRatingAverageGroup("Nationalités préférées (note moyenne)", data.userRatings.countries),
+        ),
+        el("div", { class: "user-rating-rankings" },
+          userRatingRanking("🏆 Top 10 de vos notes", data.userRatings.topRated, "Aucun film noté."),
+          userRatingRanking("💔 Vos notes les plus basses", data.userRatings.bottomRated, "Aucun film noté."),
+        ),
+      ),
+    ] : []),
     el("div", { class: "tracking-distributions" },
       trackingGroup("Évolution chronologique (périodes de 5 ans)", data.groups.chronology,
         distributionTotals(data.groups.chronology), "chronology", onFilter),
@@ -383,6 +463,35 @@ function markingControls(m, marking) {
   };
   render();
   return controls;
+}
+function ratingControls(m, marking) {
+  if (!marking || !marking.rate) return null;
+  const section = el("section", {
+    class: "detail-rating-personal",
+    "aria-label": "Ma note pour " + m.title,
+  });
+  const render = () => {
+    const current = marking.getRating(m.id);
+    section.replaceChildren(
+      el("h4", {}, "Ma note"),
+      el("div", { class: "rating-buttons", role: "group", "aria-label": "Noter " + m.title + " de 1 à 5" },
+        [1, 2, 3, 4, 5].map((value) =>
+          el("button", {
+            class: "rating-button" + (current === value ? " active" : ""),
+            "aria-pressed": current === value,
+            "aria-label": (current === value ? "Retirer ma note de " : "Noter ") + value + " sur 5 : " + m.title,
+            title: (current === value ? "Retirer ma note de " : "Noter ") + value + "/5",
+            onclick: () => {
+              marking.rate(m.id, value);
+              render();
+            },
+          }, value)
+        )
+      ),
+    );
+  };
+  render();
+  return section;
 }
 function peopleLinks(people, kind, onSearchPerson) {
   if (!people.length) return "—";
@@ -488,6 +597,7 @@ export function showDetails(movies, onNavigate, marking, onSearchPerson) {
               ),
             ),
           ),
+          ratingControls(m, marking),
         ),
       ),
     ),

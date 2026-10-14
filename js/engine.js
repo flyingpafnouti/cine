@@ -66,6 +66,7 @@ export function execute(type, p) {
     const c = p.config;
     const favorites = p.favoritesOnly ? new Set(p.favorites || []) : null;
     const watched = new Set(p.watched || []);
+    const ratings = new Map((p.ratings || []).map(([id, value]) => [id, value]));
     const watchedMode = c.filters.watched;
     results = movies
       .filter(
@@ -80,7 +81,7 @@ export function execute(type, p) {
           matches(m, c.filters) &&
           !(c.sorting.field === "audienceRating" && m.audienceRating === null),
       )
-      .map((m) => ({ ...m, ...score(m, c.scoring, ctx) }));
+      .map((m) => ({ ...m, ...score(m, c.scoring, ctx), userRating: ratings.get(m.id) ?? null }));
     sortMovies(results, c.sorting);
     if (c.top) results = results.slice(0, c.top);
     const pages = Math.max(1, Math.ceil(results.length / c.pageSize)),
@@ -100,7 +101,7 @@ export function execute(type, p) {
   }
   if (type === "pivot") return pivot(results, p.row, p.col, p.metric);
   if (type === "trackingStatistics")
-    return trackingStatistics(movies, new Set(p.favorites || []), new Set(p.watched || []));
+    return trackingStatistics(movies, new Set(p.favorites || []), new Set(p.watched || []), p.ratings || []);
   if (type === "export") return results.map(({ search, ...m }) => m);
   if (type === "details")
     return movies

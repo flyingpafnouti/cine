@@ -1,5 +1,6 @@
 import { writeFavorites } from "./storage/favorites.js";
 import { writeWatched } from "./storage/watched.js";
+import { writeRatings } from "./storage/ratings.js";
 import { writeSidebarOpen } from "./storage/ui.js";
 import {
   readImportedDatasets,
@@ -18,7 +19,7 @@ import { setupCloudLists } from "./ui/cloud-lists.js";
 import { createCloudLists } from "./storage/cloud-lists.js";
 import { csv, download } from "./export/export.js";
 import { ratingBandFilters } from "./analysis/tracking.js";
-const worker = new Worker(new URL("./worker.js?v=tracking-statistics-3", import.meta.url), {
+const worker = new Worker(new URL("./worker.js?v=user-rating-stats-1", import.meta.url), {
   type: "module",
 });
 const requests = new Map();
@@ -64,6 +65,7 @@ async function refresh() {
       favorites: [...state.favorites],
       watchedOnly: state.watchedOnly,
       watched: [...state.watched],
+      ratings: [...state.ratings],
     });
     if (rev !== revision) return;
     state.page = data.page;
@@ -366,6 +368,19 @@ function toggleWatched(id) {
   cloudLists.saveMark(id, state.favorites.has(id), next.has(id));
   refresh();
 }
+function toggleRating(id, value) {
+  const next = new Map(state.ratings);
+  if (next.get(id) === value) next.delete(id);
+  else next.set(id, value);
+  try {
+    writeRatings(next);
+  } catch {
+    notice("Impossible d’enregistrer la note : le stockage du navigateur est indisponible.");
+    return;
+  }
+  state.ratings = next;
+  refresh();
+}
 $("#watched-only").onclick = () => {
   state.watchedOnly = !state.watchedOnly;
   state.page = 1;
@@ -380,8 +395,10 @@ async function detail(id) {
     showDetails(movies, detail, {
       isFavorite: (movieId) => state.favorites.has(movieId),
       isWatched: (movieId) => state.watched.has(movieId),
+      getRating: (movieId) => state.ratings.get(movieId) ?? null,
       favorite: toggleFavorite,
       watch: toggleWatched,
+      rate: toggleRating,
     }, (kind, name) => {
       state.favoritesOnly = false;
       state.watchedOnly = false;
@@ -575,6 +592,7 @@ $("#view-tracking").onclick = async () => {
     const data = await request("trackingStatistics", {
       favorites: [...state.favorites],
       watched: [...state.watched],
+      ratings: [...state.ratings],
     });
     if (revision === trackingRevision && state.config.view === "tracking")
       renderTrackingStatistics(data, applyTrackingFilter);

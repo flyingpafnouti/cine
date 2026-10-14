@@ -1,4 +1,4 @@
-import { execute } from "./engine.js?v=tracking-statistics-3";
+import { execute } from "./engine.js?v=user-rating-stats-1";
 self.onmessage = ({ data: { id, type, payload } }) => {
   try {
     self.postMessage({ id, result: execute(type, payload) });

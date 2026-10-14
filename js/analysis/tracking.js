@@ -71,17 +71,72 @@ const ratingBand = (rating) => rating === null ? [] : [
   rating < 4.5 ? ratingBands[4] : ratingBands[5],
 ];
 
-export function trackingStatistics(movies, favoriteIds, watchedIds) {
+export function trackingStatistics(movies, favoriteIds, watchedIds, ratings) {
   const favorites = movies.filter((movie) => favoriteIds.has(movie.id));
   const watched = movies.filter((movie) => watchedIds.has(movie.id));
   const years = [...new Set([...favorites, ...watched]
     .filter((movie) => movie.year !== null)
     .map((movie) => Math.floor(movie.year / 5) * 5))].sort((a, b) => a - b);
   const periods = years.map((year) => `${year}–${year + 4}`);
+  const ratingMap = ratings instanceof Map ? ratings : new Map(ratings || []);
+  const ratedMovies = movies.filter((movie) => ratingMap.has(movie.id));
+  const userRatings = ratedMovies.map((movie) => ratingMap.get(movie.id));
+  const userRatingDistribution = [1, 2, 3, 4, 5].map((value) => ({
+    label: "★ ".repeat(value),
+    value,
+    count: ratedMovies.filter((movie) => ratingMap.get(movie.id) === value).length,
+  }));
+  const sortedByUserRating = [...ratedMovies].sort((a, b) => {
+    const diff = ratingMap.get(b.id) - ratingMap.get(a.id);
+    return diff !== 0 ? diff : (a.year ?? 0) - (b.year ?? 0) || a.title.localeCompare(b.title, "fr");
+  });
+  const topRated = sortedByUserRating.slice(0, 10).map((movie) => ({
+    id: movie.id,
+    title: movie.title,
+    year: movie.year,
+    rating: ratingMap.get(movie.id),
+  }));
+  const bottomRated = sortedByUserRating.slice(-10).reverse().map((movie) => ({
+    id: movie.id,
+    title: movie.title,
+    year: movie.year,
+    rating: ratingMap.get(movie.id),
+  }));
+  function averageRatingBy(getValues, limit = 15) {
+    const groups = new Map();
+    for (const movie of ratedMovies) {
+      const rating = ratingMap.get(movie.id);
+      for (const value of new Set(getValues(movie).filter(Boolean))) {
+        if (!groups.has(value)) groups.set(value, { total: 0, count: 0 });
+        const group = groups.get(value);
+        group.total += rating;
+        group.count += 1;
+      }
+    }
+    return [...groups.entries()]
+      .map(([label, { total, count }]) => ({
+        label,
+        average: total / count,
+        count,
+      }))
+      .sort((a, b) => b.average - a.average || b.count - a.count || a.label.localeCompare(b.label, "fr"))
+      .slice(0, limit);
+  }
   return {
     favorites: summary(favorites, favoriteIds.size),
     watched: summary(watched, watchedIds.size),
     overlap: favorites.filter((movie) => watchedIds.has(movie.id)).length,
+    userRatings: {
+      count: ratedMovies.length,
+      average: mean(userRatings),
+      distribution: userRatingDistribution,
+      topRated,
+      bottomRated,
+      genres: averageRatingBy((movie) => movie.genres),
+      directors: averageRatingBy((movie) => movie.directors, 20),
+      actors: averageRatingBy((movie) => movie.actors, 20),
+      countries: averageRatingBy((movie) => movie.countries),
+    },
     groups: {
       genres: compare(favorites, watched, (movie) => movie.genres),
       countries: compare(favorites, watched, (movie) => movie.countries),

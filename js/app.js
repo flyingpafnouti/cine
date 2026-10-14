@@ -1,6 +1,7 @@
 import { writeFavorites } from "./storage/favorites.js";
 import { writeWatched } from "./storage/watched.js";
 import { writeRatings } from "./storage/ratings.js";
+import { writeWatchDates } from "./storage/watch-dates.js";
 import { writeSidebarOpen } from "./storage/ui.js";
 import {
   readImportedDatasets,
@@ -19,7 +20,7 @@ import { setupCloudLists } from "./ui/cloud-lists.js";
 import { createCloudLists } from "./storage/cloud-lists.js";
 import { csv, download } from "./export/export.js";
 import { ratingBandFilters } from "./analysis/tracking.js";
-const worker = new Worker(new URL("./worker.js?v=bayesian-user-rating-1", import.meta.url), {
+const worker = new Worker(new URL("./worker.js?v=watch-dates-column-1", import.meta.url), {
   type: "module",
 });
 const requests = new Map();
@@ -66,6 +67,7 @@ async function refresh() {
       watchedOnly: state.watchedOnly,
       watched: [...state.watched],
       ratings: [...state.ratings],
+      watchDates: [...state.watchDates],
     });
     if (rev !== revision) return;
     state.page = data.page;
@@ -91,14 +93,16 @@ async function refresh() {
   }
 }
 const cloudLists = createCloudLists({
-  readLocal: () => ({ favorites: new Set(state.favorites), watched: new Set(state.watched), ratings: new Map(state.ratings) }),
-  replaceLocal: (favorites, watched, ratings) => {
+  readLocal: () => ({ favorites: new Set(state.favorites), watched: new Set(state.watched), ratings: new Map(state.ratings), watchDates: new Map(state.watchDates) }),
+  replaceLocal: (favorites, watched, ratings, watchDates) => {
     writeFavorites(favorites);
     writeWatched(watched);
     writeRatings(ratings);
+    writeWatchDates(watchDates);
     state.favorites = favorites;
     state.watched = watched;
     state.ratings = ratings;
+    state.watchDates = watchDates;
     state.page = 1;
   },
   changed: () => refresh(),
@@ -327,7 +331,7 @@ $("#lists-file").onchange = async (event) => {
     }
     state.favorites = favorites;
     state.watched = watched;
-    await cloudLists.pushSnapshot({ favorites, watched, ratings: state.ratings });
+    await cloudLists.pushSnapshot({ favorites, watched, ratings: state.ratings, watchDates: state.watchDates });
     state.page = 1;
     await refresh();
     notice(`Listes fusionnées : ${addedFavorites} favori(s) et ${addedWatched} film(s) déjà vu(s) ajoutés. Les films absents du catalogue restent mémorisés.`);
@@ -349,7 +353,7 @@ function toggleFavorite(id) {
     return;
   }
   state.favorites = next;
-  cloudLists.saveMark(id, next.has(id), state.watched.has(id), state.ratings.get(id) ?? null);
+  cloudLists.saveMark(id, next.has(id), state.watched.has(id), state.ratings.get(id) ?? null, state.watchDates.get(id) ?? null);
   refresh();
 }
 $("#favorites-only").onclick = () => {
@@ -359,15 +363,24 @@ $("#favorites-only").onclick = () => {
 };
 function toggleWatched(id) {
   const next = new Set(state.watched);
-  next.has(id) ? next.delete(id) : next.add(id);
+  const nextDates = new Map(state.watchDates);
+  if (next.has(id)) {
+    next.delete(id);
+    nextDates.delete(id);
+  } else {
+    next.add(id);
+    nextDates.set(id, new Date().toISOString().slice(0, 10));
+  }
   try {
     writeWatched(next);
+    writeWatchDates(nextDates);
   } catch {
     notice("Impossible d’enregistrer les films vus : le stockage du navigateur est indisponible.");
     return;
   }
   state.watched = next;
-  cloudLists.saveMark(id, state.favorites.has(id), next.has(id), state.ratings.get(id) ?? null);
+  state.watchDates = nextDates;
+  cloudLists.saveMark(id, state.favorites.has(id), next.has(id), state.ratings.get(id) ?? null, nextDates.get(id) ?? null);
   refresh();
 }
 function toggleRating(id, value) {
@@ -381,7 +394,7 @@ function toggleRating(id, value) {
     return;
   }
   state.ratings = next;
-  cloudLists.saveMark(id, state.favorites.has(id), state.watched.has(id), next.get(id) ?? null);
+  cloudLists.saveMark(id, state.favorites.has(id), state.watched.has(id), next.get(id) ?? null, state.watchDates.get(id) ?? null);
   refresh();
 }
 $("#watched-only").onclick = () => {

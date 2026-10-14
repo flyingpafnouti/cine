@@ -107,6 +107,7 @@ export function renderResults(data, state, { detail, sort, favorite, watch }) {
     ["score", "Score"],
     ["duration", "Durée (min)"],
     ["userRating", "Ma note"],
+    ["watchDate", "Vu le"],
   ];
   const table = el(
     "table",
@@ -194,6 +195,7 @@ export function renderResults(data, state, { detail, sort, favorite, watch }) {
         el("td", {}, scoreButton(m, detail)),
         el("td", {}, m.duration === null ? "—" : fmt(m.duration)),
         el("td", { class: "user-rating" }, m.userRating === null ? "—" : m.userRating),
+        el("td", { class: "watch-date" }, m.watchDate === null ? "—" : m.watchDate.split("-").reverse().join("/")),
       ),
     );
   }

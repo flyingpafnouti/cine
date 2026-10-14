@@ -957,6 +957,13 @@ td.user-rating {
 td.user-rating:not(:empty) {
   color: var(--navy);
 }
+td.watch-date {
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+  min-width: 80px;
+}
 .detail-rating-personal {
   border-top: 1px solid var(--line);
   padding-top: 12px;

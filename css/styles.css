@@ -799,6 +799,20 @@ button.tracking-label:hover {
   white-space: nowrap;
   font-weight: 600;
 }
+button.user-rating-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--navy);
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+button.user-rating-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
 .user-rating-year {
   flex-shrink: 0;
   color: var(--muted);
@@ -812,8 +826,11 @@ button.tracking-label:hover {
 .tracking-measure.user-rating i {
   background: #7c3aed;
 }
+.tracking-measure.user-rating span {
+  color: #fff;
+}
 .tracking-measure.user-rating span small {
-  color: var(--muted);
+  color: rgba(255, 255, 255, 0.85);
   font-weight: 400;
 }
 .weight {

@@ -328,37 +328,53 @@ function userRatingDistribution(data) {
   );
 }
 
-function userRatingRanking(title, movies, emptyMessage) {
+function userRatingRanking(title, movies, emptyMessage, onOpenFilm) {
   return el("section", { class: "tracking-group user-rating-ranking" },
     el("h3", {}, title),
     movies.length
       ? el("ol", { class: "user-rating-list" }, movies.map((movie) =>
           el("li", {},
             el("span", { class: "user-rating-stars" }, "★ ".repeat(movie.rating).trim()),
-            el("span", { class: "user-rating-title" }, movie.title),
+            onOpenFilm
+              ? el("button", {
+                  class: "user-rating-title user-rating-link",
+                  title: "Ouvrir la fiche de " + movie.title,
+                  onclick: () => onOpenFilm(movie.id),
+                }, movie.title)
+              : el("span", { class: "user-rating-title" }, movie.title),
             movie.year ? el("span", { class: "user-rating-year" }, "(" + movie.year + ")") : null,
           )))
       : el("p", { class: "hint" }, emptyMessage),
   );
 }
 
-function userRatingAverageGroup(title, rows) {
-  const max = Math.max(1, ...rows.map((row) => row.average));
+function userRatingAverageGroup(title, rows, group, onFilter) {
+  const max = Math.max(1, ...rows.map((row) => row.score));
+  const label = (row) => onFilter
+    ? el("button", {
+        type: "button",
+        class: "tracking-label",
+        title: "Filtrer la sélection sur « " + row.label + " »",
+        onclick: () => onFilter(group, row.label),
+      },
+      row.label,
+      el("span", { class: "sr-only" }, " (filtrer la sélection)"))
+    : el("span", { class: "tracking-label", title: row.label }, row.label);
   return el("section", { class: "tracking-group user-rating-average-group" },
     el("h3", {}, title),
     rows.length ? el("div", { class: "tracking-bars" }, rows.map((row) =>
       el("div", { class: "tracking-row" },
-        el("span", { class: "tracking-label", title: row.label }, row.label),
+        label(row),
         el("div", { class: "tracking-measures" },
-          el("div", { class: "tracking-measure user-rating", title: `${row.count} film(s) · moyenne ${fmt(row.average, 2)}/5` },
-            el("i", { style: `width:${row.average / 5 * 100}%` }),
+          el("div", { class: "tracking-measure user-rating", title: `${row.count} film(s) · moyenne ${fmt(row.average, 2)}/5 · score ${fmt(row.score, 2)}/5` },
+            el("i", { style: `width:${row.score / 5 * 100}%` }),
             el("span", {}, fmt(row.average, 2), el("small", {}, " / 5 · " + fmt(row.count) + " film(s)"))),
         ),
       ))) : el("p", { class: "hint" }, "Aucune donnée pour le moment."),
   );
 }
 
-export function renderTrackingStatistics(data, onFilter) {
+export function renderTrackingStatistics(data, onFilter, onOpenFilm) {
   const view = $("#tracking-view");
   const totals = { favorites: data.favorites.count, watched: data.watched.count };
   const hasUserRatings = data.userRatings && data.userRatings.count > 0;
@@ -395,14 +411,14 @@ export function renderTrackingStatistics(data, onFilter) {
         el("h2", {}, "Vos notes personnelles"),
         el("div", { class: "user-rating-section-grid" },
           userRatingDistribution(data.userRatings),
-          userRatingAverageGroup("Genres préférés (note moyenne)", data.userRatings.genres),
-          userRatingAverageGroup("Réalisateurs préférés (note moyenne)", data.userRatings.directors),
-          userRatingAverageGroup("Acteurs préférés (note moyenne)", data.userRatings.actors),
-          userRatingAverageGroup("Nationalités préférées (note moyenne)", data.userRatings.countries),
+          userRatingAverageGroup("Genres préférés (note moyenne)", data.userRatings.genres, "genres", onFilter),
+          userRatingAverageGroup("Réalisateurs préférés (note moyenne)", data.userRatings.directors, "directors", onFilter),
+          userRatingAverageGroup("Acteurs préférés (note moyenne)", data.userRatings.actors, "actors", onFilter),
+          userRatingAverageGroup("Nationalités préférées (note moyenne)", data.userRatings.countries, "countries", onFilter),
         ),
         el("div", { class: "user-rating-rankings" },
-          userRatingRanking("🏆 Top 10 de vos notes", data.userRatings.topRated, "Aucun film noté."),
-          userRatingRanking("💔 Vos notes les plus basses", data.userRatings.bottomRated, "Aucun film noté."),
+          userRatingRanking("🏆 Top 10 de vos notes", data.userRatings.topRated, "Aucun film noté.", onOpenFilm),
+          userRatingRanking("💔 Vos notes les plus basses", data.userRatings.bottomRated, "Aucun film noté.", onOpenFilm),
         ),
       ),
     ] : []),

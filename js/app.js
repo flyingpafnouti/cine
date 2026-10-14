@@ -19,7 +19,7 @@ import { setupCloudLists } from "./ui/cloud-lists.js";
 import { createCloudLists } from "./storage/cloud-lists.js";
 import { csv, download } from "./export/export.js";
 import { ratingBandFilters } from "./analysis/tracking.js";
-const worker = new Worker(new URL("./worker.js?v=user-rating-stats-1", import.meta.url), {
+const worker = new Worker(new URL("./worker.js?v=bayesian-user-rating-1", import.meta.url), {
   type: "module",
 });
 const requests = new Map();
@@ -598,7 +598,7 @@ $("#view-tracking").onclick = async () => {
       ratings: [...state.ratings],
     });
     if (revision === trackingRevision && state.config.view === "tracking")
-      renderTrackingStatistics(data, applyTrackingFilter);
+      renderTrackingStatistics(data, applyTrackingFilter, detail);
   } catch (error) {
     if (revision === trackingRevision) {
       $("#tracking-view").replaceChildren(

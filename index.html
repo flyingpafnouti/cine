@@ -225,6 +225,32 @@
             </p>
           </div>
           <div class="filter-section">
+            <h3>Ancienneté (mois)</h3>
+            <div class="pair">
+              <label
+                >Min<input
+                  type="number"
+                  name="ageMonthsMin"
+                  min="0"
+                  step="1"
+                  inputmode="numeric"
+                  placeholder="Tous" /></label
+              ><label
+                >Max<input
+                  type="number"
+                  name="ageMonthsMax"
+                  min="0"
+                  step="1"
+                  inputmode="numeric"
+                  placeholder="Tous"
+              /></label>
+            </div>
+            <p class="hint">
+              Ancienneté depuis la sortie. Ex. : min 5 mois pour cibler les
+              films potentiellement disponibles en VOD.
+            </p>
+          </div>
+          <div class="filter-section">
             <label
               >Films déjà vus<select name="watched">
                 <option value="all">Tous les films</option>

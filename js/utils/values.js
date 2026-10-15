@@ -52,6 +52,21 @@ export function duration(v) {
     m = s.match(/(\d+)\s*min/i);
   return h || m ? Number(h?.[1] || 0) * 60 + Number(m?.[1] || 0) : number(v);
 }
+export function monthsSince(dateStr) {
+  if (!dateStr) return null;
+  const s = String(dateStr).trim();
+  const match = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!match) return null;
+  const [y, mo, d] = match.slice(1).map(Number);
+  const then = new Date(Date.UTC(y, mo - 1, d));
+  if (Number.isNaN(then.getTime())) return null;
+  const now = new Date();
+  const months =
+    (now.getUTCFullYear() - then.getUTCFullYear()) * 12 +
+    (now.getUTCMonth() - then.getUTCMonth());
+  const dayDiff = now.getUTCDate() - then.getUTCDate();
+  return dayDiff < 0 ? Math.max(0, months - 1) : months;
+}
 export const mean = (a) =>
   a.length ? a.reduce((s, v) => s + v, 0) / a.length : null;
 export const median = (a) => {

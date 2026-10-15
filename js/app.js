@@ -172,6 +172,8 @@ function activeFilters() {
     durationMin: "Durée ≥",
     durationMax: "Durée ≤",
     pressMin: "Presse ≥",
+    ageMonthsMin: "Ancienneté ≥",
+    ageMonthsMax: "Ancienneté ≤",
   };
   for (const [k, label] of Object.entries(names))
     if (f[k] != null && String(f[k]).trim() !== "")

@@ -25,6 +25,8 @@ export const defaults = () => ({
     pressMin: null,
     vod: "all",
     watched: "all",
+    ageMonthsMin: null,
+    ageMonthsMax: null,
     pivot: [],
   },
   scoring: {

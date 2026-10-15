@@ -1,4 +1,4 @@
-import { fold, sortDate } from "../utils/values.js?v=export-all-dataset-1";
+import { fold, sortDate, monthsSince } from "../utils/values.js?v=export-all-dataset-1";
 import { dimension } from "../analysis/pivot.js?v=export-all-dataset-1";
 function matchesSynopsisTerms(value, query) {
   const normalize = (text) => fold(text).replace(/[‘’]/g, "'");
@@ -57,6 +57,15 @@ export function matches(m, f) {
       (m[field] === null ||
         (mode === 1 ? m[field] < f[key] : m[field] > f[key]))
     )
+      return false;
+  }
+  if (f.ageMonthsMin !== null || f.ageMonthsMax !== null) {
+    const dateStr = m.frenchReleaseDate ?? m.releaseDate;
+    const age = monthsSince(dateStr);
+    if (age === null) return false;
+    if (f.ageMonthsMin !== null && f.ageMonthsMin !== "" && age < f.ageMonthsMin)
+      return false;
+    if (f.ageMonthsMax !== null && f.ageMonthsMax !== "" && age > f.ageMonthsMax)
       return false;
   }
   if (f.onlyRated && m.audienceRating === null) return false;

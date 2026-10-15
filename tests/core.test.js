@@ -5,7 +5,7 @@ import { parseCSV } from "../js/data/csv-parser.js";
 import { parseList } from "../js/data/allocine-parser.js";
 import { normalize, mapping } from "../js/data/normalizer.js";
 import { parseSource } from "../js/data/loader.js";
-import { number, extractYear, duration } from "../js/utils/values.js";
+import { number, extractYear, duration, monthsSince } from "../js/utils/values.js";
 import { matches, sortMovies } from "../js/filters/filters.js";
 import {
   context,
@@ -462,6 +462,75 @@ test("CSV export escapes formulas and quotes", () => {
   const text = csv([{ title: '=HYPERLINK("bad")', genres: ["Drame"] }]);
   assert(text.includes("'=HYPERLINK"));
   assert(text.includes('""bad""'));
+});
+test("monthsSince computes age in months from ISO date", () => {
+  const now = new Date();
+  const y = now.getUTCFullYear();
+  const m = now.getUTCMonth();
+  const dateMonthsAgo = (n) => {
+    const d = new Date(Date.UTC(y, m - n, 15));
+    return d.toISOString().slice(0, 10);
+  };
+  assert.equal(monthsSince(null), null);
+  assert.equal(monthsSince(""), null);
+  assert.equal(monthsSince("invalid"), null);
+  assert.equal(monthsSince("2020"), null);
+  assert.equal(monthsSince(dateMonthsAgo(0)), 0);
+  assert.equal(monthsSince(dateMonthsAgo(1)), 1);
+  assert.equal(monthsSince(dateMonthsAgo(5)), 5);
+  assert.equal(monthsSince(dateMonthsAgo(12)), 12);
+  assert.equal(monthsSince(dateMonthsAgo(24)), 24);
+});
+test("ageMonthsMin and ageMonthsMax filter by release age", () => {
+  const now = new Date();
+  const y = now.getUTCFullYear();
+  const m = now.getUTCMonth();
+  const dateMonthsAgo = (n) => {
+    const d = new Date(Date.UTC(y, m - n, 15));
+    return d.toISOString().slice(0, 10);
+  };
+  const base = {
+    id: "test",
+    title: "Test",
+    search: "test",
+    synopsis: "",
+    genres: [],
+    countries: [],
+    directors: [],
+    actors: [],
+    audienceRating: null,
+    audienceRatingCount: null,
+    pressRating: null,
+    duration: null,
+    year: 2020,
+    vodAvailable: null,
+    releaseDate: dateMonthsAgo(10),
+    frenchReleaseDate: null,
+  };
+  const old = { ...base, releaseDate: dateMonthsAgo(24) };
+  const recent = { ...base, releaseDate: dateMonthsAgo(2) };
+  const noDate = { ...base, releaseDate: null, year: null };
+
+  const fMin5 = { ...defaults().filters, ageMonthsMin: 5 };
+  assert.equal(matches(old, fMin5), true);
+  assert.equal(matches(base, fMin5), true);
+  assert.equal(matches(recent, fMin5), false);
+  assert.equal(matches(noDate, fMin5), false);
+
+  const fMax6 = { ...defaults().filters, ageMonthsMax: 6 };
+  assert.equal(matches(recent, fMax6), true);
+  assert.equal(matches(base, fMax6), false);
+  assert.equal(matches(old, fMax6), false);
+  assert.equal(matches(noDate, fMax6), false);
+
+  const fRange = { ...defaults().filters, ageMonthsMin: 5, ageMonthsMax: 12 };
+  assert.equal(matches(base, fRange), true);
+  assert.equal(matches(recent, fRange), false);
+  assert.equal(matches(old, fRange), false);
+  assert.equal(matches(noDate, fRange), false);
+
+  const fNone = { ...defaults().filters };
+  assert.equal(matches(noDate, fNone), true);
 });
 test("Real raw dataset: 59,966 movies, no press prerequisite, integrated pipeline", () => {
   const summary = execute("load", {

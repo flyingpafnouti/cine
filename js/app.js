@@ -1,26 +1,26 @@
-import { writeFavorites } from "./storage/favorites.js";
-import { writeWatched } from "./storage/watched.js";
-import { writeRatings } from "./storage/ratings.js";
-import { writeWatchDates } from "./storage/watch-dates.js";
-import { writeSidebarOpen } from "./storage/ui.js";
+import { writeFavorites } from "./storage/favorites.js?v=export-all-dataset-1";
+import { writeWatched } from "./storage/watched.js?v=export-all-dataset-1";
+import { writeRatings } from "./storage/ratings.js?v=export-all-dataset-1";
+import { writeWatchDates } from "./storage/watch-dates.js?v=export-all-dataset-1";
+import { writeSidebarOpen } from "./storage/ui.js?v=export-all-dataset-1";
 import {
   readImportedDatasets,
   saveImportedDataset,
-} from "./storage/datasets.js";
-import { exportLists, parseLists, readListMetadata, saveImportedLists } from "./storage/lists.js";
-import { showDatasetInfo } from "./ui/dataset-ui.js";
-import { state, defaults } from "./state.js";
-import { $, el, fmt, modal, notice } from "./ui/dom.js";
-import { setupControls, syncControls, renderGenres } from "./ui/controls.js";
-import { renderResults, showDetails, renderPivot, renderTrackingStatistics } from "./ui/results.js";
-import { importDialog, mappingDialog } from "./ui/import.js";
-import { setupPresets } from "./ui/presets-ui.js";
-import { setupApiSettings } from "./ui/api-settings.js";
-import { setupCloudLists } from "./ui/cloud-lists.js";
-import { createCloudLists } from "./storage/cloud-lists.js";
-import { csv, download } from "./export/export.js";
-import { ratingBandFilters } from "./analysis/tracking.js";
-import { formatDate } from "./utils/values.js";
+} from "./storage/datasets.js?v=export-all-dataset-1";
+import { exportLists, parseLists, readListMetadata, saveImportedLists } from "./storage/lists.js?v=export-all-dataset-1";
+import { showDatasetInfo } from "./ui/dataset-ui.js?v=export-all-dataset-1";
+import { state, defaults } from "./state.js?v=export-all-dataset-1";
+import { $, el, fmt, modal, notice } from "./ui/dom.js?v=export-all-dataset-1";
+import { setupControls, syncControls, renderGenres } from "./ui/controls.js?v=export-all-dataset-1";
+import { renderResults, showDetails, renderPivot, renderTrackingStatistics } from "./ui/results.js?v=export-all-dataset-1";
+import { importDialog, mappingDialog } from "./ui/import.js?v=export-all-dataset-1";
+import { setupPresets } from "./ui/presets-ui.js?v=export-all-dataset-1";
+import { setupApiSettings } from "./ui/api-settings.js?v=export-all-dataset-1";
+import { setupCloudLists } from "./ui/cloud-lists.js?v=export-all-dataset-1";
+import { createCloudLists } from "./storage/cloud-lists.js?v=export-all-dataset-1";
+import { csv, download } from "./export/export.js?v=export-all-dataset-1";
+import { ratingBandFilters } from "./analysis/tracking.js?v=export-all-dataset-1";
+import { formatDate } from "./utils/values.js?v=export-all-dataset-1";
 const worker = new Worker(new URL("./worker.js?v=export-all-dataset-1", import.meta.url), {
   type: "module",
 });

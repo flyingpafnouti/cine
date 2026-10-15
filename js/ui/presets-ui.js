@@ -1,7 +1,7 @@
-import { $, el, modal, notice } from "./dom.js";
-import { readPresets, writePresets } from "../storage/presets.js";
-import { defaults } from "../state.js";
-import { syncControls } from "./controls.js";
+import { $, el, modal, notice } from "./dom.js?v=export-all-dataset-1";
+import { readPresets, writePresets } from "../storage/presets.js?v=export-all-dataset-1";
+import { defaults } from "../state.js?v=export-all-dataset-1";
+import { syncControls } from "./controls.js?v=export-all-dataset-1";
 export function setupPresets(state, refresh) {
   let loadedId = "";
   function updateButton() {

@@ -1,5 +1,5 @@
-import { fold, sortDate } from "../utils/values.js";
-import { dimension } from "../analysis/pivot.js";
+import { fold, sortDate } from "../utils/values.js?v=export-all-dataset-1";
+import { dimension } from "../analysis/pivot.js?v=export-all-dataset-1";
 function matchesSynopsisTerms(value, query) {
   const normalize = (text) => fold(text).replace(/[‘’]/g, "'");
   const terms = [];

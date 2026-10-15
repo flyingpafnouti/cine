@@ -1,5 +1,5 @@
-import { el, modal, notice, $ } from "./dom.js";
-import { mapping } from "../data/normalizer.js";
+import { el, modal, notice, $ } from "./dom.js?v=export-all-dataset-1";
+import { mapping } from "../data/normalizer.js?v=export-all-dataset-1";
 export function importDialog(onLoad) {
   const file = el("input", {
     type: "file",

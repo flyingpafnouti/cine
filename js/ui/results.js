@@ -1,9 +1,9 @@
-import { el, $, fmt, modal, labels } from "./dom.js";
-import { formatDate } from "../utils/values.js";
+import { el, $, fmt, modal, labels } from "./dom.js?v=export-all-dataset-1";
+import { formatDate } from "../utils/values.js?v=export-all-dataset-1";
 import {
   readApiKeys,
   findTrailer,
-} from "../storage/youtube.js";
+} from "../storage/youtube.js?v=export-all-dataset-1";
 const tags = (m) => m.genres.map((g) => el("span", { class: "tag" }, g));
 function searchLink(query) {
   return el(

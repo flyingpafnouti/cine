@@ -1,5 +1,5 @@
-import { $, el } from "./dom.js";
-import { currentUser, resetPassword, signIn, signOut, signUp } from "../storage/cloud-lists.js";
+import { $, el } from "./dom.js?v=export-all-dataset-1";
+import { currentUser, resetPassword, signIn, signOut, signUp } from "../storage/cloud-lists.js?v=export-all-dataset-1";
 
 export function setupCloudLists(sync) {
   const container = $("#cloud-account");

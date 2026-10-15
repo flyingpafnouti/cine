@@ -1,8 +1,8 @@
-import { readFavorites } from "./storage/favorites.js";
-import { readWatched } from "./storage/watched.js";
-import { readRatings } from "./storage/ratings.js";
-import { readWatchDates } from "./storage/watch-dates.js";
-import { readSidebarOpen } from "./storage/ui.js";
+import { readFavorites } from "./storage/favorites.js?v=export-all-dataset-1";
+import { readWatched } from "./storage/watched.js?v=export-all-dataset-1";
+import { readRatings } from "./storage/ratings.js?v=export-all-dataset-1";
+import { readWatchDates } from "./storage/watch-dates.js?v=export-all-dataset-1";
+import { readSidebarOpen } from "./storage/ui.js?v=export-all-dataset-1";
 export const defaults = () => ({
   filters: {
     query: "",

@@ -1,6 +1,6 @@
-import { $, el, labels, fmt } from "./dom.js";
-import { normalizeWeights } from "../scoring/scoring.js";
-import { fold } from "../utils/values.js";
+import { $, el, labels, fmt } from "./dom.js?v=export-all-dataset-1";
+import { normalizeWeights } from "../scoring/scoring.js?v=export-all-dataset-1";
+import { fold } from "../utils/values.js?v=export-all-dataset-1";
 let refreshResults = () => {};
 export function setupControls(state, update) {
   refreshResults = update;

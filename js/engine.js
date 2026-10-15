@@ -1,11 +1,11 @@
-import { mergeMovies } from "./data/merge.js";
-import { normalize, detectMapping } from "./data/normalizer.js";
-import { parseSource } from "./data/loader.js";
-import { context, score } from "./scoring/scoring.js";
-import { matches, sortMovies } from "./filters/filters.js";
-import { statistics } from "./analysis/statistics.js";
-import { pivot } from "./analysis/pivot.js";
-import { trackingStatistics } from "./analysis/tracking.js";
+import { mergeMovies } from "./data/merge.js?v=export-all-dataset-1";
+import { normalize, detectMapping } from "./data/normalizer.js?v=export-all-dataset-1";
+import { parseSource } from "./data/loader.js?v=export-all-dataset-1";
+import { context, score } from "./scoring/scoring.js?v=export-all-dataset-1";
+import { matches, sortMovies } from "./filters/filters.js?v=export-all-dataset-1";
+import { statistics } from "./analysis/statistics.js?v=export-all-dataset-1";
+import { pivot } from "./analysis/pivot.js?v=export-all-dataset-1";
+import { trackingStatistics } from "./analysis/tracking.js?v=export-all-dataset-1";
 let movies = [],
   ctx = {},
   results = [],

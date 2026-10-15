@@ -1,5 +1,5 @@
-import { $, el } from "./dom.js";
-import { readApiKeys, writeApiKeys, readActiveApiKeyIndex, selectApiKey } from "../storage/youtube.js";
+import { $, el } from "./dom.js?v=export-all-dataset-1";
+import { readApiKeys, writeApiKeys, readActiveApiKeyIndex, selectApiKey } from "../storage/youtube.js?v=export-all-dataset-1";
 
 export function setupApiSettings() {
   const inputs = $("#api-key-inputs");

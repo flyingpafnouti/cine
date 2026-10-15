@@ -1,5 +1,5 @@
-import { parseList } from "./allocine-parser.js";
-import { number, extractYear, duration, fold } from "../utils/values.js";
+import { parseList } from "./allocine-parser.js?v=export-all-dataset-1";
+import { number, extractYear, duration, fold } from "../utils/values.js?v=export-all-dataset-1";
 export const mapping = {
   title: "movie_title",
   synopsis: "summary",

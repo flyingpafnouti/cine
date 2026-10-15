@@ -1,4 +1,5 @@
 import { el, $, fmt, modal, labels } from "./dom.js";
+import { formatDate } from "../utils/values.js";
 import {
   readApiKeys,
   findTrailer,
@@ -551,17 +552,25 @@ export function showDetails(movies, onNavigate, marking, onSearchPerson) {
             "p",
             { class: "hint" },
             m.dateKind === "france"
-              ? "Année issue de la date de sortie en France ; elle peut différer de la sortie originale."
+              ? "Date issue de la sortie en France ; elle peut différer de la sortie originale."
               : m.dateKind === "original"
-                ? "Année issue de la sortie originale."
-                : "Année fournie par le dataset.",
+                ? "Date issue de la sortie originale."
+                : "Date fournie par le dataset.",
           ),
           el(
             "p",
             { class: "hint" },
             "Sources : " + (m.sources?.join(" · ") || "Import personnel"),
           ),
-          el("p", {}, (m.year ?? "—") + " · " + m.genres.join(", ")),
+          el(
+            "p",
+            {},
+            (formatDate(m.frenchReleaseDate ?? m.releaseDate) ??
+              m.year ??
+              "—") +
+              " · " +
+              m.genres.join(", "),
+          ),
           el("p", {}, "Réalisation : ", peopleLinks(m.directors, "director", onSearchPerson)),
           el("p", {}, "Avec : ", peopleLinks(m.actors, "actor", onSearchPerson)),
           el("p", {}, "Nationalités : " + (m.countries.join(", ") || "—")),

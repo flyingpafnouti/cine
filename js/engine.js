@@ -48,6 +48,14 @@ export function execute(type, p) {
       headers: [...new Set(sources.flatMap((s) => s.headers))],
       minYear: ctx.minYear,
       maxYear: ctx.maxYear,
+      maxReleaseDate: (() => {
+        const dates = movies
+          .map((m) => m.releaseDate)
+          .filter((d) => d !== null);
+        return dates.length
+          ? dates.reduce((max, d) => (d > max ? d : max))
+          : null;
+      })(),
       rated: movies.filter((m) => m.audienceRating !== null).length,
       votes: movies.filter((m) => m.audienceRatingCount !== null).length,
       genres: [...new Set(movies.flatMap((m) => m.genres))].sort((a, b) =>
@@ -104,6 +112,7 @@ export function execute(type, p) {
   if (type === "trackingStatistics")
     return trackingStatistics(movies, new Set(p.favorites || []), new Set(p.watched || []), p.ratings || []);
   if (type === "export") return results.map(({ search, ...m }) => m);
+  if (type === "exportAll") return movies.map(({ search, ...m }) => m);
   if (type === "details")
     return movies
       .filter((m) => p.ids.includes(m.id))

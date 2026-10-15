@@ -31,6 +31,21 @@ export function extractYear(v) {
   const y = m ? Number(m[1]) : null;
   return y >= 1800 && y <= 2200 ? y : null;
 }
+export function formatDate(dateStr) {
+  if (!dateStr) return null;
+  const match = String(dateStr).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!match) return null;
+  return match[3] + "/" + match[2] + "/" + match[1];
+}
+export function sortDate(dateStr) {
+  if (!dateStr) return null;
+  const s = String(dateStr).trim();
+  const match = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (match) return match[1] + match[2] + match[3];
+  const yearOnly = s.match(/^(\d{4})$/);
+  if (yearOnly) return yearOnly[1] + "0101";
+  return null;
+}
 export function duration(v) {
   const s = String(v ?? "");
   const h = s.match(/(\d+)\s*h/i),

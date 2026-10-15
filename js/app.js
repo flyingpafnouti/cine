@@ -20,7 +20,8 @@ import { setupCloudLists } from "./ui/cloud-lists.js";
 import { createCloudLists } from "./storage/cloud-lists.js";
 import { csv, download } from "./export/export.js";
 import { ratingBandFilters } from "./analysis/tracking.js";
-const worker = new Worker(new URL("./worker.js?v=watch-dates-column-1", import.meta.url), {
+import { formatDate } from "./utils/values.js";
+const worker = new Worker(new URL("./worker.js?v=export-all-dataset-1", import.meta.url), {
   type: "module",
 });
 const requests = new Map();
@@ -138,14 +139,9 @@ async function load(source, merge = false, persist = false) {
       : source.name;
     renderGenres(state);
     syncControls(state);
+    const latestDate = formatDate(result.maxReleaseDate);
     $("#dataset-status").textContent =
-      fmt(result.count) +
-      " films · " +
-      result.minYear +
-      "–" +
-      result.maxYear +
-      " · " +
-      datasetName;
+      fmt(result.count) + " films · " + (latestDate || datasetName);
     $("#modal").close();
     notice(
       persistenceFailed
@@ -690,9 +686,28 @@ async function exportResults(format) {
     notice(e.message);
   }
 }
+async function downloadDataset() {
+  try {
+    const movies = await request("exportAll");
+    if (!movies.length) {
+      notice("Aucun dataset chargé.");
+      return;
+    }
+    const date = new Date().toISOString().slice(0, 10);
+    download(
+      csv(movies),
+      "cinescope-dataset-" + date + ".csv",
+      "text/csv;charset=utf-8",
+    );
+    notice(fmt(movies.length) + " films téléchargés.");
+  } catch (e) {
+    notice(e.message);
+  }
+}
 $("#export-csv").onclick = () => exportResults("csv");
 $("#export-json").onclick = () => exportResults("json");
 $("#copy").onclick = () => exportResults("copy");
+$("#download-dataset").onclick = downloadDataset;
 setupPresets(state, refresh);
 const bundled = [
   { name: "allocine_brut.csv", sourceLabel: "Allociné historique" },

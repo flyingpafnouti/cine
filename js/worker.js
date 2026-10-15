@@ -1,4 +1,4 @@
-import { execute } from "./engine.js?v=watch-dates-column-1";
+import { execute } from "./engine.js?v=export-all-dataset-1";
 self.onmessage = ({ data: { id, type, payload } }) => {
   try {
     self.postMessage({ id, result: execute(type, payload) });

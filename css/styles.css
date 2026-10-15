@@ -164,8 +164,10 @@ h2 {
   border: 1px solid var(--line);
   color: #58718b;
 }
-.header .button {
+.header-actions {
   margin-left: auto;
+  display: flex;
+  gap: 10px;
 }
 .button {
   font-weight: 600;
@@ -1100,6 +1102,13 @@ td.watch-date {
     max-width: none;
   }
   .header .button {
+    font-size: 11px;
+  }
+  .header-actions {
+    gap: 6px;
+  }
+  .header-actions .button {
+    padding: 8px 10px;
     font-size: 11px;
   }
   .dataset-bar {

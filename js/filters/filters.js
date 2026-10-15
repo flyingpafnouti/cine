@@ -1,4 +1,4 @@
-import { fold } from "../utils/values.js";
+import { fold, sortDate } from "../utils/values.js";
 import { dimension } from "../analysis/pivot.js";
 function matchesSynopsisTerms(value, query) {
   const normalize = (text) => fold(text).replace(/[‘’]/g, "'");
@@ -101,8 +101,14 @@ export function matches(m, f) {
 export function sortMovies(movies, { field, direction }) {
   const sign = direction === "asc" ? 1 : -1;
   return movies.sort((a, b) => {
-    const x = a[field],
-      y = b[field];
+    const x =
+      field === "year"
+        ? sortDate(a.frenchReleaseDate ?? a.releaseDate) ?? a.year
+        : a[field];
+    const y =
+      field === "year"
+        ? sortDate(b.frenchReleaseDate ?? b.releaseDate) ?? b.year
+        : b[field];
     if (x === null || x === undefined)
       return y === null || y === undefined ? a.id.localeCompare(b.id) : 1;
     if (y === null || y === undefined) return -1;

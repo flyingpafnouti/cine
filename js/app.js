@@ -13,7 +13,7 @@ import { state, defaults } from "./state.js?v=export-all-dataset-1";
 import { $, el, fmt, modal, notice } from "./ui/dom.js?v=export-all-dataset-1";
 import { setupControls, syncControls, renderGenres } from "./ui/controls.js?v=export-all-dataset-1";
 import { renderResults, showDetails, renderPivot, renderTrackingStatistics } from "./ui/results.js?v=export-all-dataset-1";
-import { renderMap, invalidateMap } from "./ui/map.js?v=export-all-dataset-1";
+import { renderMap, invalidateMap, resetMapView, centerOnData } from "./ui/map.js?v=export-all-dataset-1";
 import { importDialog, mappingDialog } from "./ui/import.js?v=export-all-dataset-1";
 import { setupPresets } from "./ui/presets-ui.js?v=export-all-dataset-1";
 import { setupApiSettings } from "./ui/api-settings.js?v=export-all-dataset-1";
@@ -580,8 +580,10 @@ $("#view-map").onclick = () => {
     $("#view-" + view).classList.toggle("active", view === "map");
     $("#view-" + view).setAttribute("aria-pressed", view === "map");
   }
+  resetMapView();
   refresh();
 };
+$("#map-reset-view").onclick = () => centerOnData();
 let trackingRevision = 0;
 function applyTrackingFilter(group, label) {
   const filters = defaults().filters;

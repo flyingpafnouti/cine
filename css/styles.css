@@ -1444,6 +1444,12 @@ td.watch-date {
   white-space: nowrap;
 }
 
+#map-reset-view {
+  font-size: 13px;
+  padding: 6px 12px;
+  white-space: nowrap;
+}
+
 .map-empty {
   padding: 60px 20px;
   text-align: center;

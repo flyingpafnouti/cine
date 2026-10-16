@@ -7,6 +7,8 @@ let map = null;
 let markersLayer = null;
 let currentData = [];
 let onFilmClick = null;
+let userInteracted = false;
+let isFirstRender = true;
 
 function ensureMap() {
   if (map) return map;
@@ -52,6 +54,10 @@ function ensureMap() {
       });
     },
   }).addTo(map);
+
+  map.on("moveend", () => {
+    userInteracted = true;
+  });
 
   setTimeout(() => map.invalidateSize(), 100);
 
@@ -199,6 +205,9 @@ export function renderMap(movies, onFilmClickCallback) {
   ensureMap();
   if (!map) return;
 
+  const savedCenter = map.getCenter();
+  const savedZoom = map.getZoom();
+
   markersLayer.clearLayers();
 
   const bounds = [];
@@ -215,13 +224,33 @@ export function renderMap(movies, onFilmClickCallback) {
     bounds.push([group.latitude, group.longitude]);
   }
 
-  if (bounds.length === 1) {
-    map.setView(bounds[0], 8);
-  } else if (bounds.length > 1) {
-    map.fitBounds(bounds, { padding: [40, 40], maxZoom: 8 });
+  if (!userInteracted || isFirstRender) {
+    if (bounds.length === 1) {
+      map.setView(bounds[0], 8, { animate: false });
+    } else if (bounds.length > 1) {
+      map.fitBounds(bounds, { padding: [40, 40], maxZoom: 8, animate: false });
+    }
+    isFirstRender = false;
+  } else {
+    map.setView(savedCenter, savedZoom, { animate: false });
   }
 
   setTimeout(() => map.invalidateSize(), 50);
+}
+
+export function resetMapView() {
+  userInteracted = false;
+  isFirstRender = true;
+  if (currentData.length && map) {
+    renderMap(currentData, onFilmClick);
+  }
+}
+
+export function centerOnData() {
+  userInteracted = false;
+  if (currentData.length && map) {
+    renderMap(currentData, onFilmClick);
+  }
 }
 
 export function invalidateMap() {

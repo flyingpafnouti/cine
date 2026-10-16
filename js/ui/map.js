@@ -1,6 +1,7 @@
 import { el, $, fmt } from "./dom.js?v=export-all-dataset-1";
 
-const MAX_MARKERS = 500;
+const MAX_MARKERS = 2000;
+const COORD_PRECISION = 2;
 
 let map = null;
 let markersLayer = null;
@@ -32,11 +33,14 @@ function ensureMap() {
   }).addTo(map);
 
   markersLayer = L.markerClusterGroup({
-    maxClusterRadius: 60,
-    disableClusteringAtZoom: 10,
+    maxClusterRadius: 50,
+    disableClusteringAtZoom: 12,
     spiderfyOnMaxZoom: true,
     showCoverageOnHover: false,
     zoomToBoundsOnClick: true,
+    chunkedLoading: true,
+    chunkInterval: 200,
+    chunkDelay: 50,
     iconCreateFunction: function(cluster) {
       const count = cluster.getChildCount();
       const size = Math.min(50, 30 + Math.log2(count + 1) * 8);
@@ -59,7 +63,7 @@ function groupByLocation(movies) {
   for (const movie of movies) {
     if (!movie.locations?.length) continue;
     for (const loc of movie.locations) {
-      const key = `${loc.latitude.toFixed(4)}|${loc.longitude.toFixed(4)}`;
+      const key = `${loc.latitude.toFixed(COORD_PRECISION)}|${loc.longitude.toFixed(COORD_PRECISION)}`;
       let group = groups.get(key);
       if (!group) {
         group = {
@@ -71,7 +75,8 @@ function groupByLocation(movies) {
         };
         groups.set(key, group);
       }
-      group.films.push(movie);
+      const exists = group.films.some(f => f.id === movie.id);
+      if (!exists) group.films.push(movie);
     }
   }
   return [...groups.values()];
@@ -140,20 +145,27 @@ export function renderMap(movies, onFilmClickCallback) {
   if (!container) return;
 
   const filmsWithLocations = movies.filter((m) => m.locations?.length);
-  let groups = groupByLocation(filmsWithLocations);
+  const allGroups = groupByLocation(filmsWithLocations);
 
-  const totalLocations = groups.length;
+  const totalLocations = allGroups.length;
+  const isLimited = totalLocations > MAX_MARKERS;
 
-  groups = groups
-    .sort((a, b) => b.films.length - a.films.length)
-    .slice(0, MAX_MARKERS);
+  const groups = isLimited
+    ? allGroups
+        .sort((a, b) => {
+          const scoreA = a.films.reduce((s, f) => s + (f.audienceRating ?? 0), 0);
+          const scoreB = b.films.reduce((s, f) => s + (f.audienceRating ?? 0), 0);
+          return scoreB - scoreA;
+        })
+        .slice(0, MAX_MARKERS)
+    : allGroups;
 
   const legend = $("#map-legend");
   if (legend) {
     if (!filmsWithLocations.length) {
       legend.textContent = "";
-    } else if (totalLocations > MAX_MARKERS) {
-      legend.textContent = `${filmsWithLocations.length} films · ${groups.length} / ${totalLocations} lieux affichés`;
+    } else if (isLimited) {
+      legend.textContent = `${filmsWithLocations.length} films · ${groups.length} / ${totalLocations} lieux affichés (les mieux notés)`;
     } else {
       legend.textContent = `${filmsWithLocations.length} films · ${groups.length} lieux de tournage`;
     }
@@ -190,7 +202,6 @@ export function renderMap(movies, onFilmClickCallback) {
   markersLayer.clearLayers();
 
   const bounds = [];
-  const fragment = document.createDocumentFragment();
 
   for (const group of groups) {
     const marker = L.marker([group.latitude, group.longitude], {
@@ -205,7 +216,7 @@ export function renderMap(movies, onFilmClickCallback) {
   }
 
   if (bounds.length === 1) {
-    map.setView(bounds[0], 6);
+    map.setView(bounds[0], 8);
   } else if (bounds.length > 1) {
     map.fitBounds(bounds, { padding: [40, 40], maxZoom: 8 });
   }

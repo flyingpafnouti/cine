@@ -90,7 +90,7 @@ async function refresh() {
     });
     activeFilters();
     if (state.config.view === "analysis") await updatePivot();
-    if (state.config.view === "map") await updateMap();
+    if (state.config.view === "map") scheduleMapUpdate();
   } catch (e) {
     notice(e.message);
   }
@@ -431,15 +431,23 @@ async function updatePivot() {
 }
 
 let mapRevision = 0;
+let mapTimer = null;
 async function updateMap() {
   const revision = ++mapRevision;
+  $("#map-view").classList.add("map-loading");
   try {
     const movies = await request("export");
     if (revision !== mapRevision || state.config.view !== "map") return;
     renderMap(movies, detail);
   } catch (e) {
     if (revision === mapRevision) notice(e.message);
+  } finally {
+    if (revision === mapRevision) $("#map-view").classList.remove("map-loading");
   }
+}
+function scheduleMapUpdate() {
+  clearTimeout(mapTimer);
+  mapTimer = setTimeout(updateMap, 300);
 }
 setupControls(state, schedule);
 setupApiSettings();

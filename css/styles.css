@@ -1399,6 +1399,24 @@ td.watch-date {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  position: relative;
+}
+
+#map-view.map-loading::after {
+  content: "Mise à jour de la carte…";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.95);
+  padding: 12px 24px;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(16, 46, 80, 0.15);
+  font-size: 14px;
+  color: var(--navy);
+  font-weight: 550;
+  z-index: 1000;
+  pointer-events: none;
 }
 
 #map-view[hidden] {
@@ -1465,6 +1483,43 @@ td.watch-date {
 .map-marker-inner:hover {
   transform: scale(1.15);
   background: #1a4a7a;
+}
+
+.map-cluster {
+  background: none;
+  border: none;
+}
+
+.map-cluster-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(16, 46, 80, 0.85);
+  color: #fff;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 700;
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 3px 12px rgba(16, 46, 80, 0.4);
+  cursor: pointer;
+  transition: transform 0.15s, background 0.15s;
+}
+
+.map-cluster-inner:hover {
+  transform: scale(1.1);
+  background: rgba(26, 74, 122, 0.95);
+}
+
+.marker-cluster-small .map-cluster-inner {
+  background: rgba(37, 132, 186, 0.85);
+}
+
+.marker-cluster-medium .map-cluster-inner {
+  background: rgba(16, 46, 80, 0.9);
+}
+
+.marker-cluster-large .map-cluster-inner {
+  background: rgba(139, 27, 27, 0.9);
 }
 
 .map-popup-wrapper .leaflet-popup-content-wrapper {

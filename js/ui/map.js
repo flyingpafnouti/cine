@@ -1,5 +1,7 @@
 import { el, $, fmt } from "./dom.js?v=export-all-dataset-1";
 
+const MAX_MARKERS = 500;
+
 let map = null;
 let markersLayer = null;
 let currentData = [];
@@ -29,7 +31,23 @@ function ensureMap() {
     maxZoom: 19,
   }).addTo(map);
 
-  markersLayer = L.layerGroup().addTo(map);
+  markersLayer = L.markerClusterGroup({
+    maxClusterRadius: 60,
+    disableClusteringAtZoom: 10,
+    spiderfyOnMaxZoom: true,
+    showCoverageOnHover: false,
+    zoomToBoundsOnClick: true,
+    iconCreateFunction: function(cluster) {
+      const count = cluster.getChildCount();
+      const size = Math.min(50, 30 + Math.log2(count + 1) * 8);
+      return L.divIcon({
+        className: "map-cluster",
+        html: `<div class="map-cluster-inner" style="width:${size}px;height:${size}px;">${count}</div>`,
+        iconSize: [size, size],
+        iconAnchor: [size / 2, size / 2],
+      });
+    },
+  }).addTo(map);
 
   setTimeout(() => map.invalidateSize(), 100);
 
@@ -42,17 +60,18 @@ function groupByLocation(movies) {
     if (!movie.locations?.length) continue;
     for (const loc of movie.locations) {
       const key = `${loc.latitude.toFixed(4)}|${loc.longitude.toFixed(4)}`;
-      if (!groups.has(key)) {
-        groups.set(key, {
+      let group = groups.get(key);
+      if (!group) {
+        group = {
           latitude: loc.latitude,
           longitude: loc.longitude,
           name: loc.name,
           country: loc.country,
-          description: loc.description,
           films: [],
-        });
+        };
+        groups.set(key, group);
       }
-      groups.get(key).films.push(movie);
+      group.films.push(movie);
     }
   }
   return [...groups.values()];
@@ -64,10 +83,6 @@ function createPopupContent(group, onFilmClick) {
     el("h4", { class: "map-popup-title" }, group.name),
     el("p", { class: "map-popup-country" }, group.country || ""),
   );
-
-  if (group.description) {
-    container.append(el("p", { class: "map-popup-description" }, group.description));
-  }
 
   container.append(
     el("p", { class: "map-popup-count" }, `${group.films.length} film(s) tourné(s) ici :`),
@@ -90,7 +105,7 @@ function createPopupContent(group, onFilmClick) {
       el("span", { class: "map-popup-film-title" }, film.title),
       film.year ? el("span", { class: "map-popup-film-year" }, ` (${film.year})`) : null,
     );
-    if (film.audienceRating !== null) {
+    if (film.audienceRating !== null && film.audienceRating !== undefined) {
       btn.append(
         el("span", { class: "map-popup-film-rating" }, ` ★ ${fmt(film.audienceRating, 1)}`),
       );
@@ -125,13 +140,23 @@ export function renderMap(movies, onFilmClickCallback) {
   if (!container) return;
 
   const filmsWithLocations = movies.filter((m) => m.locations?.length);
-  const groups = groupByLocation(filmsWithLocations);
+  let groups = groupByLocation(filmsWithLocations);
+
+  const totalLocations = groups.length;
+
+  groups = groups
+    .sort((a, b) => b.films.length - a.films.length)
+    .slice(0, MAX_MARKERS);
 
   const legend = $("#map-legend");
   if (legend) {
-    legend.textContent = filmsWithLocations.length
-      ? `${filmsWithLocations.length} films · ${groups.length} lieux de tournage`
-      : "";
+    if (!filmsWithLocations.length) {
+      legend.textContent = "";
+    } else if (totalLocations > MAX_MARKERS) {
+      legend.textContent = `${filmsWithLocations.length} films · ${groups.length} / ${totalLocations} lieux affichés`;
+    } else {
+      legend.textContent = `${filmsWithLocations.length} films · ${groups.length} lieux de tournage`;
+    }
   }
 
   if (!groups.length) {
@@ -165,6 +190,8 @@ export function renderMap(movies, onFilmClickCallback) {
   markersLayer.clearLayers();
 
   const bounds = [];
+  const fragment = document.createDocumentFragment();
+
   for (const group of groups) {
     const marker = L.marker([group.latitude, group.longitude], {
       icon: createMarkerIcon(group.films.length),
@@ -173,14 +200,14 @@ export function renderMap(movies, onFilmClickCallback) {
       maxWidth: 320,
       className: "map-popup-wrapper",
     });
-    marker.addTo(markersLayer);
+    markersLayer.addLayer(marker);
     bounds.push([group.latitude, group.longitude]);
   }
 
   if (bounds.length === 1) {
     map.setView(bounds[0], 6);
   } else if (bounds.length > 1) {
-    map.fitBounds(bounds, { padding: [40, 40], maxZoom: 10 });
+    map.fitBounds(bounds, { padding: [40, 40], maxZoom: 8 });
   }
 
   setTimeout(() => map.invalidateSize(), 50);

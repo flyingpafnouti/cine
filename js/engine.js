@@ -6,10 +6,96 @@ import { matches, sortMovies } from "./filters/filters.js?v=export-all-dataset-1
 import { statistics } from "./analysis/statistics.js?v=export-all-dataset-1";
 import { pivot } from "./analysis/pivot.js?v=export-all-dataset-1";
 import { trackingStatistics } from "./analysis/tracking.js?v=export-all-dataset-1";
+import { fold } from "./utils/values.js?v=export-all-dataset-1";
 let movies = [],
   ctx = {},
   results = [],
-  summary = {};
+  summary = {},
+  locationsByTitle = null,
+  locationsByYearDirector = null;
+
+function buildLocationsIndex(data) {
+  const byTitle = new Map();
+  const byYearDirector = new Map();
+  for (const [key, value] of Object.entries(data)) {
+    const locations = value.locations || [];
+    if (!locations.length) continue;
+
+    const entry = {
+      locations,
+      year: value.year ?? null,
+      directors: value.directors || [],
+      title: value.title,
+    };
+
+    // Index by all title variants
+    const titleVariants = new Set([key, fold(value.title || ""), fold(value.english_title || "")]);
+    for (const variant of titleVariants) {
+      if (variant && !byTitle.has(variant)) {
+        byTitle.set(variant, entry);
+      }
+    }
+
+    // Index by year + director for fuzzy matching
+    if (entry.year && entry.directors.length) {
+      for (const director of entry.directors) {
+        const ydKey = entry.year + "|" + fold(director);
+        if (!byYearDirector.has(ydKey)) {
+          byYearDirector.set(ydKey, []);
+        }
+        byYearDirector.get(ydKey).push(entry);
+      }
+    }
+  }
+  return { byTitle, byYearDirector };
+}
+
+function matchLocations(movie) {
+  if (!locationsByTitle) return [];
+
+  // 1. Exact title match
+  const titleKeys = [
+    fold(movie.title),
+    movie.title.toLowerCase().trim(),
+  ];
+  for (const key of titleKeys) {
+    if (locationsByTitle.byTitle.has(key)) {
+      return locationsByTitle.byTitle.get(key).locations;
+    }
+  }
+
+  // 2. Fuzzy match by year + director
+  if (movie.year && movie.directors?.length && locationsByTitle.byYearDirector.size) {
+    const candidates = [];
+    for (const director of movie.directors) {
+      const ydKey = movie.year + "|" + fold(director);
+      if (locationsByTitle.byYearDirector.has(ydKey)) {
+        candidates.push(...locationsByTitle.byYearDirector.get(ydKey));
+      }
+      // Try with year ± 1 for re-releases
+      for (const dy of [-1, 1]) {
+        const ydKeyAlt = (movie.year + dy) + "|" + fold(director);
+        if (locationsByTitle.byYearDirector.has(ydKeyAlt)) {
+          candidates.push(...locationsByTitle.byYearDirector.get(ydKeyAlt));
+        }
+      }
+    }
+
+    // Deduplicate and return locations from best candidate
+    const seen = new Set();
+    const allLocations = [];
+    for (const candidate of candidates) {
+      const key = candidate.title;
+      if (!seen.has(key)) {
+        seen.add(key);
+        allLocations.push(...candidate.locations);
+      }
+    }
+    if (allLocations.length) return allLocations;
+  }
+
+  return [];
+}
 export function execute(type, p) {
   if (type === "load" || type === "merge" || type === "loadCollection") {
     const inputs = type === "loadCollection" ? p.sources : [p];
@@ -39,6 +125,13 @@ export function execute(type, p) {
     movies = next;
     results = [];
     ctx = context(movies);
+    if (locationsByTitle) {
+      for (const movie of movies) {
+        if (!movie.locations?.length) {
+          movie.locations = matchLocations(movie);
+        }
+      }
+    }
     summary = {
       count: movies.length,
       skipped,
@@ -68,6 +161,16 @@ export function execute(type, p) {
       C: ctx.C,
     };
     return summary;
+  }
+  if (type === "loadLocations") {
+    locationsByTitle = buildLocationsIndex(p.data);
+    for (const movie of movies) {
+      if (!movie.locations?.length) {
+        movie.locations = matchLocations(movie);
+      }
+    }
+    const withLocations = movies.filter((m) => m.locations?.length).length;
+    return { matched: withLocations, total: movies.length };
   }
   if (type === "query") {
     const c = p.config;

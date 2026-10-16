@@ -13,6 +13,7 @@ import { state, defaults } from "./state.js?v=export-all-dataset-1";
 import { $, el, fmt, modal, notice } from "./ui/dom.js?v=export-all-dataset-1";
 import { setupControls, syncControls, renderGenres } from "./ui/controls.js?v=export-all-dataset-1";
 import { renderResults, showDetails, renderPivot, renderTrackingStatistics } from "./ui/results.js?v=export-all-dataset-1";
+import { renderMap, invalidateMap } from "./ui/map.js?v=export-all-dataset-1";
 import { importDialog, mappingDialog } from "./ui/import.js?v=export-all-dataset-1";
 import { setupPresets } from "./ui/presets-ui.js?v=export-all-dataset-1";
 import { setupApiSettings } from "./ui/api-settings.js?v=export-all-dataset-1";
@@ -89,6 +90,7 @@ async function refresh() {
     });
     activeFilters();
     if (state.config.view === "analysis") await updatePivot();
+    if (state.config.view === "map") await updateMap();
   } catch (e) {
     notice(e.message);
   }
@@ -427,6 +429,18 @@ async function updatePivot() {
     refresh();
   });
 }
+
+let mapRevision = 0;
+async function updateMap() {
+  const revision = ++mapRevision;
+  try {
+    const movies = await request("export");
+    if (revision !== mapRevision || state.config.view !== "map") return;
+    renderMap(movies, detail);
+  } catch (e) {
+    if (revision === mapRevision) notice(e.message);
+  }
+}
 setupControls(state, schedule);
 setupApiSettings();
 setupCloudLists(cloudLists);
@@ -550,6 +564,16 @@ for (const view of ["table", "analysis"])
     $("#results").classList.remove("tracking-mode");
     refresh();
   };
+$("#view-map").onclick = () => {
+  state.config.view = "map";
+  $("#results").classList.remove("tracking-mode");
+  for (const view of ["table", "analysis", "tracking", "map"]) {
+    $("#" + view + "-view").hidden = view !== "map";
+    $("#view-" + view).classList.toggle("active", view === "map");
+    $("#view-" + view).setAttribute("aria-pressed", view === "map");
+  }
+  refresh();
+};
 let trackingRevision = 0;
 function applyTrackingFilter(group, label) {
   const filters = defaults().filters;
@@ -577,7 +601,7 @@ function applyTrackingFilter(group, label) {
 $("#view-tracking").onclick = async () => {
   state.config.view = "tracking";
   $("#results").classList.add("tracking-mode");
-  for (const view of ["table", "analysis", "tracking"]) {
+  for (const view of ["table", "analysis", "tracking", "map"]) {
     $("#" + view + "-view").hidden = view !== "tracking";
     $("#view-" + view).classList.toggle("active", view === "tracking");
     $("#view-" + view).setAttribute("aria-pressed", view === "tracking");
@@ -730,4 +754,27 @@ try {
   for (const source of importedDatasets) await load(source, true);
 } catch {
   notice("Les datasets importés enregistrés n’ont pas pu être relus.");
+}
+
+try {
+  const locationsResponse = await fetch("./data/locations-enriched.json");
+  if (locationsResponse.ok) {
+    const locationsData = await locationsResponse.json();
+    const result = await request("loadLocations", { data: locationsData });
+    if (result.matched > 0)
+      notice(`${fmt(result.matched)} films associés à leurs lieux de tournage.`);
+    await refresh();
+  } else {
+    // Fallback to old format
+    const fallbackResponse = await fetch("./data/locations.json");
+    if (fallbackResponse.ok) {
+      const locationsData = await fallbackResponse.json();
+      const result = await request("loadLocations", { data: locationsData });
+      if (result.matched > 0)
+        notice(`${fmt(result.matched)} films associés à leurs lieux de tournage.`);
+      await refresh();
+    }
+  }
+} catch {
+  // Locations are optional
 }

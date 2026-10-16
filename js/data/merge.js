@@ -60,6 +60,14 @@ export function mergeMovies(existing, incoming) {
       }
     for (const field of ["genres", "directors", "actors", "countries"])
       if (!result[field].length) result[field] = fresh[field];
+    if (!result.locations?.length && fresh.locations?.length)
+      result.locations = fresh.locations;
+    else if (result.locations?.length && fresh.locations?.length) {
+      const seen = new Set(result.locations.map((l) => l.name + "|" + l.latitude + "|" + l.longitude));
+      for (const loc of fresh.locations)
+        if (!seen.has(loc.name + "|" + loc.latitude + "|" + loc.longitude))
+          result.locations.push(loc);
+    }
     if (result.duration === null) result.duration = fresh.duration;
     if (fresh.vodAvailable !== null)
       for (const field of [

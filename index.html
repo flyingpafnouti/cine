@@ -7,6 +7,12 @@
     <title>CinéScope — Explorer le cinéma</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""></script>
   </head>
   <body>
     <a class="skip" href="#results">Aller aux résultats</a>
@@ -380,7 +386,8 @@
           <div class="view-tabs" role="group" aria-label="Affichage">
             <button id="view-table" class="active">Tableau</button
             ><button id="view-analysis">Analyse</button
-            ><button id="view-tracking">Statistiques de suivi</button>
+            ><button id="view-tracking">Statistiques de suivi</button
+            ><button id="view-map">Carte</button>
           </div>
           <button id="favorites-only" class="button" aria-pressed="false">★ Favoris (0)</button
           ><button id="watched-only" class="button" aria-pressed="false">✓ Vus (0)</button>
@@ -435,6 +442,15 @@
           <div id="pivot-table" class="table-scroll"></div>
         </section>
         <section id="tracking-view" aria-live="polite" hidden></section>
+        <section id="map-view" hidden>
+          <div class="map-toolbar">
+            <p class="hint">
+              Lieux de tournage des films de votre sélection. Cliquez sur un
+              marqueur pour voir les films, puis sur un film pour sa fiche.
+            </p>
+            <span id="map-legend" class="map-legend"></span>
+          </div>
+        </section>
         <div class="bottom-bar">
           <label
             >Par page<select id="page-size">

@@ -248,7 +248,7 @@ export function renderResults(data, state, { detail, sort, favorite, watch }) {
           .join(" · "),
     ),
   );
-  for (const view of ["table", "analysis", "tracking"]) {
+  for (const view of ["table", "analysis", "tracking", "map"]) {
     $("#" + view + "-view").hidden = state.config.view !== view;
     $("#view-" + view).classList.toggle("active", state.config.view === view);
     $("#view-" + view).setAttribute("aria-pressed", state.config.view === view);

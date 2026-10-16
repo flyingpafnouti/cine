@@ -118,6 +118,7 @@ export function normalize(rows, map = mapping, options = {}) {
       directors: list(get("directors")),
       actors: list(get("actors")),
       countries: list(get("countries")),
+      locations: [],
       vodAvailable: ["true", "1", "oui", "yes", "disponible"].includes(vod)
         ? true
         : ["false", "0", "non", "no", "indisponible"].includes(vod)

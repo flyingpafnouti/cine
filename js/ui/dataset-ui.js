@@ -24,13 +24,6 @@ export function showDatasetInfo(s, datasetName) {
     el(
       "p",
       {},
-      "VOD renseignée : " +
-        fmt(s.vod) +
-        " films. La source historique ne fournit pas la disponibilité actuelle.",
-    ),
-    el(
-      "p",
-      {},
       fmt(s.synopsis) +
         " films avec synopsis · " +
         fmt(s.matched) +

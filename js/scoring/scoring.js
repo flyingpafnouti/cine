@@ -12,7 +12,6 @@ export function normalizeWeights(w) {
       "country",
       "director",
       "actor",
-      "vod",
     ].map((k) => [k, Math.max(0, Number(w[k]) || 0)]),
   );
   const s = Object.values(a).reduce((a, b) => a + b, 0);
@@ -86,7 +85,6 @@ export function score(movie, s, ctx) {
               Math.abs(movie.duration - s.durationTarget) /
                 Math.max(1, s.durationFalloff),
           ),
-    vod: movie.vodAvailable === true ? 1 : 0,
   };
   for (const [k, field] of [
     ["country", "countries"],

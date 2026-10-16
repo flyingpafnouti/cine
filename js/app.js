@@ -204,24 +204,6 @@ function activeFilters() {
         "Films notés ×",
       ),
     );
-  if (f.vod !== "all")
-    nodes.push(
-      el(
-        "button",
-        {
-          onclick: () => {
-            f.vod = "all";
-            syncControls(state);
-            schedule();
-          },
-        },
-        "VOD : " +
-          { yes: "disponible", no: "indisponible", unknown: "inconnue" }[
-            f.vod
-          ] +
-          " ×",
-      ),
-    );
   if (f.watched !== "all")
     nodes.push(
       el(

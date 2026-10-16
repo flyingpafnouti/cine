@@ -65,7 +65,6 @@ export function execute(type, p) {
         a.localeCompare(b, "fr"),
       ),
       directors: new Set(movies.flatMap((m) => m.directors)).size,
-      vod: movies.filter((m) => m.vodAvailable !== null).length,
       C: ctx.C,
     };
     return summary;

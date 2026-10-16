@@ -98,11 +98,6 @@ export function matches(m, f) {
   ])
     if (f[key] && !m[field].some((v) => fold(v).includes(fold(f[key]))))
       return false;
-  if (
-    f.vod !== "all" &&
-    m.vodAvailable !== { yes: true, no: false, unknown: null }[f.vod]
-  )
-    return false;
   return (f.pivot || []).every((p) =>
     dimension(m, p.dimension).includes(p.value),
   );

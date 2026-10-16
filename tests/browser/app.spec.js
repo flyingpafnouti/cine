@@ -150,11 +150,6 @@ test("real dataset, required filters, details, presets, pivot and export", async
   const download = await downloadPromise;
   await download.saveAs("artifacts/top10.json");
   await page.locator("#reset").click();
-  await page.locator("#hard-form [name=vod]").selectOption("yes");
-  await expect(page.locator("#result-count")).toHaveText(
-    "0 films dans votre sélection",
-  );
-  await expect(page.locator("#table-view")).toContainText("Aucun film");
   expect(errors).toEqual([]);
 });
 test("soft constraints, zero weights and native keyboard search", async ({
@@ -170,9 +165,6 @@ test("soft constraints, zero weights and native keyboard search", async ({
     "Tous les poids sont nuls",
   );
   await expect(page.locator("#table-view .score").first()).toContainText("0,0");
-  await page.locator("[name=weight-vod]").fill("100");
-  await expect(page.locator("#weight-output-vod")).toHaveText("100 %");
-  await expect(page.locator("#result-count")).toContainText("90");
 });
 test("Backspace resets all filters outside interactive controls", async ({ page }) => {
   await page.locator("#search").fill("Forrest Gump");
@@ -201,7 +193,7 @@ test("V and F toggle watched and favorite filters outside inputs", async ({ page
   await expect(page.locator("#watched-only")).toHaveAttribute("aria-pressed", "false");
   await expect(page.locator("#search")).toHaveValue("v");
 });
-test("generic CSV manual mapping, VOD, normalized JSON, errors and mobile layout", async ({
+test("generic CSV manual mapping, normalized JSON, errors and mobile layout", async ({
   page,
 }) => {
   await page.locator("#import-open").click();
@@ -209,7 +201,7 @@ test("generic CSV manual mapping, VOD, normalized JSON, errors and mobile layout
     name: "synthetic-test.csv",
     mimeType: "text/csv",
     buffer: Buffer.from(
-      "nom;annee;note;vod\nFilm test;1997;4,5;oui\nSans VOD;2000;3;non",
+      "nom;annee;note\nFilm test;1997;4,5\nSans note;2000;",
     ),
   });
   await page.locator("#modal-body button").click();
@@ -221,16 +213,11 @@ test("generic CSV manual mapping, VOD, normalized JSON, errors and mobile layout
     .selectOption("nom");
   await page.getByLabel("year", { exact: true }).selectOption("annee");
   await page.getByLabel("audienceRating", { exact: true }).selectOption("note");
-  await page.getByLabel("vodAvailable", { exact: true }).selectOption("vod");
   await page
     .getByRole("button", { name: "Charger les films", exact: true })
     .click();
   await expect(page.locator("#result-count")).toHaveText(
     "90 766 films dans votre sélection",
-  );
-  await page.locator("#hard-form [name=vod]").selectOption("yes");
-  await expect(page.locator("#result-count")).toHaveText(
-    "1 films dans votre sélection",
   );
   await expect(page.locator("#table-view")).toContainText("Film test");
   await page.locator("#import-open").click();

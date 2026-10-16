@@ -332,26 +332,6 @@ test("Genre any/all/exclude, accent-insensitive search, missing ratings", () => 
   assert(!matches(movies[5], { ...f, onlyRated: true }));
   assert(!matches(movies[5], { ...f, ratingMin: 0 }));
 });
-test("VOD tri-state and metadata, hard versus soft constraints", () => {
-  const m = normalize([
-    {
-      ...rows[0],
-      vod_available: "oui",
-      vod_providers: '["Arte"]',
-      vod_country: "FR",
-      vod_checked_at: "2026-09-16",
-    },
-  ]).movies[0];
-  assert.equal(m.vodAvailable, true);
-  assert.deepEqual(m.vodProviders, ["Arte"]);
-  assert(matches(m, { ...defaults().filters, vod: "yes" }));
-  assert(!matches(movies[0], { ...defaults().filters, vod: "yes" }));
-  assert(matches(movies[0], { ...defaults().filters, vod: "unknown" }));
-  const s = defaults().scoring;
-  s.weights = { vod: 1 };
-  assert.equal(score(m, s, context([m])).score, 100);
-  assert.equal(score(movies[0], s, context(movies)).score, 0);
-});
 test("Bayesian rating penalizes tiny samples and handles missing counts and m=0", () => {
   assert(bayesianRating(5, 3, 3, 100) < bayesianRating(4.7, 25000, 3, 100));
   assert.equal(bayesianRating(null, 10, 3, 100), null);
@@ -405,7 +385,6 @@ test("Additional soft criteria normalize and never filter movies", () => {
     "country",
     "director",
     "actor",
-    "vod",
   ]) {
     s.weights = { [k]: 1 };
     s.country = "français";
@@ -540,7 +519,6 @@ test("Real raw dataset: 59,966 movies, no press prerequisite, integrated pipelin
   assert.equal(summary.count, 59966);
   assert.equal(summary.skipped, 0);
   assert.equal(summary.rated, 38129);
-  assert.equal(summary.vod, 0);
   const config = defaults();
   Object.assign(config.filters, {
     genres: ["Thriller"],

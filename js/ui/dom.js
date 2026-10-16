@@ -31,7 +31,6 @@ export const labels = {
   country: "Nationalité",
   director: "Réalisateur",
   actor: "Acteur",
-  vod: "Disponibilité VOD",
 };
 export function modal(title, ...nodes) {
   delete $("#modal").dataset.film;

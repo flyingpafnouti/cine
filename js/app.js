@@ -770,18 +770,14 @@ try {
   const locationsResponse = await fetch("./data/locations-enriched.json");
   if (locationsResponse.ok) {
     const locationsData = await locationsResponse.json();
-    const result = await request("loadLocations", { data: locationsData });
-    if (result.matched > 0)
-      notice(`${fmt(result.matched)} films associés à leurs lieux de tournage.`);
+    await request("loadLocations", { data: locationsData });
     await refresh();
   } else {
     // Fallback to old format
     const fallbackResponse = await fetch("./data/locations.json");
     if (fallbackResponse.ok) {
       const locationsData = await fallbackResponse.json();
-      const result = await request("loadLocations", { data: locationsData });
-      if (result.matched > 0)
-        notice(`${fmt(result.matched)} films associés à leurs lieux de tournage.`);
+      await request("loadLocations", { data: locationsData });
       await refresh();
     }
   }

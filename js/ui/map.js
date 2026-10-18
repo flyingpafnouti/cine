@@ -109,7 +109,8 @@ function createPopupContent(group, onFilmClick) {
     const btn = el("button", {
       class: "map-popup-film-btn",
       onclick: () => {
-        if (onFilmClick) onFilmClick(film.id);
+        // ← → in the details then move between the films of this place.
+        if (onFilmClick) onFilmClick(film.id, sorted.map((f) => f.id));
       },
     });
     btn.append(

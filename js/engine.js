@@ -246,12 +246,14 @@ export function execute(type, p) {
     return movies
       .filter((m) => p.ids.includes(m.id))
       .map((m) => {
-        const index = p.navigation ? results.findIndex((row) => row.id === m.id) : -1;
+        // Navigate within p.order (e.g. the films of a map place), else within the results.
+        const order = p.order ?? results.map((row) => row.id);
+        const index = p.navigation ? order.indexOf(m.id) : -1;
         return { ...m, ...score(m, p.scoring, ctx),
           navigation: index < 0 ? null : {
-            previous: results[index - 1]?.id ?? null,
-            next: results[index + 1]?.id ?? null,
-            position: index + 1, total: results.length,
+            previous: order[index - 1] ?? null,
+            next: order[index + 1] ?? null,
+            position: index + 1, total: order.length,
           },
         };
       });

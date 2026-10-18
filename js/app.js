@@ -385,12 +385,12 @@ $("#watched-only").onclick = () => {
   refresh();
 };
 let detailRevision = 0;
-async function detail(id) {
+async function detail(id, order = null) {
   const revision = ++detailRevision;
   try {
-    const movies = await request("details", { ids: [id], scoring: state.config.scoring, navigation: true });
+    const movies = await request("details", { ids: [id], scoring: state.config.scoring, navigation: true, order });
     if (revision !== detailRevision) return;
-    showDetails(movies, detail, {
+    showDetails(movies, (nextId) => detail(nextId, order), {
       isFavorite: (movieId) => state.favorites.has(movieId),
       isWatched: (movieId) => state.watched.has(movieId),
       getRating: (movieId) => state.ratings.get(movieId) ?? null,

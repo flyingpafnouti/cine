@@ -49,6 +49,26 @@ test.describe("Map view", () => {
     await expect(page.locator(".synopsis")).toBeVisible();
   });
 
+  test("arrow keys in details move between the films of the clicked place", async ({ page }) => {
+    // Three entries share the same places (duplicate rows in the historical dataset).
+    await page.locator("#search").fill("Le Rayon vert");
+    await expect(page.locator("#table-view tbody tr")).toHaveCount(3);
+
+    await page.locator("#view-map").click();
+    await expect(page.locator("#world-map")).toBeVisible({ timeout: 10000 });
+
+    await page.waitForTimeout(1000);
+    await page.locator(".map-marker").first().click({ force: true });
+    await expect(page.locator(".map-popup-film-btn")).toHaveCount(3);
+
+    await page.locator(".map-popup-film-btn").first().click();
+    await expect(page.locator("#film-position")).toContainText("1 / 3");
+    await page.keyboard.press("ArrowRight");
+    await expect(page.locator("#film-position")).toContainText("2 / 3");
+    await page.keyboard.press("ArrowLeft");
+    await expect(page.locator("#film-position")).toContainText("1 / 3");
+  });
+
   test("switching back to table hides the map", async ({ page }) => {
     await page.locator("#view-map").click();
     await expect(page.locator("#map-view")).toBeVisible();

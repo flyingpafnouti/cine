@@ -47,6 +47,7 @@ test.describe("Map view", () => {
     await expect(page.locator("#modal")).toBeVisible();
     await expect(page.locator("#modal .detail h3").first()).toContainText("Forrest Gump");
     await expect(page.locator(".synopsis")).toBeVisible();
+    await expect(page.locator(".detail-locations")).toContainText("Lieux de tournage :");
   });
 
   test("arrow keys in details move between the films of the clicked place", async ({ page }) => {

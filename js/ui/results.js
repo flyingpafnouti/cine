@@ -526,6 +526,22 @@ function peopleLinks(people, kind, onSearchPerson) {
     }, name),
   ]);
 }
+// "Paris, Cherbourg (France) · Biarritz (…)": place names grouped by country.
+function formatLocations(locations) {
+  const byCountry = new Map();
+  for (const loc of locations) {
+    const country = loc.country || "";
+    if (!byCountry.has(country)) byCountry.set(country, new Set());
+    byCountry.get(country).add(loc.name);
+  }
+  return [...byCountry]
+    .map(([country, names]) => {
+      const places = [...names].filter((n) => n !== country);
+      if (!places.length) return country;
+      return places.join(", ") + (country ? " (" + country + ")" : "");
+    })
+    .join(" · ");
+}
 export function showDetails(movies, onNavigate, marking, onSearchPerson) {
   const navigation = movies.length === 1 && onNavigate ? movies[0].navigation : null;
   modal(
@@ -611,6 +627,9 @@ export function showDetails(movies, onNavigate, marking, onSearchPerson) {
               (m.vodCountry ? " · " + m.vodCountry : "") +
               (m.vodCheckedAt ? " · vérifiée le " + m.vodCheckedAt : ""),
           ),
+          ...(m.locations?.length
+            ? [el("p", { class: "detail-locations" }, "Lieux de tournage : " + formatLocations(m.locations))]
+            : []),
           el("h3", {}, "Score : " + fmt(m.score, 1) + " / 100"),
           el(
             "div",

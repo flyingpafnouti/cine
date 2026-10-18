@@ -14,7 +14,26 @@ let movies = [],
   locationsByTitle = null,
   locationsByYearDirector = null;
 
+// Same key as scripts/build-locations-wikidata.py fold().
+const locationKey = (title, year) =>
+  fold(title).replace(/[^a-z0-9]+/g, " ").trim() + "|" + year;
+
+// Version 2 (scripts/build-locations-wikidata.py): matches are precomputed,
+// by AlloCiné ID or by title + year for movies without ID.
+function buildLocationsIndexV2(data) {
+  const byId = new Map();
+  const byKey = new Map();
+  for (const film of data.films || []) {
+    const locations = film.places.map((q) => data.places[q]).filter(Boolean);
+    if (!locations.length) continue;
+    if (film.allocine_id) byId.set(String(film.allocine_id), locations);
+    if (film.key) byKey.set(film.key, locations);
+  }
+  return { byId, byKey };
+}
+
 function buildLocationsIndex(data) {
+  if (data.version === 2) return buildLocationsIndexV2(data);
   const byTitle = new Map();
   const byYearDirector = new Map();
   for (const [key, value] of Object.entries(data)) {
@@ -52,6 +71,14 @@ function buildLocationsIndex(data) {
 
 function matchLocations(movie) {
   if (!locationsByTitle) return [];
+
+  if (locationsByTitle.byId) {
+    return (
+      (movie.sourceId && locationsByTitle.byId.get(String(movie.sourceId))) ||
+      locationsByTitle.byKey.get(locationKey(movie.title, movie.year)) ||
+      []
+    );
+  }
 
   // 1. Exact title match
   const titleKeys = [

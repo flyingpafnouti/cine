@@ -113,3 +113,24 @@ dont **39 739** avec synopsis. Les rapprochements incertains restent séparés.
 La commande `python3 scripts/fetch-dataset.py` restaure désormais **les deux**
 fichiers aux révisions figées, après validation de leurs empreintes et structures.
 Aucune consultation de Hugging Face n’est nécessaire pendant l’utilisation.
+
+# Lieux de tournage
+
+`data/locations-enriched.json` est généré par `python3 scripts/build-locations-wikidata.py`
+(environ 20 minutes au premier lancement, quelques secondes ensuite grâce au cache
+`data/.cache/`, ignoré par git ; `--refresh` force une nouvelle interrogation).
+
+Sources, toutes deux CC0 :
+
+- **Wikidata**, interrogé en SPARQL : identifiant AlloCiné (P1265), lieu de
+  tournage (P915), titres, année et réalisateurs des œuvres.
+- **moviescenemap.com/data** : `filming-locations.csv` (détails des lieux) et
+  `productions.csv` (lieux par œuvre, issus de Wikidata **et** des articles
+  Wikipédia des œuvres), téléchargé le 18 octobre 2026.
+
+Rapprochement avec les films :
+
+1. par identifiant AlloCiné exact (colonne `id` du complément 2026) ;
+2. sinon par titre (français, original, anglais ou alias) et année, avec
+   réalisateur commun si les deux sources en indiquent un (écart d'année ≤ 3),
+   ou écart d'année ≤ 1 sans réalisateur à comparer. Un candidat ambigu est rejeté.

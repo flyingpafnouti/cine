@@ -198,6 +198,34 @@ Les clés sont enregistrées dans le stockage local du navigateur et transmises
 Plusieurs clés d’un même projet Google partagent son quota, comme décrit dans
 la [documentation YouTube](https://developers.google.com/youtube/v3/getting-started#quota).
 
+## Bande originale
+
+Dans la fiche d’un film, sous la bande-annonce, le bouton **Chercher la bande
+originale** liste les morceaux de sa BO, classés par popularité sur Deezer, avec
+un extrait de 30 secondes par morceau. Aucune clé API n’est nécessaire.
+
+La recherche est faite à la demande, en 3 à 10 secondes :
+
+1. **Wikidata** identifie le film : jointure exacte par l’ID Allociné (P1265)
+   quand la fiche en a un, sinon titre + année à ±1 an, jamais sur le titre seul.
+   Le film retenu est affiché avec un lien pour vérifier la correspondance.
+2. **MusicBrainz** fournit les morceaux de l’album BO relié au film (P406).
+   À défaut, un album de type « Soundtrack » au même titre et sorti à ±1 an.
+   Les albums de musique composée (« score ») ne sont gardés que s’il n’existe
+   pas d’album de chansons ; les pistes de dialogue sont écartées.
+3. **Deezer** donne le « rank » (0 à 1 000 000, mis à jour quotidiennement).
+   Le rank étant propre à chaque édition, on retient la version la plus écoutée
+   du même artiste : l’édition de la BO l’est souvent bien moins que l’originale.
+
+Le résultat est conservé 30 jours dans le stockage local du navigateur
+(300 films au maximum). Une BO déjà trouvée est signalée **Disponible** et
+repliée dans la fiche ; un clic sur son titre la déplie ou la replie.
+L’extrait s’arrête à la fermeture de la fiche ou au passage à un autre film.
+
+Limites : seuls les morceaux de l’album BO officiel apparaissent, pas tous ceux
+entendus dans le film. Un film absent de Wikidata, ou sans album BO référencé,
+affiche un message explicite.
+
 ## Transférer les favoris et les films déjà vus
 
 ### Synchronisation entre appareils

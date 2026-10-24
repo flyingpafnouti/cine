@@ -4,6 +4,11 @@ import {
   readApiKeys,
   findTrailer,
 } from "../storage/youtube.js?v=export-all-dataset-1";
+import {
+  findSoundtrack,
+  getCachedSoundtrack,
+  previewUrl,
+} from "../storage/soundtrack.js?v=export-all-dataset-1";
 const tags = (m) => m.genres.map((g) => el("span", { class: "tag" }, g));
 function searchLink(query) {
   return el(
@@ -53,6 +58,121 @@ function trailerSection(m) {
       .then((videoId) => embed(section, videoId, m.title))
       .catch((error) => unavailable(error.message));
   }
+  return section;
+}
+// Un seul lecteur pour tous les extraits de bande originale.
+let soundtrackAudio = null;
+let playingTrack = null;
+function soundtrackPlayer() {
+  if (!soundtrackAudio) {
+    soundtrackAudio = new Audio();
+    for (const type of ["play", "pause", "ended"]) {
+      soundtrackAudio.addEventListener(type, syncSoundtrackButtons);
+    }
+    $("#modal").addEventListener("close", () => soundtrackAudio.pause());
+  }
+  return soundtrackAudio;
+}
+function syncSoundtrackButtons() {
+  const playing = soundtrackAudio && !soundtrackAudio.paused ? playingTrack : null;
+  for (const button of document.querySelectorAll(".soundtrack-play")) {
+    const active = button.dataset.track === playing;
+    button.textContent = active ? "⏸" : "▶";
+    button.setAttribute("aria-label", (active ? "Mettre en pause " : "Écouter un extrait de ") + button.dataset.title);
+  }
+}
+// Après un nouvel affichage de la fiche, l'extrait s'arrête si son morceau n'y figure plus.
+function stopDetachedSoundtrack() {
+  if (!soundtrackAudio || soundtrackAudio.paused) return;
+  const visible = [...document.querySelectorAll(".soundtrack-play")]
+    .some((button) => button.dataset.track === playingTrack);
+  if (!visible) soundtrackAudio.pause();
+  syncSoundtrackButtons();
+}
+async function toggleSoundtrack(button, status) {
+  const player = soundtrackPlayer();
+  if (playingTrack === button.dataset.track && !player.paused) {
+    player.pause();
+    return;
+  }
+  button.disabled = true;
+  try {
+    player.src = await previewUrl(button.dataset.track);
+    playingTrack = button.dataset.track;
+    await player.play();
+  } catch (error) {
+    status.textContent = error.message || "Lecture de l’extrait impossible.";
+  } finally {
+    button.disabled = false;
+    syncSoundtrackButtons();
+  }
+}
+// Repliable ; repliée par défaut quand elle vient du cache, pour garder la fiche compacte.
+function soundtrackList(section, data, open) {
+  const status = el("p", { class: "hint", role: "status" });
+  const film = data.film;
+  section.replaceChildren(el("details", { class: "soundtrack-details", open },
+    el("summary", {},
+      el("h4", {}, "Bande originale"),
+      el("span", { class: "soundtrack-available" },
+        "Disponible · " + data.tracks.length + " morceau" + (data.tracks.length > 1 ? "x" : ""))),
+    el("p", { class: "hint" }, "D’après ",
+      el("a", {
+        href: "https://www.wikidata.org/wiki/" + film.qid,
+        target: "_blank",
+        rel: "noopener noreferrer",
+      }, film.title + (film.year ? " (" + film.year + ")" : "")),
+      " · " + data.albums.join(" · ") + " · popularité Deezer"),
+    el("ol", { class: "soundtrack-list" }, data.tracks.map((track, index) => {
+      const play = el("button", {
+        type: "button",
+        class: "soundtrack-play",
+        disabled: !track.deezerId,
+        title: track.deezerId ? "Extrait de 30 secondes" : "Introuvable sur Deezer",
+        onclick: () => toggleSoundtrack(play, status),
+      }, "▶");
+      play.dataset.track = track.deezerId || "";
+      play.dataset.title = track.title;
+      return el("li", {},
+        el("span", { class: "soundtrack-position" }, index + 1),
+        play,
+        el("div", { class: "soundtrack-track" },
+          el("div", { class: "soundtrack-title" }, track.link
+            ? el("a", { href: track.link, target: "_blank", rel: "noopener noreferrer" }, track.title)
+            : track.title),
+          el("div", { class: "soundtrack-artist" }, track.artist),
+          el("div", {
+            class: "soundtrack-bar",
+            title: track.rank === null ? "Introuvable sur Deezer" : "Rank Deezer : " + fmt(track.rank),
+          }, el("span", { style: "width:" + (track.rank || 0) / 1e4 + "%" }))));
+    })),
+    status,
+  ));
+  syncSoundtrackButtons();
+}
+function soundtrackSection(m) {
+  const section = el("section", { class: "soundtrack" });
+  const cached = getCachedSoundtrack(m);
+  if (cached) {
+    soundtrackList(section, cached, false);
+    return section;
+  }
+  const search = (label, message) => {
+    const status = el("p", { class: "hint", role: "status" }, message);
+    const button = el("button", {
+      type: "button",
+      class: "soundtrack-search",
+      onclick: () => {
+        button.disabled = true;
+        findSoundtrack(m, (progress) => { status.textContent = progress; })
+          .then((data) => soundtrackList(section, data, true))
+          .catch((error) => search("Réessayer", error.message || "Recherche impossible."));
+      },
+    }, label);
+    section.replaceChildren(el("h4", {}, "Bande originale"), status, button);
+  };
+  search("Chercher la bande originale",
+    "Morceaux de la BO classés par popularité, avec extraits de 30 secondes (Wikidata, MusicBrainz, Deezer).");
   return section;
 }
 function scoreButton(m, detail) {
@@ -564,6 +684,7 @@ export function showDetails(movies, onNavigate, marking, onSearchPerson) {
             el("p", {}, m.synopsis || "Synopsis non renseigné pour ce film."),
           ),
           trailerSection(m),
+          soundtrackSection(m),
           el(
             "p",
             { class: "hint" },
@@ -656,6 +777,7 @@ export function showDetails(movies, onNavigate, marking, onSearchPerson) {
   } : null;
   $("#modal").dataset.film = "true";
   $("#modal").scrollTop = 0;
+  stopDetachedSoundtrack();
 }
 export function renderPivot(data, onCell) {
   const cells = new Map(data.cells.map((c) => [c.key, c]));

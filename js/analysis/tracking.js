@@ -1,4 +1,4 @@
-import { mean, median } from "../utils/values.js?v=export-all-dataset-1";
+import { mean, median } from "../utils/values.js?v=music-shortcuts-1";
 
 const values = (movies, key) => movies.map((movie) => movie[key]).filter((value) => value !== null);
 

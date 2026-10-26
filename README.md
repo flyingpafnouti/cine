@@ -226,6 +226,33 @@ Limites : seuls les morceaux de l’album BO officiel apparaissent, pas tous ceu
 entendus dans le film. Un film absent de Wikidata, ou sans album BO référencé,
 affiche un message explicite.
 
+## Musiques
+
+Dans la bande originale d’une fiche, l’étoile ☆ à droite d’un morceau l’ajoute
+aux musiques favorites, avec le film d’où il vient. L’onglet **Musiques**, à
+côté de **Carte**, a deux sous-onglets qui partagent le même lecteur (précédent,
+lecture/pause, suivant, aléatoire, répétition) :
+
+- **Favoris** : les morceaux mis en favoris, du plus récent au plus ancien.
+- **Les plus écoutées** : les 100 morceaux les plus écoutés, toutes fiches
+  confondues. Une écoute compte après 10 secondes d’extrait (la moitié d’un
+  extrait plus court) ; un morceau répété compte à chaque passage. À égalité,
+  le plus récemment écouté passe devant.
+
+Le nom du film ouvre sa fiche ; les flèches ← → y parcourent les films de la
+liste affichée. La lecture continue quand on ouvre puis ferme une fiche depuis
+l’onglet Musiques.
+
+Raccourcis clavier, partout dans l’application : Alt + → morceau suivant,
+Alt + ← morceau précédent, Alt + ↓ pause, Alt + ↑ lecture. Ils pilotent la liste
+en cours de lecture, sinon la BO de la fiche ouverte, sinon l’onglet Musiques.
+Alt + ← ne revient donc plus à la page précédente du navigateur.
+
+Favoris et écoutes sont conservés dans le navigateur et, une fois connecté,
+synchronisés avec Supabase (tables `music_favorites` et `music_plays`). Les
+écoutes sont envoyées comme des incréments (fonction `add_music_plays`) : deux
+appareils additionnent leurs compteurs au lieu de s’écraser.
+
 ## Transférer les favoris et les films déjà vus
 
 ### Synchronisation entre appareils

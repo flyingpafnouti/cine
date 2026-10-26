@@ -1,4 +1,4 @@
-import { el, $, fmt } from "./dom.js?v=export-all-dataset-1";
+import { el, $, fmt } from "./dom.js?v=music-shortcuts-1";
 
 const MAX_MARKERS = 14667;
 const COORD_PRECISION = 2;

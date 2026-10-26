@@ -390,7 +390,8 @@
             <button id="view-table" class="active">Tableau</button
             ><button id="view-analysis">Analyse</button
             ><button id="view-tracking">Statistiques de suivi</button
-            ><button id="view-map">Carte</button>
+            ><button id="view-map">Carte</button
+            ><button id="view-music">Musiques</button>
           </div>
           <button id="favorites-only" class="button" aria-pressed="false">★ Favoris (0)</button
           ><button id="watched-only" class="button" aria-pressed="false">✓ Vus (0)</button>
@@ -455,6 +456,7 @@
             <button id="map-reset-view" class="button" type="button" title="Recentrer sur tous les lieux">⟲ Recentrer</button>
           </div>
         </section>
+        <section id="music-view" class="soundtrack-queue" hidden></section>
         <div class="bottom-bar">
           <label
             >Par page<select id="page-size">
@@ -494,7 +496,7 @@
       <p id="modal-notice" role="status"></p>
       <div id="modal-body"></div>
     </dialog>
-    <script type="module" src="js/app.js?v=export-all-dataset-1"></script>
+    <script type="module" src="js/app.js?v=music-shortcuts-1"></script>
     <!-- Cloudflare Web Analytics -->
     <script
       type="module"

@@ -1,8 +1,10 @@
-import { readFavorites } from "./storage/favorites.js?v=export-all-dataset-1";
-import { readWatched } from "./storage/watched.js?v=export-all-dataset-1";
-import { readRatings } from "./storage/ratings.js?v=export-all-dataset-1";
-import { readWatchDates } from "./storage/watch-dates.js?v=export-all-dataset-1";
-import { readSidebarOpen } from "./storage/ui.js?v=export-all-dataset-1";
+import { readFavorites } from "./storage/favorites.js?v=music-shortcuts-1";
+import { readWatched } from "./storage/watched.js?v=music-shortcuts-1";
+import { readRatings } from "./storage/ratings.js?v=music-shortcuts-1";
+import { readWatchDates } from "./storage/watch-dates.js?v=music-shortcuts-1";
+import { readSidebarOpen } from "./storage/ui.js?v=music-shortcuts-1";
+import { readMusicFavorites } from "./storage/music-favorites.js?v=music-shortcuts-1";
+import { readMusicPlays } from "./storage/music-plays.js?v=music-shortcuts-1";
 export const defaults = () => ({
   filters: {
     query: "",
@@ -70,5 +72,8 @@ export const state = {
   watchedOnly: false,
   ratings: readRatings(),
   watchDates: readWatchDates(),
+  musicFavorites: readMusicFavorites(),
+  musicTab: "favorites",
+  musicPlays: readMusicPlays(),
   summary: null,
 };

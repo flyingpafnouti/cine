@@ -1,4 +1,4 @@
-import { el, fmt, modal } from "./dom.js?v=export-all-dataset-1";
+import { el, fmt, modal } from "./dom.js?v=music-shortcuts-1";
 export function showDatasetInfo(s, datasetName) {
   if (!s) return;
   modal(

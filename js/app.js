@@ -1,28 +1,44 @@
-import { writeFavorites } from "./storage/favorites.js?v=export-all-dataset-1";
-import { writeWatched } from "./storage/watched.js?v=export-all-dataset-1";
-import { writeRatings } from "./storage/ratings.js?v=export-all-dataset-1";
-import { writeWatchDates } from "./storage/watch-dates.js?v=export-all-dataset-1";
-import { writeSidebarOpen } from "./storage/ui.js?v=export-all-dataset-1";
+import { writeFavorites } from "./storage/favorites.js?v=music-shortcuts-1";
+import { writeWatched } from "./storage/watched.js?v=music-shortcuts-1";
+import { writeRatings } from "./storage/ratings.js?v=music-shortcuts-1";
+import { writeWatchDates } from "./storage/watch-dates.js?v=music-shortcuts-1";
+import { writeSidebarOpen } from "./storage/ui.js?v=music-shortcuts-1";
 import {
   readImportedDatasets,
   saveImportedDataset,
-} from "./storage/datasets.js?v=export-all-dataset-1";
-import { exportLists, parseLists, readListMetadata, saveImportedLists } from "./storage/lists.js?v=export-all-dataset-1";
-import { showDatasetInfo } from "./ui/dataset-ui.js?v=export-all-dataset-1";
-import { state, defaults } from "./state.js?v=export-all-dataset-1";
-import { $, el, fmt, modal, notice } from "./ui/dom.js?v=export-all-dataset-1";
-import { setupControls, syncControls, renderGenres } from "./ui/controls.js?v=export-all-dataset-1";
-import { renderResults, showDetails, renderPivot, renderTrackingStatistics } from "./ui/results.js?v=export-all-dataset-1";
-import { renderMap, invalidateMap, resetMapView, centerOnData } from "./ui/map.js?v=export-all-dataset-1";
-import { importDialog, mappingDialog } from "./ui/import.js?v=export-all-dataset-1";
-import { setupPresets } from "./ui/presets-ui.js?v=export-all-dataset-1";
-import { setupApiSettings } from "./ui/api-settings.js?v=export-all-dataset-1";
-import { setupCloudLists } from "./ui/cloud-lists.js?v=export-all-dataset-1";
-import { createCloudLists } from "./storage/cloud-lists.js?v=export-all-dataset-1";
-import { csv, download } from "./export/export.js?v=export-all-dataset-1";
-import { ratingBandFilters } from "./analysis/tracking.js?v=export-all-dataset-1";
-import { formatDate } from "./utils/values.js?v=export-all-dataset-1";
-const worker = new Worker(new URL("./worker.js?v=export-all-dataset-1", import.meta.url), {
+} from "./storage/datasets.js?v=music-shortcuts-1";
+import { exportLists, parseLists, readListMetadata, saveImportedLists } from "./storage/lists.js?v=music-shortcuts-1";
+import { showDatasetInfo } from "./ui/dataset-ui.js?v=music-shortcuts-1";
+import { state, defaults } from "./state.js?v=music-shortcuts-1";
+import { $, el, fmt, modal, notice } from "./ui/dom.js?v=music-shortcuts-1";
+import { setupControls, syncControls, renderGenres } from "./ui/controls.js?v=music-shortcuts-1";
+import { renderResults, showDetails, renderPivot, renderTrackingStatistics, renderMusicView, setSoundtrackListener, soundtrackShortcut } from "./ui/results.js?v=music-shortcuts-1";
+import { renderMap, invalidateMap, resetMapView, centerOnData } from "./ui/map.js?v=music-shortcuts-1";
+import { importDialog, mappingDialog } from "./ui/import.js?v=music-shortcuts-1";
+import { setupPresets } from "./ui/presets-ui.js?v=music-shortcuts-1";
+import { setupApiSettings } from "./ui/api-settings.js?v=music-shortcuts-1";
+import { setupCloudLists } from "./ui/cloud-lists.js?v=music-shortcuts-1";
+import { createCloudLists } from "./storage/cloud-lists.js?v=music-shortcuts-1";
+import {
+  createCloudMusic,
+  musicFavorite,
+  musicFavoriteFrom,
+  musicKey,
+  sortedMusicFavorites,
+  toggledMusicFavorites,
+  writeMusicFavorites,
+} from "./storage/music-favorites.js?v=music-shortcuts-1";
+import {
+  RANKING_SIZE,
+  countedPlays,
+  createCloudPlays,
+  rankedPlays,
+  writeMusicPlays,
+} from "./storage/music-plays.js?v=music-shortcuts-1";
+import { csv, download } from "./export/export.js?v=music-shortcuts-1";
+import { ratingBandFilters } from "./analysis/tracking.js?v=music-shortcuts-1";
+import { formatDate } from "./utils/values.js?v=music-shortcuts-1";
+const worker = new Worker(new URL("./worker.js?v=music-shortcuts-1", import.meta.url), {
   type: "module",
 });
 const requests = new Map();
@@ -91,6 +107,7 @@ async function refresh() {
     activeFilters();
     if (state.config.view === "analysis") await updatePivot();
     if (state.config.view === "map") scheduleMapUpdate();
+    renderMusic();
   } catch (e) {
     notice(e.message);
   }
@@ -111,6 +128,43 @@ const cloudLists = createCloudLists({
   changed: () => refresh(),
   status: (text) => { $("#cloud-status").textContent = text; },
 });
+const cloudMusic = createCloudMusic({
+  readLocal: () => state.musicFavorites,
+  replaceLocal: (favorites) => {
+    writeMusicFavorites(favorites);
+    state.musicFavorites = favorites;
+  },
+  changed: () => renderMusic(),
+  status: (text) => { $("#cloud-status").textContent = text; },
+});
+const cloudPlays = createCloudPlays({
+  readLocal: () => state.musicPlays,
+  replaceLocal: (plays) => {
+    writeMusicPlays(plays);
+    state.musicPlays = plays;
+  },
+  changed: () => renderMusic(),
+  status: (text) => { $("#cloud-status").textContent = text; },
+});
+// Films et musiques sont synchronisés l'un après l'autre, pour ne jamais
+// rafraîchir deux fois en parallèle le jeton de session.
+let cloudTimer = null;
+const cloudSync = {
+  async pull(options) {
+    await cloudLists.pull(options);
+    await cloudMusic.pull(options);
+    await cloudPlays.pull(options);
+  },
+  start() {
+    clearInterval(cloudTimer);
+    cloudTimer = setInterval(() => cloudSync.pull(), 30_000);
+    return cloudSync.pull({ initial: true });
+  },
+  stop() {
+    clearInterval(cloudTimer);
+    cloudTimer = null;
+  },
+};
 async function load(source, merge = false, persist = false) {
   notice("Lecture et normalisation du fichier…");
   try {
@@ -379,6 +433,52 @@ function toggleRating(id, value) {
   cloudLists.saveMark(id, state.favorites.has(id), state.watched.has(id), next.get(id) ?? null, state.watchDates.get(id) ?? null);
   refresh();
 }
+function toggleMusicFavorite(entry) {
+  const next = toggledMusicFavorites(state.musicFavorites, entry);
+  try {
+    writeMusicFavorites(next);
+  } catch {
+    notice("Impossible d’enregistrer la musique favorite : le stockage du navigateur est indisponible.");
+    return;
+  }
+  state.musicFavorites = next;
+  cloudMusic.save(entry, !next.has(musicKey(entry.filmId, entry.deezerId)));
+  renderMusic();
+}
+function recordListen(entry) {
+  const at = new Date().toISOString();
+  const next = countedPlays(state.musicPlays, entry, 1, at);
+  try {
+    writeMusicPlays(next);
+  } catch {
+    return; // stockage plein : l'écoute n'est simplement pas comptée
+  }
+  state.musicPlays = next;
+  cloudPlays.add(entry, at);
+  if (state.musicTab === "plays") renderMusic();
+}
+setSoundtrackListener(recordListen);
+function renderMusic() {
+  if (state.config.view !== "music") return;
+  const favorites = sortedMusicFavorites(state.musicFavorites);
+  const ranking = rankedPlays(state.musicPlays);
+  // ← → dans la fiche parcourent les films de la liste affichée.
+  const shown = state.musicTab === "plays" ? ranking : favorites;
+  const order = [...new Set(shown.map((entry) => entry.filmId))];
+  renderMusicView({
+    tab: state.musicTab,
+    favorites,
+    ranking,
+    rankingSize: RANKING_SIZE,
+    isFavorite: (entry) => state.musicFavorites.has(musicKey(entry.filmId, entry.deezerId)),
+    open: (id) => detail(id, order),
+    toggle: (entry) => toggleMusicFavorite(musicFavorite({ ...entry, addedAt: new Date().toISOString() })),
+    selectTab: (tab) => {
+      state.musicTab = tab;
+      renderMusic();
+    },
+  });
+}
 $("#watched-only").onclick = () => {
   state.watchedOnly = !state.watchedOnly;
   state.page = 1;
@@ -390,6 +490,10 @@ async function detail(id, order = null) {
   try {
     const movies = await request("details", { ids: [id], scoring: state.config.scoring, navigation: true, order });
     if (revision !== detailRevision) return;
+    if (!movies.length) {
+      notice("Ce film ne figure pas dans le catalogue chargé.");
+      return;
+    }
     showDetails(movies, (nextId) => detail(nextId, order), {
       isFavorite: (movieId) => state.favorites.has(movieId),
       isWatched: (movieId) => state.watched.has(movieId),
@@ -397,6 +501,8 @@ async function detail(id, order = null) {
       favorite: toggleFavorite,
       watch: toggleWatched,
       rate: toggleRating,
+      isMusicFavorite: (movieId, deezerId) => state.musicFavorites.has(musicKey(movieId, deezerId)),
+      musicFavorite: (movie, track) => toggleMusicFavorite(musicFavoriteFrom(movie, track)),
     }, (kind, name) => {
       state.favoritesOnly = false;
       state.watchedOnly = false;
@@ -451,7 +557,7 @@ function scheduleMapUpdate() {
 }
 setupControls(state, schedule);
 setupApiSettings();
-setupCloudLists(cloudLists);
+setupCloudLists(cloudSync);
 syncControls(state);
 function applySidebar(open) {
   state.sidebarOpen = open;
@@ -512,7 +618,14 @@ $("#search").oninput = (e) => {
   state.config.filters.query = e.target.value;
   schedule();
 };
+// Alt + flèches pilotent la musique ; Alt + ← ne revient donc plus à la page précédente.
+const soundtrackKeys = { ArrowRight: "next", ArrowLeft: "previous", ArrowDown: "pause", ArrowUp: "play" };
 document.addEventListener("keydown", (e) => {
+  if (e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey && soundtrackKeys[e.key]) {
+    e.preventDefault();
+    soundtrackShortcut(soundtrackKeys[e.key]);
+    return;
+  }
   const pageShortcut = document.activeElement === document.body &&
     !$("#modal").open && !e.altKey && !e.ctrlKey && !e.metaKey;
   if (pageShortcut && ["f", "v"].includes(e.key.toLowerCase())) {
@@ -575,7 +688,7 @@ for (const view of ["table", "analysis"])
 $("#view-map").onclick = () => {
   state.config.view = "map";
   $("#results").classList.remove("tracking-mode");
-  for (const view of ["table", "analysis", "tracking", "map"]) {
+  for (const view of ["table", "analysis", "tracking", "map", "music"]) {
     $("#" + view + "-view").hidden = view !== "map";
     $("#view-" + view).classList.toggle("active", view === "map");
     $("#view-" + view).setAttribute("aria-pressed", view === "map");
@@ -584,6 +697,16 @@ $("#view-map").onclick = () => {
   refresh();
 };
 $("#map-reset-view").onclick = () => centerOnData();
+$("#view-music").onclick = () => {
+  state.config.view = "music";
+  $("#results").classList.add("tracking-mode");
+  for (const view of ["table", "analysis", "tracking", "map", "music"]) {
+    $("#" + view + "-view").hidden = view !== "music";
+    $("#view-" + view).classList.toggle("active", view === "music");
+    $("#view-" + view).setAttribute("aria-pressed", view === "music");
+  }
+  renderMusic();
+};
 let trackingRevision = 0;
 function applyTrackingFilter(group, label) {
   const filters = defaults().filters;
@@ -611,7 +734,7 @@ function applyTrackingFilter(group, label) {
 $("#view-tracking").onclick = async () => {
   state.config.view = "tracking";
   $("#results").classList.add("tracking-mode");
-  for (const view of ["table", "analysis", "tracking", "map"]) {
+  for (const view of ["table", "analysis", "tracking", "map", "music"]) {
     $("#" + view + "-view").hidden = view !== "tracking";
     $("#view-" + view).classList.toggle("active", view === "tracking");
     $("#view-" + view).setAttribute("aria-pressed", view === "tracking");

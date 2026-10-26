@@ -1,14 +1,15 @@
-import { el, $, fmt, modal, labels } from "./dom.js?v=export-all-dataset-1";
-import { formatDate } from "../utils/values.js?v=export-all-dataset-1";
+import { el, $, fmt, modal, labels } from "./dom.js?v=music-shortcuts-1";
+import { formatDate } from "../utils/values.js?v=music-shortcuts-1";
 import {
   readApiKeys,
   findTrailer,
-} from "../storage/youtube.js?v=export-all-dataset-1";
+} from "../storage/youtube.js?v=music-shortcuts-1";
 import {
   findSoundtrack,
   getCachedSoundtrack,
   previewUrl,
-} from "../storage/soundtrack.js?v=export-all-dataset-1";
+} from "../storage/soundtrack.js?v=music-shortcuts-1";
+import { musicFavoriteFrom } from "../storage/music-favorites.js?v=music-shortcuts-1";
 const tags = (m) => m.genres.map((g) => el("span", { class: "tag" }, g));
 function searchLink(query) {
   return el(
@@ -60,32 +61,58 @@ function trailerSection(m) {
   }
   return section;
 }
-// Un seul lecteur pour tous les extraits de bande originale.
+// Un seul lecteur pour tous les extraits de bande originale. La file de lecture
+// est la liste (BO de la fiche ou onglet Musiques) d'où vient le dernier morceau lancé.
 let soundtrackAudio = null;
 let playingTrack = null;
+let soundtrackScope = null;
 let soundtrackRequest = 0;
 let soundtrackOrder = null; // ordre de lecture aléatoire ; null hors mode aléatoire
+// Une écoute compte après 10 secondes d'extrait (la moitié d'un extrait plus court),
+// une fois par lecture ; chaque reprise au début (répétition, « précédent ») recompte.
+const LISTEN_SECONDS = 10;
+let playingEntry = null;
+let listenCounted = false;
+let listenTime = 0;
+let onListen = null;
+export function setSoundtrackListener(listener) {
+  onListen = listener;
+}
+function countListen() {
+  const player = soundtrackAudio;
+  if (player.currentTime < listenTime) listenCounted = false;
+  listenTime = player.currentTime;
+  if (listenCounted || !playingEntry || !(player.currentTime >= Math.min(LISTEN_SECONDS, player.duration / 2))) return;
+  listenCounted = true;
+  onListen?.(playingEntry);
+}
 function soundtrackPlayer() {
   if (!soundtrackAudio) {
     soundtrackAudio = new Audio();
     for (const type of ["play", "pause", "ended"]) {
       soundtrackAudio.addEventListener(type, syncSoundtrackButtons);
     }
+    soundtrackAudio.addEventListener("timeupdate", countListen);
     soundtrackAudio.addEventListener("ended", () => stepSoundtrack(1));
-    $("#modal").addEventListener("close", () => soundtrackAudio.pause());
+    // Fermer la fiche n'arrête que la BO de la fiche, pas la lecture des favoris.
+    $("#modal").addEventListener("close", () => {
+      if (!soundtrackScope?.isConnected || $("#modal").contains(soundtrackScope)) soundtrackAudio.pause();
+    });
   }
   return soundtrackAudio;
 }
 function syncSoundtrackButtons() {
   const playing = soundtrackAudio && !soundtrackAudio.paused ? playingTrack : null;
+  const inScope = (button) => Boolean(playing && soundtrackScope?.contains(button));
   for (const button of document.querySelectorAll(".soundtrack-play")) {
-    const active = button.dataset.track === playing;
+    const active = inScope(button) && button.dataset.track === playing;
     button.textContent = active ? "⏸" : "▶";
     button.setAttribute("aria-label", (active ? "Mettre en pause " : "Écouter un extrait de ") + button.dataset.title);
   }
   for (const button of document.querySelectorAll(".soundtrack-control[data-control=toggle]")) {
-    button.textContent = playing ? "⏸" : "▶";
-    button.title = playing ? "Pause" : "Lecture";
+    const active = inScope(button);
+    button.textContent = active ? "⏸" : "▶";
+    button.title = active ? "Pause" : "Lecture";
     button.setAttribute("aria-label", button.title);
   }
   for (const button of document.querySelectorAll(".soundtrack-control[data-control=shuffle]")) {
@@ -95,10 +122,14 @@ function syncSoundtrackButtons() {
     button.setAttribute("aria-pressed", Boolean(soundtrackAudio?.loop));
   }
 }
-// Après un nouvel affichage de la fiche, l'extrait s'arrête si son morceau n'y figure plus.
-function stopDetachedSoundtrack() {
-  if (!soundtrackAudio || soundtrackAudio.paused) return;
-  if (!soundtrackQueue().includes(playingTrack)) soundtrackAudio.pause();
+// Après un nouvel affichage de la fiche, la lecture passe à la nouvelle liste si
+// elle contient le morceau en cours ; sinon l'extrait s'arrête.
+function stopDetachedSoundtrack(root) {
+  if (soundtrackScope && !soundtrackScope.isConnected) {
+    const button = playingTrack && root.querySelector(`.soundtrack-play[data-track="${playingTrack}"]`);
+    soundtrackScope = button ? button.closest(".soundtrack-queue") : null;
+    if (!soundtrackScope) soundtrackAudio?.pause();
+  }
   syncSoundtrackButtons();
 }
 function shuffled(tracks, first) {
@@ -109,41 +140,55 @@ function shuffled(tracks, first) {
   }
   return tracks.includes(first) ? [first, ...order] : order;
 }
-// Morceaux écoutables de la fiche affichée, dans l'ordre de lecture.
+// Morceaux écoutables de la liste active, dans l'ordre de lecture.
 function soundtrackQueue() {
-  const tracks = [...new Set([...document.querySelectorAll(".soundtrack-play")]
+  const tracks = [...new Set([...(soundtrackScope?.querySelectorAll(".soundtrack-play") || [])]
     .map((button) => button.dataset.track).filter(Boolean))];
   if (!soundtrackOrder) return tracks;
   const same = soundtrackOrder.length === tracks.length && tracks.every((track) => soundtrackOrder.includes(track));
   if (!same) soundtrackOrder = shuffled(tracks, playingTrack);
   return soundtrackOrder;
 }
+// Rend active la liste d'un bouton ; renvoie true si elle ne l'était pas.
+function useSoundtrackScope(element) {
+  const scope = element.closest(".soundtrack-queue");
+  if (!scope || scope === soundtrackScope) return false;
+  soundtrackScope = scope;
+  return true;
+}
 async function playSoundtrack(track) {
   const player = soundtrackPlayer();
-  const button = document.querySelector(`.soundtrack-play[data-track="${track}"]`);
-  const status = button.closest(".soundtrack").querySelector("[role=status]");
+  const button = soundtrackScope.querySelector(`.soundtrack-play[data-track="${track}"]`);
+  const status = soundtrackScope.querySelector(".soundtrack-status");
   const request = ++soundtrackRequest;
-  button.disabled = true;
+  if (button) button.disabled = true;
   try {
     const url = await previewUrl(track);
     if (request !== soundtrackRequest) return true; // un autre morceau a été demandé entre-temps
     player.src = url;
     playingTrack = track;
+    playingEntry = button?.entry || null;
+    listenCounted = false;
+    listenTime = 0;
     await player.play();
-    status.textContent = "";
+    if (status) status.textContent = "";
     return true;
   } catch (error) {
     if (request !== soundtrackRequest) return true;
-    status.textContent = error.message || "Lecture de l’extrait impossible.";
+    if (status) status.textContent = error.message || "Lecture de l’extrait impossible.";
     return false;
   } finally {
-    button.disabled = false;
+    if (button) button.disabled = false;
     syncSoundtrackButtons();
   }
 }
-function toggleSoundtrack(track) {
+function toggleSoundtrack(button) {
+  const track = button.dataset.track;
+  const changed = useSoundtrackScope(button);
   if (playingTrack === track && !soundtrackPlayer().paused) {
-    soundtrackAudio.pause();
+    // Le morceau joue déjà depuis une autre liste : la file suit simplement celle-ci.
+    if (changed) syncSoundtrackButtons();
+    else soundtrackAudio.pause();
     return;
   }
   playSoundtrack(track);
@@ -160,16 +205,44 @@ async function stepSoundtrack(direction) {
   }
 }
 // Comme sur un lecteur classique : en cours de morceau, « précédent » le reprend au début.
-function previousSoundtrack() {
+function restartOrPrevious() {
   if (soundtrackAudio && !soundtrackAudio.paused && soundtrackAudio.currentTime > 3) {
     soundtrackAudio.currentTime = 0;
     return;
   }
   stepSoundtrack(-1);
 }
-function pauseOrResumeSoundtrack() {
+function previousSoundtrack(event) {
+  if (useSoundtrackScope(event.currentTarget)) stepSoundtrack(-1);
+  else restartOrPrevious();
+}
+function nextSoundtrack(event) {
+  useSoundtrackScope(event.currentTarget);
+  stepSoundtrack(1);
+}
+function pauseOrResumeSoundtrack(event) {
   const player = soundtrackPlayer();
-  if (!player.paused) player.pause();
+  const changed = useSoundtrackScope(event.currentTarget);
+  const queued = soundtrackQueue().includes(playingTrack);
+  if (changed && queued && !player.paused) syncSoundtrackButtons();
+  else if (!player.paused && !changed) player.pause();
+  else if (queued) player.play();
+  else stepSoundtrack(1);
+}
+// Raccourcis clavier (Alt + flèches) : pilotent la liste en cours de lecture,
+// sinon la BO de la fiche ouverte, sinon l'onglet Musiques affiché.
+export function soundtrackShortcut(action) {
+  if (!soundtrackScope?.isConnected) {
+    const modal = $("#modal");
+    soundtrackScope = (modal.open && modal.querySelector(".soundtrack-queue")) ||
+      (!$("#music-view").hidden && $("#music-view")) || null;
+    if (!soundtrackScope) return;
+  }
+  const player = soundtrackPlayer();
+  if (action === "next") stepSoundtrack(1);
+  else if (action === "previous") restartOrPrevious();
+  else if (action === "pause") player.pause();
+  else if (!player.paused) return;
   else if (soundtrackQueue().includes(playingTrack)) player.play();
   else stepSoundtrack(1);
 }
@@ -196,17 +269,57 @@ function soundtrackControls(playable) {
   return el("div", { class: "soundtrack-controls", role: "group", "aria-label": "Lecture de la bande originale" },
     control("back", "Morceau précédent", "⏮", previousSoundtrack),
     control("toggle", "Lecture", "▶", pauseOrResumeSoundtrack),
-    control("next", "Morceau suivant", "⏭", () => stepSoundtrack(1)),
+    control("next", "Morceau suivant", "⏭", nextSoundtrack),
     control("shuffle", "Lecture aléatoire", "⇄", toggleShuffle),
     control("repeat", "Répéter le morceau", "↻", toggleRepeat));
 }
+// `entry` : le morceau et son film, transmis au compteur d'écoutes.
+function playButton(entry) {
+  const play = el("button", {
+    type: "button",
+    class: "soundtrack-play",
+    title: "Extrait de 30 secondes",
+    onclick: () => toggleSoundtrack(play),
+  }, "▶");
+  play.dataset.track = entry.deezerId;
+  play.dataset.title = entry.title;
+  play.entry = entry;
+  return play;
+}
+function trackInfo(track) {
+  return el("div", { class: "soundtrack-track" },
+    el("div", { class: "soundtrack-title" }, track.link
+      ? el("a", { href: track.link, target: "_blank", rel: "noopener noreferrer" }, track.title)
+      : track.title),
+    el("div", { class: "soundtrack-artist" }, track.artist));
+}
+function musicStar(active, title, onclick) {
+  const label = (active ? "Retirer des musiques favorites : " : "Ajouter aux musiques favorites : ") + title;
+  return el("button", {
+    type: "button",
+    class: "music-star",
+    "aria-pressed": active,
+    "aria-label": label,
+    title: label,
+    onclick,
+  }, active ? "★" : "☆");
+}
 // Repliable ; repliée par défaut quand elle vient du cache, pour garder la fiche compacte.
 // Seuls les morceaux trouvés sur Deezer sont affichés : les autres n'ont pas d'extrait.
-function soundtrackList(section, data, open) {
-  const status = el("p", { class: "hint", role: "status" });
+function soundtrackList(section, data, open, m, marking) {
+  const status = el("p", { class: "hint soundtrack-status", role: "status" });
   const film = data.film;
   const tracks = data.tracks.filter((track) => track.deezerId);
-  section.replaceChildren(el("details", { class: "soundtrack-details", open },
+  const star = (track) => {
+    if (!marking?.musicFavorite) return null;
+    const render = () => musicStar(marking.isMusicFavorite(m.id, track.deezerId), track.title, () => {
+      marking.musicFavorite(m, track);
+      button.replaceWith(button = render());
+    });
+    let button = render();
+    return button;
+  };
+  section.replaceChildren(el("details", { class: "soundtrack-details soundtrack-queue", open },
     el("summary", {},
       el("h4", {}, "Bande originale"),
       el("span", { class: "soundtrack-available" }, tracks.length
@@ -221,34 +334,24 @@ function soundtrackList(section, data, open) {
       " · " + data.albums.join(" · ") + " · popularité Deezer"),
     soundtrackControls(tracks.length > 0),
     el("ol", { class: "soundtrack-list" }, tracks.map((track, index) => {
-      const play = el("button", {
-        type: "button",
-        class: "soundtrack-play",
-        title: "Extrait de 30 secondes",
-        onclick: () => toggleSoundtrack(play.dataset.track),
-      }, "▶");
-      play.dataset.track = track.deezerId;
-      play.dataset.title = track.title;
+      const info = trackInfo(track);
+      info.append(el("div", { class: "soundtrack-bar", title: "Rank Deezer : " + fmt(track.rank) },
+        el("span", { style: "width:" + (track.rank || 0) / 1e4 + "%" })));
       return el("li", {},
         el("span", { class: "soundtrack-position" }, index + 1),
-        play,
-        el("div", { class: "soundtrack-track" },
-          el("div", { class: "soundtrack-title" }, track.link
-            ? el("a", { href: track.link, target: "_blank", rel: "noopener noreferrer" }, track.title)
-            : track.title),
-          el("div", { class: "soundtrack-artist" }, track.artist),
-          el("div", { class: "soundtrack-bar", title: "Rank Deezer : " + fmt(track.rank) },
-            el("span", { style: "width:" + (track.rank || 0) / 1e4 + "%" }))));
+        playButton(musicFavoriteFrom(m, track)),
+        info,
+        star(track));
     })),
     status,
   ));
   syncSoundtrackButtons();
 }
-function soundtrackSection(m) {
+function soundtrackSection(m, marking) {
   const section = el("section", { class: "soundtrack" });
   const cached = getCachedSoundtrack(m);
   if (cached) {
-    soundtrackList(section, cached, false);
+    soundtrackList(section, cached, false, m, marking);
     return section;
   }
   const search = (label, message) => {
@@ -259,7 +362,7 @@ function soundtrackSection(m) {
       onclick: () => {
         button.disabled = true;
         findSoundtrack(m, (progress) => { status.textContent = progress; })
-          .then((data) => soundtrackList(section, data, true))
+          .then((data) => soundtrackList(section, data, true, m, marking))
           .catch((error) => search("Réessayer", error.message || "Recherche impossible."));
       },
     }, label);
@@ -268,6 +371,62 @@ function soundtrackSection(m) {
   search("Chercher la bande originale",
     "Morceaux de la BO classés par popularité, avec extraits de 30 secondes (Wikidata, MusicBrainz, Deezer).");
   return section;
+}
+// Onglet Musiques : #music-view reste en place (seul son contenu change), la
+// lecture continue donc quand on change de sous-onglet, retire un favori ou
+// qu'une synchronisation arrive. Les deux sous-onglets partagent le lecteur.
+export function renderMusicView({ tab, favorites, ranking, rankingSize, isFavorite, open, toggle, selectTab }) {
+  const filmButton = (entry) => el("button", {
+    type: "button",
+    class: "music-film",
+    title: "Ouvrir la fiche de " + entry.filmTitle,
+    onclick: () => open(entry.filmId),
+  }, "🎬 " + entry.filmTitle + (entry.filmYear ? " (" + entry.filmYear + ")" : ""));
+  const tabs = el("div", { class: "music-tabs", role: "tablist", "aria-label": "Musiques" },
+    [["favorites", "★ Favoris"], ["plays", "Les plus écoutées"]].map(([name, label]) =>
+      el("button", {
+        type: "button",
+        role: "tab",
+        class: tab === name ? "active" : "",
+        "aria-selected": tab === name,
+        "data-tab": name,
+        onclick: () => selectTab(name),
+      }, label)));
+  const empty = (title, text) => el("div", { class: "empty" }, el("strong", {}, title), el("p", {}, text));
+  const count = (n) => n + " morceau" + (n > 1 ? "x" : "");
+  let panel;
+  if (tab === "plays") {
+    panel = ranking.length ? [
+      el("p", { class: "hint" }, "Top " + rankingSize + " de vos écoutes · " + count(ranking.length) +
+        " · une écoute compte après 10 secondes d’extrait."),
+      soundtrackControls(true),
+      el("ol", { class: "soundtrack-list music-list music-ranking" }, ranking.map((entry, index) =>
+        el("li", {},
+          el("span", { class: "soundtrack-position" }, index + 1),
+          playButton(entry),
+          trackInfo(entry),
+          filmButton(entry),
+          el("span", { class: "music-plays", title: entry.plays + " écoute" + (entry.plays > 1 ? "s" : "") },
+            fmt(entry.plays) + " ▶"),
+          musicStar(isFavorite(entry), entry.title, () => toggle(entry))))),
+    ] : [empty("Aucune écoute pour le moment.",
+      "Écoutez des extraits de bande originale : les morceaux les plus écoutés apparaîtront ici.")];
+  } else {
+    panel = favorites.length ? [
+      el("p", { class: "hint" }, count(favorites.length) + " · extraits de 30 secondes (Deezer)"),
+      soundtrackControls(true),
+      el("ol", { class: "soundtrack-list music-list" }, favorites.map((entry, index) =>
+        el("li", {},
+          el("span", { class: "soundtrack-position" }, index + 1),
+          playButton(entry),
+          trackInfo(entry),
+          filmButton(entry),
+          musicStar(true, entry.title, () => toggle(entry))))),
+    ] : [empty("Aucune musique favorite.",
+      "Dans la fiche d’un film, dépliez la bande originale et cliquez sur ☆ à côté d’un morceau.")];
+  }
+  $("#music-view").replaceChildren(tabs, ...panel, el("p", { class: "hint soundtrack-status", role: "status" }));
+  syncSoundtrackButtons();
 }
 function scoreButton(m, detail) {
   return el(
@@ -462,7 +621,7 @@ export function renderResults(data, state, { detail, sort, favorite, watch }) {
           .join(" · "),
     ),
   );
-  for (const view of ["table", "analysis", "tracking", "map"]) {
+  for (const view of ["table", "analysis", "tracking", "map", "music"]) {
     $("#" + view + "-view").hidden = state.config.view !== view;
     $("#view-" + view).classList.toggle("active", state.config.view === view);
     $("#view-" + view).setAttribute("aria-pressed", state.config.view === view);
@@ -778,7 +937,7 @@ export function showDetails(movies, onNavigate, marking, onSearchPerson) {
             el("p", {}, m.synopsis || "Synopsis non renseigné pour ce film."),
           ),
           trailerSection(m),
-          soundtrackSection(m),
+          soundtrackSection(m, marking),
           el(
             "p",
             { class: "hint" },
@@ -871,7 +1030,7 @@ export function showDetails(movies, onNavigate, marking, onSearchPerson) {
   } : null;
   $("#modal").dataset.film = "true";
   $("#modal").scrollTop = 0;
-  stopDetachedSoundtrack();
+  stopDetachedSoundtrack($("#modal"));
 }
 export function renderPivot(data, onCell) {
   const cells = new Map(data.cells.map((c) => [c.key, c]));

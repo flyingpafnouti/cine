@@ -17,7 +17,7 @@ function storeSession(session) {
   else localStorage.removeItem(SESSION_KEY);
 }
 
-async function api(path, { method = "GET", body, token, prefer } = {}) {
+export async function api(path, { method = "GET", body, token, prefer } = {}) {
   const headers = { apikey: KEY };
   if (token) headers.Authorization = `Bearer ${token}`;
   if (body !== undefined) headers["Content-Type"] = "application/json";
@@ -32,7 +32,7 @@ async function api(path, { method = "GET", body, token, prefer } = {}) {
   return data;
 }
 
-async function validSession() {
+export async function validSession() {
   let session = readSession();
   if (!session) return null;
   const expiresSoon = !session.expires_at || session.expires_at * 1000 < Date.now() + 60_000;

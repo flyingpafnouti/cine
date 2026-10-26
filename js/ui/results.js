@@ -201,14 +201,17 @@ function soundtrackControls(playable) {
     control("repeat", "Répéter le morceau", "↻", toggleRepeat));
 }
 // Repliable ; repliée par défaut quand elle vient du cache, pour garder la fiche compacte.
+// Seuls les morceaux trouvés sur Deezer sont affichés : les autres n'ont pas d'extrait.
 function soundtrackList(section, data, open) {
   const status = el("p", { class: "hint", role: "status" });
   const film = data.film;
+  const tracks = data.tracks.filter((track) => track.deezerId);
   section.replaceChildren(el("details", { class: "soundtrack-details", open },
     el("summary", {},
       el("h4", {}, "Bande originale"),
-      el("span", { class: "soundtrack-available" },
-        "Disponible · " + data.tracks.length + " morceau" + (data.tracks.length > 1 ? "x" : ""))),
+      el("span", { class: "soundtrack-available" }, tracks.length
+        ? "Disponible · " + tracks.length + " morceau" + (tracks.length > 1 ? "x" : "")
+        : "Aucun extrait disponible")),
     el("p", { class: "hint" }, "D’après ",
       el("a", {
         href: "https://www.wikidata.org/wiki/" + film.qid,
@@ -216,16 +219,15 @@ function soundtrackList(section, data, open) {
         rel: "noopener noreferrer",
       }, film.title + (film.year ? " (" + film.year + ")" : "")),
       " · " + data.albums.join(" · ") + " · popularité Deezer"),
-    soundtrackControls(data.tracks.some((track) => track.deezerId)),
-    el("ol", { class: "soundtrack-list" }, data.tracks.map((track, index) => {
+    soundtrackControls(tracks.length > 0),
+    el("ol", { class: "soundtrack-list" }, tracks.map((track, index) => {
       const play = el("button", {
         type: "button",
         class: "soundtrack-play",
-        disabled: !track.deezerId,
-        title: track.deezerId ? "Extrait de 30 secondes" : "Introuvable sur Deezer",
+        title: "Extrait de 30 secondes",
         onclick: () => toggleSoundtrack(play.dataset.track),
       }, "▶");
-      play.dataset.track = track.deezerId || "";
+      play.dataset.track = track.deezerId;
       play.dataset.title = track.title;
       return el("li", {},
         el("span", { class: "soundtrack-position" }, index + 1),
@@ -235,10 +237,8 @@ function soundtrackList(section, data, open) {
             ? el("a", { href: track.link, target: "_blank", rel: "noopener noreferrer" }, track.title)
             : track.title),
           el("div", { class: "soundtrack-artist" }, track.artist),
-          el("div", {
-            class: "soundtrack-bar",
-            title: track.rank === null ? "Introuvable sur Deezer" : "Rank Deezer : " + fmt(track.rank),
-          }, el("span", { style: "width:" + (track.rank || 0) / 1e4 + "%" }))));
+          el("div", { class: "soundtrack-bar", title: "Rank Deezer : " + fmt(track.rank) },
+            el("span", { style: "width:" + (track.rank || 0) / 1e4 + "%" }))));
     })),
     status,
   ));

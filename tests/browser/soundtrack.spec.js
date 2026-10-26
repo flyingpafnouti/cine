@@ -28,7 +28,9 @@ test("the soundtrack is searched on demand, ranked, playable and cached", async 
     calls.musicbrainz++;
     const track = (title, artist) => ({ title, recording: { title, "artist-credit": [{ name: artist }], isrcs: [] } });
     return route.fulfill({ contentType: "application/json", body: JSON.stringify({ releases: [{
-      status: "Official", media: [{ "track-count": 2, tracks: [track("Morceau discret", "Artiste B"), track("Grand succès", "Artiste A")] }],
+      status: "Official", media: [{ "track-count": 3, tracks: [
+        track("Morceau discret", "Artiste B"), track("Grand succès", "Artiste A"), track("Morceau absent", "Artiste C"),
+      ] }],
     }] }) });
   });
   await page.route("https://api.deezer.com/**", (route) => {
@@ -54,6 +56,7 @@ test("the soundtrack is searched on demand, ranked, playable and cached", async 
   expect(calls).toEqual({ wikidata: 0, musicbrainz: 0, deezer: 0 });
   await section.getByRole("button", { name: "Chercher la bande originale" }).click();
 
+  // « Morceau absent » n'est pas sur Deezer : sans extrait, il n'est pas affiché.
   const titles = section.locator(".soundtrack-title");
   await expect(titles).toHaveText(["Grand succès", "Morceau discret"], { timeout: 15000 });
   await expect(section.locator("a[href='https://www.wikidata.org/wiki/Q1']")).toHaveText("Film test (2011)");

@@ -63,12 +63,15 @@ function trailerSection(m) {
 // Un seul lecteur pour tous les extraits de bande originale.
 let soundtrackAudio = null;
 let playingTrack = null;
+let soundtrackRequest = 0;
+let soundtrackOrder = null; // ordre de lecture aléatoire ; null hors mode aléatoire
 function soundtrackPlayer() {
   if (!soundtrackAudio) {
     soundtrackAudio = new Audio();
     for (const type of ["play", "pause", "ended"]) {
       soundtrackAudio.addEventListener(type, syncSoundtrackButtons);
     }
+    soundtrackAudio.addEventListener("ended", () => stepSoundtrack(1));
     $("#modal").addEventListener("close", () => soundtrackAudio.pause());
   }
   return soundtrackAudio;
@@ -80,32 +83,122 @@ function syncSoundtrackButtons() {
     button.textContent = active ? "⏸" : "▶";
     button.setAttribute("aria-label", (active ? "Mettre en pause " : "Écouter un extrait de ") + button.dataset.title);
   }
+  for (const button of document.querySelectorAll(".soundtrack-control[data-control=toggle]")) {
+    button.textContent = playing ? "⏸" : "▶";
+    button.title = playing ? "Pause" : "Lecture";
+    button.setAttribute("aria-label", button.title);
+  }
+  for (const button of document.querySelectorAll(".soundtrack-control[data-control=shuffle]")) {
+    button.setAttribute("aria-pressed", soundtrackOrder !== null);
+  }
+  for (const button of document.querySelectorAll(".soundtrack-control[data-control=repeat]")) {
+    button.setAttribute("aria-pressed", Boolean(soundtrackAudio?.loop));
+  }
 }
 // Après un nouvel affichage de la fiche, l'extrait s'arrête si son morceau n'y figure plus.
 function stopDetachedSoundtrack() {
   if (!soundtrackAudio || soundtrackAudio.paused) return;
-  const visible = [...document.querySelectorAll(".soundtrack-play")]
-    .some((button) => button.dataset.track === playingTrack);
-  if (!visible) soundtrackAudio.pause();
+  if (!soundtrackQueue().includes(playingTrack)) soundtrackAudio.pause();
   syncSoundtrackButtons();
 }
-async function toggleSoundtrack(button, status) {
-  const player = soundtrackPlayer();
-  if (playingTrack === button.dataset.track && !player.paused) {
-    player.pause();
-    return;
+function shuffled(tracks, first) {
+  const order = tracks.filter((track) => track !== first);
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [order[i], order[j]] = [order[j], order[i]];
   }
+  return tracks.includes(first) ? [first, ...order] : order;
+}
+// Morceaux écoutables de la fiche affichée, dans l'ordre de lecture.
+function soundtrackQueue() {
+  const tracks = [...new Set([...document.querySelectorAll(".soundtrack-play")]
+    .map((button) => button.dataset.track).filter(Boolean))];
+  if (!soundtrackOrder) return tracks;
+  const same = soundtrackOrder.length === tracks.length && tracks.every((track) => soundtrackOrder.includes(track));
+  if (!same) soundtrackOrder = shuffled(tracks, playingTrack);
+  return soundtrackOrder;
+}
+async function playSoundtrack(track) {
+  const player = soundtrackPlayer();
+  const button = document.querySelector(`.soundtrack-play[data-track="${track}"]`);
+  const status = button.closest(".soundtrack").querySelector("[role=status]");
+  const request = ++soundtrackRequest;
   button.disabled = true;
   try {
-    player.src = await previewUrl(button.dataset.track);
-    playingTrack = button.dataset.track;
+    const url = await previewUrl(track);
+    if (request !== soundtrackRequest) return true; // un autre morceau a été demandé entre-temps
+    player.src = url;
+    playingTrack = track;
     await player.play();
+    status.textContent = "";
+    return true;
   } catch (error) {
+    if (request !== soundtrackRequest) return true;
     status.textContent = error.message || "Lecture de l’extrait impossible.";
+    return false;
   } finally {
     button.disabled = false;
     syncSoundtrackButtons();
   }
+}
+function toggleSoundtrack(track) {
+  if (playingTrack === track && !soundtrackPlayer().paused) {
+    soundtrackAudio.pause();
+    return;
+  }
+  playSoundtrack(track);
+}
+// Morceau suivant (1) ou précédent (-1) ; la file boucle d'un bout à l'autre.
+// Un morceau sans extrait est sauté, au plus un tour complet.
+async function stepSoundtrack(direction) {
+  const queue = soundtrackQueue();
+  const current = queue.indexOf(playingTrack);
+  const from = current >= 0 ? current : direction > 0 ? -1 : 0;
+  for (let step = 1; step <= queue.length; step++) {
+    const index = (((from + direction * step) % queue.length) + queue.length) % queue.length;
+    if (await playSoundtrack(queue[index])) return;
+  }
+}
+// Comme sur un lecteur classique : en cours de morceau, « précédent » le reprend au début.
+function previousSoundtrack() {
+  if (soundtrackAudio && !soundtrackAudio.paused && soundtrackAudio.currentTime > 3) {
+    soundtrackAudio.currentTime = 0;
+    return;
+  }
+  stepSoundtrack(-1);
+}
+function pauseOrResumeSoundtrack() {
+  const player = soundtrackPlayer();
+  if (!player.paused) player.pause();
+  else if (soundtrackQueue().includes(playingTrack)) player.play();
+  else stepSoundtrack(1);
+}
+function toggleShuffle() {
+  soundtrackOrder = soundtrackOrder ? null : [];
+  soundtrackQueue(); // tire le nouvel ordre, en partant du morceau en cours
+  syncSoundtrackButtons();
+}
+function toggleRepeat() {
+  const player = soundtrackPlayer();
+  player.loop = !player.loop;
+  syncSoundtrackButtons();
+}
+function soundtrackControls(playable) {
+  const control = (name, label, text, onclick) => el("button", {
+    type: "button",
+    class: "soundtrack-control",
+    "data-control": name,
+    title: label,
+    "aria-label": label,
+    disabled: !playable,
+    onclick,
+  }, text);
+  return el("div", { class: "soundtrack-controls", role: "group", "aria-label": "Lecture de la bande originale" },
+    control("back", "Morceau précédent", "⏮", previousSoundtrack),
+    control("toggle", "Lecture", "▶", pauseOrResumeSoundtrack),
+    control("next", "Morceau suivant", "⏭", () => stepSoundtrack(1)),
+    control("shuffle", "Lecture aléatoire", "⇄", toggleShuffle),
+    control("repeat", "Répéter le morceau", "↻", toggleRepeat));
 }
 // Repliable ; repliée par défaut quand elle vient du cache, pour garder la fiche compacte.
 function soundtrackList(section, data, open) {
@@ -123,13 +216,14 @@ function soundtrackList(section, data, open) {
         rel: "noopener noreferrer",
       }, film.title + (film.year ? " (" + film.year + ")" : "")),
       " · " + data.albums.join(" · ") + " · popularité Deezer"),
+    soundtrackControls(data.tracks.some((track) => track.deezerId)),
     el("ol", { class: "soundtrack-list" }, data.tracks.map((track, index) => {
       const play = el("button", {
         type: "button",
         class: "soundtrack-play",
         disabled: !track.deezerId,
         title: track.deezerId ? "Extrait de 30 secondes" : "Introuvable sur Deezer",
-        onclick: () => toggleSoundtrack(play, status),
+        onclick: () => toggleSoundtrack(play.dataset.track),
       }, "▶");
       play.dataset.track = track.deezerId || "";
       play.dataset.title = track.title;

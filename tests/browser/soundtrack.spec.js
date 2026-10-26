@@ -72,6 +72,48 @@ test("the soundtrack is searched on demand, ranked, playable and cached", async 
   await play.click();
   await expect(play).toHaveText("▶");
 
+  // Fin d'extrait : lecture du morceau suivant, puis retour au premier après le dernier.
+  const second = section.locator(".soundtrack-play").nth(1);
+  await play.click();
+  await expect(play).toHaveText("⏸");
+  await expect(second).toHaveText("⏸", { timeout: 5000 });
+  await expect(play).toHaveText("▶");
+  await expect(play).toHaveText("⏸", { timeout: 5000 });
+  await play.click();
+  await expect(play).toHaveText("▶");
+
+  // Barre de lecture ; la répétition évite qu'un extrait d'une seconde passe au suivant pendant le test.
+  const control = (name) => section.locator(`.soundtrack-controls [data-control=${name}]`);
+  await control("repeat").click();
+  await expect(control("repeat")).toHaveAttribute("aria-pressed", "true");
+  await control("toggle").click();
+  await expect(play).toHaveText("⏸");
+  await expect(control("toggle")).toHaveAttribute("aria-label", "Pause");
+  await page.waitForTimeout(1500);
+  await expect(play).toHaveText("⏸");
+  await expect(second).toHaveText("▶");
+  await control("next").click();
+  await expect(second).toHaveText("⏸");
+  await control("back").click();
+  await expect(play).toHaveText("⏸");
+  await control("back").click();
+  await expect(second).toHaveText("⏸");
+  await control("toggle").click();
+  await expect(second).toHaveText("▶");
+  await expect(control("toggle")).toHaveAttribute("aria-label", "Lecture");
+  await control("toggle").click();
+  await expect(second).toHaveText("⏸");
+  await control("shuffle").click();
+  await expect(control("shuffle")).toHaveAttribute("aria-pressed", "true");
+  await control("next").click();
+  await expect(play).toHaveText("⏸");
+  await control("shuffle").click();
+  await control("repeat").click();
+  await expect(control("shuffle")).toHaveAttribute("aria-pressed", "false");
+  await expect(control("repeat")).toHaveAttribute("aria-pressed", "false");
+  await control("toggle").click();
+  await expect(play).toHaveText("▶");
+
   await play.click();
   await expect(play).toHaveText("⏸");
   await page.locator("#modal-close").click();

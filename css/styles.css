@@ -1347,6 +1347,29 @@ td.watch-date {
   font-weight: 600;
 }
 .soundtrack-details > .hint { margin-top: 8px; }
+.soundtrack-controls { display: flex; gap: 6px; margin-top: 8px; }
+.soundtrack-control {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--navy);
+  font-size: 15px;
+  cursor: pointer;
+}
+.soundtrack-control:hover:not(:disabled) { border-color: var(--navy); }
+.soundtrack-control[data-control="toggle"] {
+  border-color: var(--navy);
+  background: var(--navy);
+  color: #fff;
+}
+.soundtrack-control[data-control="toggle"]:hover:not(:disabled) { background: #1d4673; border-color: #1d4673; }
+.soundtrack-control[aria-pressed="true"] {
+  background: var(--accent);
+  border-color: var(--navy);
+}
 .soundtrack-list {
   list-style: none;
   margin: 8px 0 0;

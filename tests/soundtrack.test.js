@@ -2,7 +2,7 @@ import { test, beforeEach, afterEach } from "node:test";
 import assert from "node:assert/strict";
 import {
   transport, findSoundtrack, getCachedSoundtrack, findWikidataFilm, previewUrl,
-  pickRelease, releaseTracks, bestDeezerMatch, withoutScores, normalizeTitle,
+  pickRelease, releaseTracks, bestDeezerMatch, withoutScores, normalizeTitle, titledAfterFilm,
 } from "../js/storage/soundtrack.js";
 
 const originalFetch = globalThis.fetch;
@@ -167,6 +167,39 @@ test("without AlloCiné ID, a film whose year differs is never matched on title 
   assert.equal(await findWikidataFilm({ title: "Drive", year: 2011 }), null);
   assert.equal((await findWikidataFilm({ title: "Drive", year: 1998 })).qid, "Q10");
   assert.equal(await findWikidataFilm({ title: "Drive", year: null }), null);
+});
+
+test("a soundtrack album is recognised by the film title at the start of its own", () => {
+  assert.ok(titledAfterFilm("Gladiator: Music From the Motion Picture", "Gladiator"));
+  assert.ok(titledAfterFilm("Star Wars: Episode IV - A New Hope (Original Soundtrack)", "Star Wars: Episode IV – A New Hope"));
+  assert.ok(titledAfterFilm("Amélie", "Amelie"));
+  assert.ok(!titledAfterFilm("Pixel Gladiator", "Gladiator"));
+  assert.ok(!titledAfterFilm("Gladiators", "Gladiator"));
+  assert.ok(!titledAfterFilm("Gladiator", ""));
+});
+
+test("without a Wikidata album, a low-scored MusicBrainz album named after the film is used", async () => {
+  const queries = [];
+  globalThis.fetch = async (url) => {
+    const { host, pathname, searchParams } = new URL(url);
+    if (host === "query.wikidata.org") {
+      return json({ results: { bindings: [binding({ qid: "Q128518", title: "Gladiator", date: "2000" })] } });
+    }
+    if (pathname.endsWith("/release-group")) {
+      return json({ "release-groups": [
+        { id: "goldsmith", title: "Gladiator", score: 100, "first-release-date": "2013-02-18" },
+        { id: "pixel", title: "Pixel Gladiator", score: 87, "first-release-date": "2000" },
+        { id: "zimmer", title: "Gladiator: Music From the Motion Picture", score: 61, "first-release-date": "2000-04-04" },
+      ] });
+    }
+    queries.push(searchParams.get("release-group"));
+    return json({ releases: [release("Official", [["Now We Are Free", "Hans Zimmer", null]])] });
+  };
+  transport.deezer = async () => ({ data: [] });
+  const data = await findSoundtrack({ id: "g", sourceId: "24944", title: "Gladiator", year: 2000 });
+  assert.deepEqual(queries, ["zimmer"]);
+  assert.deepEqual(data.albums, ["Gladiator: Music From the Motion Picture"]);
+  assert.equal(data.tracks[0].title, "Now We Are Free");
 });
 
 test("a film without any soundtrack reports a clear error", async () => {

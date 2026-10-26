@@ -66,6 +66,18 @@ export function normalizeTitle(text) {
     .replace(/[^a-z0-9]+/g, "");
 }
 
+const words = (text) => String(text || "").normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase()
+  .split(/[^a-z0-9]+/).filter(Boolean);
+
+// Album dont le titre commence par celui du film, sous-titre éventuel compris
+// (« Gladiator: Music From the Motion Picture »). Le score de pertinence de
+// MusicBrainz n'est pas utilisable : il chute dès que le titre de l'album s'allonge.
+export function titledAfterFilm(albumTitle, filmTitle) {
+  const album = words(albumTitle);
+  const film = words(filmTitle);
+  return film.length > 0 && film.every((word, index) => album[index] === word);
+}
+
 const isScore = (title) => /\bscore\b|musique originale composée/i.test(title);
 
 // Les albums « score » ne sont écartés que s'il existe un album de chansons.
@@ -179,10 +191,10 @@ async function soundtrackAlbums(film) {
   // Repli : albums « Soundtrack » au titre du film, sortis à ±1 an.
   for (const title of film.titles) {
     const res = await musicbrainz("release-group", {
-      query: `releasegroup:"${title.replace(/"/g, "")}" AND secondarytype:soundtrack`, limit: 10,
+      query: `releasegroup:"${title.replace(/"/g, "")}" AND secondarytype:soundtrack`, limit: 25,
     });
     const found = (res["release-groups"] || [])
-      .filter((rg) => rg.score >= 90 && sameYear(parseInt(rg["first-release-date"], 10), film.year))
+      .filter((rg) => titledAfterFilm(rg.title, title) && sameYear(parseInt(rg["first-release-date"], 10), film.year))
       .map((rg) => ({ id: rg.id, title: rg.title }));
     if (found.length) return withoutScores(found);
   }

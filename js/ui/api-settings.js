@@ -1,5 +1,5 @@
-import { $, el } from "./dom.js?v=music-shortcuts-1";
-import { readApiKeys, writeApiKeys, readActiveApiKeyIndex, selectApiKey } from "../storage/youtube.js?v=music-shortcuts-1";
+import { $, el } from "./dom.js?v=music-selection-1";
+import { readApiKeys, writeApiKeys, readActiveApiKeyIndex, selectApiKey } from "../storage/youtube.js?v=music-selection-1";
 
 export function setupApiSettings() {
   const inputs = $("#api-key-inputs");

@@ -1,24 +1,24 @@
-import { writeFavorites } from "./storage/favorites.js?v=music-shortcuts-1";
-import { writeWatched } from "./storage/watched.js?v=music-shortcuts-1";
-import { writeRatings } from "./storage/ratings.js?v=music-shortcuts-1";
-import { writeWatchDates } from "./storage/watch-dates.js?v=music-shortcuts-1";
-import { writeSidebarOpen } from "./storage/ui.js?v=music-shortcuts-1";
+import { writeFavorites } from "./storage/favorites.js?v=music-selection-1";
+import { writeWatched } from "./storage/watched.js?v=music-selection-1";
+import { writeRatings } from "./storage/ratings.js?v=music-selection-1";
+import { writeWatchDates } from "./storage/watch-dates.js?v=music-selection-1";
+import { writeSidebarOpen } from "./storage/ui.js?v=music-selection-1";
 import {
   readImportedDatasets,
   saveImportedDataset,
-} from "./storage/datasets.js?v=music-shortcuts-1";
-import { exportLists, parseLists, readListMetadata, saveImportedLists } from "./storage/lists.js?v=music-shortcuts-1";
-import { showDatasetInfo } from "./ui/dataset-ui.js?v=music-shortcuts-1";
-import { state, defaults } from "./state.js?v=music-shortcuts-1";
-import { $, el, fmt, modal, notice } from "./ui/dom.js?v=music-shortcuts-1";
-import { setupControls, syncControls, renderGenres } from "./ui/controls.js?v=music-shortcuts-1";
-import { renderResults, showDetails, renderPivot, renderTrackingStatistics, renderMusicView, setSoundtrackListener, soundtrackShortcut } from "./ui/results.js?v=music-shortcuts-1";
-import { renderMap, invalidateMap, resetMapView, centerOnData } from "./ui/map.js?v=music-shortcuts-1";
-import { importDialog, mappingDialog } from "./ui/import.js?v=music-shortcuts-1";
-import { setupPresets } from "./ui/presets-ui.js?v=music-shortcuts-1";
-import { setupApiSettings } from "./ui/api-settings.js?v=music-shortcuts-1";
-import { setupCloudLists } from "./ui/cloud-lists.js?v=music-shortcuts-1";
-import { createCloudLists } from "./storage/cloud-lists.js?v=music-shortcuts-1";
+} from "./storage/datasets.js?v=music-selection-1";
+import { exportLists, parseLists, readListMetadata, saveImportedLists } from "./storage/lists.js?v=music-selection-1";
+import { showDatasetInfo } from "./ui/dataset-ui.js?v=music-selection-1";
+import { state, defaults } from "./state.js?v=music-selection-1";
+import { $, el, fmt, modal, notice } from "./ui/dom.js?v=music-selection-1";
+import { setupControls, syncControls, renderGenres } from "./ui/controls.js?v=music-selection-1";
+import { renderResults, showDetails, renderPivot, renderTrackingStatistics, renderMusicView, setSoundtrackListener, soundtrackShortcut } from "./ui/results.js?v=music-selection-1";
+import { renderMap, invalidateMap, resetMapView, centerOnData } from "./ui/map.js?v=music-selection-1";
+import { importDialog, mappingDialog } from "./ui/import.js?v=music-selection-1";
+import { setupPresets } from "./ui/presets-ui.js?v=music-selection-1";
+import { setupApiSettings } from "./ui/api-settings.js?v=music-selection-1";
+import { setupCloudLists } from "./ui/cloud-lists.js?v=music-selection-1";
+import { createCloudLists } from "./storage/cloud-lists.js?v=music-selection-1";
 import {
   createCloudMusic,
   musicFavorite,
@@ -27,18 +27,18 @@ import {
   sortedMusicFavorites,
   toggledMusicFavorites,
   writeMusicFavorites,
-} from "./storage/music-favorites.js?v=music-shortcuts-1";
+} from "./storage/music-favorites.js?v=music-selection-1";
 import {
   RANKING_SIZE,
   countedPlays,
   createCloudPlays,
   rankedPlays,
   writeMusicPlays,
-} from "./storage/music-plays.js?v=music-shortcuts-1";
-import { csv, download } from "./export/export.js?v=music-shortcuts-1";
-import { ratingBandFilters } from "./analysis/tracking.js?v=music-shortcuts-1";
-import { formatDate } from "./utils/values.js?v=music-shortcuts-1";
-const worker = new Worker(new URL("./worker.js?v=music-shortcuts-1", import.meta.url), {
+} from "./storage/music-plays.js?v=music-selection-1";
+import { csv, download } from "./export/export.js?v=music-selection-1";
+import { ratingBandFilters } from "./analysis/tracking.js?v=music-selection-1";
+import { formatDate } from "./utils/values.js?v=music-selection-1";
+const worker = new Worker(new URL("./worker.js?v=music-selection-1", import.meta.url), {
   type: "module",
 });
 const requests = new Map();

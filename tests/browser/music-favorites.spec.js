@@ -84,3 +84,52 @@ test("soundtrack tracks can be starred and played from the Musiques tab", async 
   await expect(view.locator(".music-ranking li")).toHaveCount(2);
   await expect(view.locator(".music-star[aria-pressed=true]")).toHaveCount(0);
 });
+
+test("checked tracks restrict the Musiques playback loop until reload", async ({ page }) => {
+  await mockSoundtrack(page);
+  await page.goto("/");
+  await expect(page.locator("#table-view tbody tr")).toHaveCount(250, { timeout: 15000 });
+  await page.locator("#table-view .title-button").first().click();
+  const section = page.locator("#modal .soundtrack");
+  await section.getByRole("button", { name: "Chercher la bande originale" }).click();
+  await expect(section.locator(".music-star")).toHaveCount(2, { timeout: 15000 });
+  await section.locator(".music-star").nth(0).click();
+  await section.locator(".music-star").nth(1).click();
+  await page.locator("#modal-close").click();
+
+  await page.locator("#view-music").click();
+  const view = page.locator("#music-view");
+  await expect(view.locator(".soundtrack-title")).toHaveText(["Morceau discret", "Grand succès"]);
+  const boxes = view.locator(".soundtrack-select");
+  const play = view.locator(".soundtrack-play");
+  await boxes.nth(1).check();
+  await expect(view.locator(".music-selection")).toContainText("1 morceau sélectionné");
+
+  // Lecture depuis les contrôles : seul le morceau coché joue, et boucle sur lui-même.
+  await page.evaluate(() => {
+    window.playedTitles = [];
+    new MutationObserver(() => {
+      for (const button of document.querySelectorAll("#music-view .soundtrack-play")) {
+        if (button.textContent === "⏸") window.playedTitles.push(button.dataset.title);
+      }
+    }).observe(document.querySelector("#music-view"), { subtree: true, childList: true, characterData: true });
+  });
+  await view.locator(".soundtrack-controls [data-control=toggle]").click();
+  await expect(play.nth(1)).toHaveText("⏸");
+  await page.waitForTimeout(2500); // plus de deux extraits d'une seconde
+  expect(new Set(await page.evaluate(() => window.playedTitles))).toEqual(new Set(["Grand succès"]));
+
+  // La sélection survit au changement de sous-onglet, pas au rechargement.
+  await view.getByRole("tab", { name: "Les plus écoutées" }).click();
+  await expect(view.locator(".soundtrack-select:checked")).toHaveCount(0);
+  await view.getByRole("tab", { name: "★ Favoris" }).click();
+  await expect(boxes.nth(1)).toBeChecked();
+  await view.getByRole("button", { name: "Tout désélectionner" }).click();
+  await expect(view.locator(".soundtrack-select:checked")).toHaveCount(0);
+  await boxes.nth(0).check();
+  await page.reload();
+  await expect(page.locator("#table-view tbody tr")).toHaveCount(250, { timeout: 15000 });
+  await page.locator("#view-music").click();
+  await expect(view.locator(".soundtrack-select")).toHaveCount(2);
+  await expect(view.locator(".soundtrack-select:checked")).toHaveCount(0);
+});

@@ -1,4 +1,4 @@
-import { mean, median } from "../utils/values.js?v=music-shortcuts-1";
+import { mean, median } from "../utils/values.js?v=music-selection-1";
 const top = (movies, fn) => {
   const counts = new Map();
   for (const m of movies)

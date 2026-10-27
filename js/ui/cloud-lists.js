@@ -1,5 +1,5 @@
-import { $, el } from "./dom.js?v=music-shortcuts-1";
-import { currentUser, resetPassword, signIn, signOut, signUp } from "../storage/cloud-lists.js?v=music-shortcuts-1";
+import { $, el } from "./dom.js?v=music-selection-1";
+import { currentUser, resetPassword, signIn, signOut, signUp } from "../storage/cloud-lists.js?v=music-selection-1";
 
 export function setupCloudLists(sync) {
   const container = $("#cloud-account");

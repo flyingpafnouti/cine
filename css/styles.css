@@ -1455,11 +1455,28 @@ td.watch-date {
   text-align: right;
 }
 .soundtrack-list.music-list.music-ranking li:has(.music-star) {
-  grid-template-columns: 30px 30px minmax(0, 1fr) minmax(0, 1fr) auto auto;
+  grid-template-columns: 16px 30px 30px minmax(0, 1fr) minmax(0, 1fr) auto auto;
 }
 .soundtrack-list.music-list li:has(.music-star) {
-  grid-template-columns: 22px 30px minmax(0, 1fr) minmax(0, 1fr) auto;
+  grid-template-columns: 16px 22px 30px minmax(0, 1fr) minmax(0, 1fr) auto;
 }
+.soundtrack-select { width: 16px; height: 16px; margin: 0; accent-color: var(--navy); cursor: pointer; }
+/* Avec une sélection, les morceaux hors de la boucle s'estompent. */
+.music-list:has(.soundtrack-select:checked) li:not(:has(.soundtrack-select:checked)) { opacity: .55; }
+.music-list li:has(.soundtrack-select:checked) { border-color: var(--navy); background: #f4f8fc; }
+.music-selection { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; min-height: 26px; margin: 6px 0 0; }
+.music-selection.active { color: var(--navy); font-weight: 600; }
+.music-selection-clear {
+  padding: 2px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 400;
+  cursor: pointer;
+}
+.music-selection-clear:hover { border-color: var(--navy); color: var(--navy); }
 .music-film {
   justify-self: start;
   max-width: 100%;
@@ -1475,11 +1492,11 @@ td.watch-date {
 }
 .music-film:hover { background: #edf5fb; text-decoration: underline; }
 @media (max-width: 700px) {
-  .soundtrack-list.music-list li:has(.music-star) { grid-template-columns: 22px 30px minmax(0, 1fr) auto; }
-  .music-list .music-film { grid-column: 3; grid-row: 2; padding: 2px 0; }
-  .music-list .music-star { grid-column: 4; grid-row: 1; }
-  .soundtrack-list.music-list.music-ranking li:has(.music-star) { grid-template-columns: 30px 30px minmax(0, 1fr) auto; }
-  .music-ranking .music-plays { grid-column: 4; grid-row: 2; justify-self: center; }
+  .soundtrack-list.music-list li:has(.music-star) { grid-template-columns: 16px 22px 30px minmax(0, 1fr) auto; }
+  .music-list .music-film { grid-column: 4; grid-row: 2; padding: 2px 0; }
+  .music-list .music-star { grid-column: 5; grid-row: 1; }
+  .soundtrack-list.music-list.music-ranking li:has(.music-star) { grid-template-columns: 16px 30px 30px minmax(0, 1fr) auto; }
+  .music-ranking .music-plays { grid-column: 5; grid-row: 2; justify-self: center; }
 }
 .trailer-key-row {
   display: flex;

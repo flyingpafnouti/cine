@@ -1,7 +1,7 @@
 // Nombre d'écoutes de chaque extrait de BO, pour le classement des morceaux les
 // plus écoutés. Même clé que les musiques favorites : film + morceau Deezer.
-import { api, currentUser, validSession } from "./cloud-lists.js?v=music-shortcuts-1";
-import { musicFavorite, musicKey } from "./music-favorites.js?v=music-shortcuts-1";
+import { api, currentUser, validSession } from "./cloud-lists.js?v=music-selection-1";
+import { musicFavorite, musicKey } from "./music-favorites.js?v=music-selection-1";
 
 const KEY = "cine-scope-music-plays-v1";
 const PENDING_KEY = "cine-scope-supabase-plays-pending-v1";

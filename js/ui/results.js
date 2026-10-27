@@ -1,15 +1,15 @@
-import { el, $, fmt, modal, labels } from "./dom.js?v=music-shortcuts-1";
-import { formatDate } from "../utils/values.js?v=music-shortcuts-1";
+import { el, $, fmt, modal, labels } from "./dom.js?v=music-selection-1";
+import { formatDate } from "../utils/values.js?v=music-selection-1";
 import {
   readApiKeys,
   findTrailer,
-} from "../storage/youtube.js?v=music-shortcuts-1";
+} from "../storage/youtube.js?v=music-selection-1";
 import {
   findSoundtrack,
   getCachedSoundtrack,
   previewUrl,
-} from "../storage/soundtrack.js?v=music-shortcuts-1";
-import { musicFavoriteFrom } from "../storage/music-favorites.js?v=music-shortcuts-1";
+} from "../storage/soundtrack.js?v=music-selection-1";
+import { musicFavoriteFrom } from "../storage/music-favorites.js?v=music-selection-1";
 const tags = (m) => m.genres.map((g) => el("span", { class: "tag" }, g));
 function searchLink(query) {
   return el(
@@ -140,10 +140,13 @@ function shuffled(tracks, first) {
   }
   return tracks.includes(first) ? [first, ...order] : order;
 }
-// Morceaux écoutables de la liste active, dans l'ordre de lecture.
+// Morceaux écoutables de la liste active, dans l'ordre de lecture. Si des morceaux
+// sont cochés, la file se limite à eux.
 function soundtrackQueue() {
+  const selected = new Set([...(soundtrackScope?.querySelectorAll(".soundtrack-select:checked") || [])]
+    .map((box) => box.dataset.track));
   const tracks = [...new Set([...(soundtrackScope?.querySelectorAll(".soundtrack-play") || [])]
-    .map((button) => button.dataset.track).filter(Boolean))];
+    .map((button) => button.dataset.track).filter((track) => track && (!selected.size || selected.has(track))))];
   if (!soundtrackOrder) return tracks;
   const same = soundtrackOrder.length === tracks.length && tracks.every((track) => soundtrackOrder.includes(track));
   if (!same) soundtrackOrder = shuffled(tracks, playingTrack);
@@ -372,6 +375,57 @@ function soundtrackSection(m, marking) {
     "Morceaux de la BO classés par popularité, avec extraits de 30 secondes (Wikidata, MusicBrainz, Deezer).");
   return section;
 }
+// Sélection de morceaux par sous-onglet, pour boucler sur un sous-ensemble.
+// Gardée en mémoire seulement : elle survit aux réaffichages, pas au rechargement.
+const musicSelection = { favorites: new Set(), plays: new Set() };
+let lastSelectBox = null;
+function selectBox(entry, selection, update) {
+  const label = "Sélectionner pour la lecture : " + entry.title;
+  const box = el("input", {
+    type: "checkbox",
+    class: "soundtrack-select",
+    title: label + " (Maj + clic : sélectionner une plage)",
+    "aria-label": label,
+    onclick: (event) => {
+      const boxes = [...box.closest(".soundtrack-list").querySelectorAll(".soundtrack-select")];
+      const from = event.shiftKey && lastSelectBox ? boxes.indexOf(lastSelectBox) : -1;
+      const to = boxes.indexOf(box);
+      const range = from >= 0 ? boxes.slice(Math.min(from, to), Math.max(from, to) + 1) : [box];
+      const tracks = new Set(range.map((item) => item.dataset.track));
+      for (const track of tracks) {
+        if (box.checked) selection.add(track);
+        else selection.delete(track);
+      }
+      // Un même morceau peut figurer deux fois (deux films) : ses cases restent alignées.
+      for (const item of boxes) item.checked = selection.has(item.dataset.track);
+      lastSelectBox = box;
+      update();
+    },
+  });
+  box.dataset.track = entry.deezerId;
+  box.checked = selection.has(entry.deezerId);
+  return box;
+}
+function selectionBar(selection, entries, update) {
+  const bar = el("p", { class: "hint music-selection" });
+  const count = new Set(entries.filter((entry) => selection.has(entry.deezerId)).map((entry) => entry.deezerId)).size;
+  if (!count) {
+    bar.textContent = "Cochez des morceaux pour ne lire et boucler que ceux-là.";
+    return bar;
+  }
+  bar.classList.add("active");
+  bar.append(
+    count + " morceau" + (count > 1 ? "x" : "") + " sélectionné" + (count > 1 ? "s" : "") + " · la lecture boucle sur la sélection ",
+    el("button", {
+      type: "button",
+      class: "music-selection-clear",
+      onclick: () => {
+        selection.clear();
+        update();
+      },
+    }, "Tout désélectionner"));
+  return bar;
+}
 // Onglet Musiques : #music-view reste en place (seul son contenu change), la
 // lecture continue donc quand on change de sous-onglet, retire un favori ou
 // qu'une synchronisation arrive. Les deux sous-onglets partagent le lecteur.
@@ -394,14 +448,27 @@ export function renderMusicView({ tab, favorites, ranking, rankingSize, isFavori
       }, label)));
   const empty = (title, text) => el("div", { class: "empty" }, el("strong", {}, title), el("p", {}, text));
   const count = (n) => n + " morceau" + (n > 1 ? "x" : "");
+  const entries = tab === "plays" ? ranking : favorites;
+  const selection = musicSelection[tab];
+  // Un favori retiré quitte la sélection : il ne reviendra pas coché s'il est remis.
+  const shown = new Set(entries.map((entry) => entry.deezerId));
+  for (const track of selection) if (!shown.has(track)) selection.delete(track);
+  let bar = selectionBar(selection, entries, () => refreshSelection());
+  const refreshSelection = () => {
+    for (const box of $("#music-view").querySelectorAll(".soundtrack-select")) box.checked = selection.has(box.dataset.track);
+    bar.replaceWith(bar = selectionBar(selection, entries, refreshSelection));
+  };
+  const select = (entry) => selectBox(entry, selection, refreshSelection);
   let panel;
   if (tab === "plays") {
     panel = ranking.length ? [
       el("p", { class: "hint" }, "Top " + rankingSize + " de vos écoutes · " + count(ranking.length) +
         " · une écoute compte après 10 secondes d’extrait."),
       soundtrackControls(true),
+      bar,
       el("ol", { class: "soundtrack-list music-list music-ranking" }, ranking.map((entry, index) =>
         el("li", {},
+          select(entry),
           el("span", { class: "soundtrack-position" }, index + 1),
           playButton(entry),
           trackInfo(entry),
@@ -415,8 +482,10 @@ export function renderMusicView({ tab, favorites, ranking, rankingSize, isFavori
     panel = favorites.length ? [
       el("p", { class: "hint" }, count(favorites.length) + " · extraits de 30 secondes (Deezer)"),
       soundtrackControls(true),
+      bar,
       el("ol", { class: "soundtrack-list music-list" }, favorites.map((entry, index) =>
         el("li", {},
+          select(entry),
           el("span", { class: "soundtrack-position" }, index + 1),
           playButton(entry),
           trackInfo(entry),

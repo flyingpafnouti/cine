@@ -1,4 +1,4 @@
-import { parseCSV } from "./csv-parser.js?v=music-shortcuts-1";
+import { parseCSV } from "./csv-parser.js?v=music-selection-1";
 export function parseSource(text, name) {
   if (text.includes("\uFFFD"))
     throw Error(

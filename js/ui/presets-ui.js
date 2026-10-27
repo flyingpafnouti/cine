@@ -1,7 +1,7 @@
-import { $, el, modal, notice } from "./dom.js?v=music-shortcuts-1";
-import { readPresets, writePresets } from "../storage/presets.js?v=music-shortcuts-1";
-import { defaults } from "../state.js?v=music-shortcuts-1";
-import { syncControls } from "./controls.js?v=music-shortcuts-1";
+import { $, el, modal, notice } from "./dom.js?v=music-selection-1";
+import { readPresets, writePresets } from "../storage/presets.js?v=music-selection-1";
+import { defaults } from "../state.js?v=music-selection-1";
+import { syncControls } from "./controls.js?v=music-selection-1";
 export function setupPresets(state, refresh) {
   let loadedId = "";
   function updateButton() {

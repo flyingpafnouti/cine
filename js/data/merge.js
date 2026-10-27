@@ -1,4 +1,4 @@
-import { fold } from "../utils/values.js?v=music-shortcuts-1";
+import { fold } from "../utils/values.js?v=music-selection-1";
 
 const key = (m) =>
   m.year !== null && m.directors.length

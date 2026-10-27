@@ -248,6 +248,12 @@ Alt + ← morceau précédent, Alt + ↓ pause, Alt + ↑ lecture. Ils pilotent 
 en cours de lecture, sinon la BO de la fiche ouverte, sinon l’onglet Musiques.
 Alt + ← ne revient donc plus à la page précédente du navigateur.
 
+Dans chaque sous-onglet, la case à gauche d’un morceau le sélectionne ; Maj + clic
+sélectionne une plage. Dès qu’un morceau est coché, la lecture (contrôles,
+enchaînement, aléatoire, raccourcis) ne parcourt plus que la sélection, en boucle.
+Les autres morceaux restent jouables d’un clic sur ▶. La sélection est propre à
+chaque sous-onglet et n’est pas enregistrée : elle disparaît au rechargement.
+
 Favoris et écoutes sont conservés dans le navigateur et, une fois connecté,
 synchronisés avec Supabase (tables `music_favorites` et `music_plays`). Les
 écoutes sont envoyées comme des incréments (fonction `add_music_plays`) : deux

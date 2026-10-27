@@ -1,7 +1,7 @@
 // Nombre d'écoutes de chaque extrait de BO, pour le classement des morceaux les
 // plus écoutés. Même clé que les musiques favorites : film + morceau Deezer.
-import { api, currentUser, validSession } from "./cloud-lists.js?v=music-selection-1";
-import { musicFavorite, musicKey } from "./music-favorites.js?v=music-selection-1";
+import { api, currentUser, validSession } from "./cloud-lists.js?v=ranking-freeze-1";
+import { musicFavorite, musicKey } from "./music-favorites.js?v=ranking-freeze-1";
 
 const KEY = "cine-scope-music-plays-v1";
 const PENDING_KEY = "cine-scope-supabase-plays-pending-v1";
@@ -46,6 +46,20 @@ export function rankedPlays(plays, size = RANKING_SIZE) {
   return [...plays.values()]
     .sort((a, b) => b.plays - a.plays || b.lastPlayedAt.localeCompare(a.lastPlayedAt))
     .slice(0, size);
+}
+
+// Classement dans un ordre figé (clés film + morceau) : les compteurs avancent mais
+// les rangs ne bougent pas, sinon deux morceaux à une écoute d'écart échangeraient
+// leur place à chaque passage et la lecture suivie bouclerait sur eux. Les nouveaux
+// venus du classement s'ajoutent à la fin.
+export function frozenRanking(plays, order, size = RANKING_SIZE) {
+  const ranking = rankedPlays(plays, size);
+  if (!order) return ranking;
+  const kept = new Set(order);
+  return [
+    ...order.map((key) => plays.get(key)).filter(Boolean),
+    ...ranking.filter((entry) => !kept.has(musicKey(entry.filmId, entry.deezerId))),
+  ];
 }
 
 // --- Synchronisation Supabase ----------------------------------------------

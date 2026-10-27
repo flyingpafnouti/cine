@@ -1,4 +1,4 @@
-import { el, fmt, modal } from "./dom.js?v=music-selection-1";
+import { el, fmt, modal } from "./dom.js?v=ranking-freeze-1";
 export function showDatasetInfo(s, datasetName) {
   if (!s) return;
   modal(

@@ -1,5 +1,5 @@
-import { el, modal, notice, $ } from "./dom.js?v=music-selection-1";
-import { mapping } from "../data/normalizer.js?v=music-selection-1";
+import { el, modal, notice, $ } from "./dom.js?v=ranking-freeze-1";
+import { mapping } from "../data/normalizer.js?v=ranking-freeze-1";
 export function importDialog(onLoad) {
   const file = el("input", {
     type: "file",

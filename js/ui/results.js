@@ -1,15 +1,15 @@
-import { el, $, fmt, modal, labels } from "./dom.js?v=music-selection-1";
-import { formatDate } from "../utils/values.js?v=music-selection-1";
+import { el, $, fmt, modal, labels } from "./dom.js?v=ranking-freeze-1";
+import { formatDate } from "../utils/values.js?v=ranking-freeze-1";
 import {
   readApiKeys,
   findTrailer,
-} from "../storage/youtube.js?v=music-selection-1";
+} from "../storage/youtube.js?v=ranking-freeze-1";
 import {
   findSoundtrack,
   getCachedSoundtrack,
   previewUrl,
-} from "../storage/soundtrack.js?v=music-selection-1";
-import { musicFavoriteFrom } from "../storage/music-favorites.js?v=music-selection-1";
+} from "../storage/soundtrack.js?v=ranking-freeze-1";
+import { musicFavoriteFrom } from "../storage/music-favorites.js?v=ranking-freeze-1";
 const tags = (m) => m.genres.map((g) => el("span", { class: "tag" }, g));
 function searchLink(query) {
   return el(
@@ -463,7 +463,8 @@ export function renderMusicView({ tab, favorites, ranking, rankingSize, isFavori
   if (tab === "plays") {
     panel = ranking.length ? [
       el("p", { class: "hint" }, "Top " + rankingSize + " de vos écoutes · " + count(ranking.length) +
-        " · une écoute compte après 10 secondes d’extrait."),
+        " · une écoute compte après 10 secondes d’extrait." +
+        " L’ordre reste figé pendant l’écoute ; recliquez sur l’onglet pour le mettre à jour."),
       soundtrackControls(true),
       bar,
       el("ol", { class: "soundtrack-list music-list music-ranking" }, ranking.map((entry, index) =>

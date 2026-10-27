@@ -237,7 +237,11 @@ lecture/pause, suivant, aléatoire, répétition) :
 - **Les plus écoutées** : les 100 morceaux les plus écoutés, toutes fiches
   confondues. Une écoute compte après 10 secondes d’extrait (la moitié d’un
   extrait plus court) ; un morceau répété compte à chaque passage. À égalité,
-  le plus récemment écouté passe devant.
+  le plus récemment écouté passe devant. Les compteurs avancent pendant
+  l’écoute, mais l’ordre reste figé tant que le sous-onglet est affiché, pour
+  que la lecture ne tourne pas en rond entre deux morceaux qui se dépassent
+  tour à tour. Cliquer sur le sous-onglet, ou rouvrir l’onglet Musiques,
+  recalcule le classement.
 
 Le nom du film ouvre sa fiche ; les flèches ← → y parcourent les films de la
 liste affichée. La lecture continue quand on ouvre puis ferme une fiche depuis

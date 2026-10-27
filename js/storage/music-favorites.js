@@ -1,6 +1,6 @@
 // Morceaux de bande originale mis en favoris, chacun rattaché au film de sa BO.
 // Clé : film + morceau Deezer (un même morceau peut figurer dans deux BO).
-import { api, currentUser, validSession } from "./cloud-lists.js?v=music-selection-1";
+import { api, currentUser, validSession } from "./cloud-lists.js?v=ranking-freeze-1";
 
 const KEY = "cine-scope-music-favorites-v1";
 const PENDING_KEY = "cine-scope-supabase-music-pending-v1";

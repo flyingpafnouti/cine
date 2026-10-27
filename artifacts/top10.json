@@ -33,6 +33,280 @@
     "countries": [
       "américain"
     ],
+    "locations": [
+      {
+        "name": "Bovard Administration Building",
+        "latitude": 34.02066,
+        "longitude": -118.28531,
+        "country": "United States",
+        "category": "Landmarks & buildings",
+        "slug": "bovard-administration-building"
+      },
+      {
+        "name": "Marks Tower",
+        "latitude": 34.01967,
+        "longitude": -118.28208,
+        "country": "United States",
+        "category": "Landmarks & buildings",
+        "slug": "marks-tower"
+      },
+      {
+        "name": "North Carolina",
+        "latitude": 35.5,
+        "longitude": -80,
+        "country": "United States",
+        "category": "Countries & regions",
+        "slug": "north-carolina"
+      },
+      {
+        "name": "South Carolina",
+        "latitude": 34,
+        "longitude": -81,
+        "country": "United States",
+        "category": "",
+        "slug": ""
+      },
+      {
+        "name": "Paramount Pictures Studios",
+        "latitude": 34.08531,
+        "longitude": -118.31897,
+        "country": "United States",
+        "category": "Studios & sets",
+        "slug": "paramount-pictures-studios"
+      },
+      {
+        "name": "Yemassee",
+        "latitude": 32.69472,
+        "longitude": -80.85306,
+        "country": "United States",
+        "category": "Towns & cities",
+        "slug": "yemassee"
+      },
+      {
+        "name": "Marshall Point Light",
+        "latitude": 43.91742,
+        "longitude": -69.26128,
+        "country": "United States",
+        "category": "Landmarks & buildings",
+        "slug": "marshall-point-light"
+      },
+      {
+        "name": "Monument Valley",
+        "latitude": 36.98333,
+        "longitude": -110.1,
+        "country": "United States",
+        "category": "Landscapes & nature",
+        "slug": "monument-valley"
+      },
+      {
+        "name": "Port Wentworth",
+        "latitude": 32.1644,
+        "longitude": -81.18,
+        "country": "United States",
+        "category": "Towns & cities",
+        "slug": "port-wentworth"
+      },
+      {
+        "name": "Varnville",
+        "latitude": 32.8525,
+        "longitude": -81.07944,
+        "country": "United States",
+        "category": "Towns & cities",
+        "slug": "varnville"
+      },
+      {
+        "name": "Chippewa Square",
+        "latitude": 32.07583,
+        "longitude": -81.09278,
+        "country": "United States",
+        "category": "Landscapes & nature",
+        "slug": "chippewa-square"
+      },
+      {
+        "name": "Fripp Island",
+        "latitude": 32.31694,
+        "longitude": -80.48306,
+        "country": "United States",
+        "category": "Landscapes & nature",
+        "slug": "fripp-island"
+      },
+      {
+        "name": "Glacier National Park",
+        "latitude": 48.755,
+        "longitude": -113.8,
+        "country": "United States",
+        "category": "Landscapes & nature",
+        "slug": "glacier-national-park"
+      },
+      {
+        "name": "Combahee River",
+        "latitude": 32.50852,
+        "longitude": -80.50955,
+        "country": "United States",
+        "category": "Landscapes & nature",
+        "slug": "combahee-river"
+      },
+      {
+        "name": "U.S. Route 163",
+        "latitude": 36.85105,
+        "longitude": -110.27126,
+        "country": "United States",
+        "category": "Streets & squares",
+        "slug": "u-s-route-163"
+      },
+      {
+        "name": "Ambassador Hotel",
+        "latitude": 34.05972,
+        "longitude": -118.29722,
+        "country": "United States",
+        "category": "Landmarks & buildings",
+        "slug": "ambassador-hotel"
+      },
+      {
+        "name": "University of Southern California",
+        "latitude": 34.02167,
+        "longitude": -118.28528,
+        "country": "United States",
+        "category": "Landmarks & buildings",
+        "slug": "university-of-southern-california"
+      },
+      {
+        "name": "Santa Monica",
+        "latitude": 34.02194,
+        "longitude": -118.48139,
+        "country": "United States",
+        "category": "Towns & cities",
+        "slug": "santa-monica"
+      },
+      {
+        "name": "Biltmore Estate",
+        "latitude": 35.54,
+        "longitude": -82.55194,
+        "country": "United States",
+        "category": "Landmarks & buildings",
+        "slug": "biltmore-estate"
+      },
+      {
+        "name": "Hunting Island State Park",
+        "latitude": 32.3664,
+        "longitude": -80.4444,
+        "country": "United States",
+        "category": "Landscapes & nature",
+        "slug": "hunting-island-state-park"
+      },
+      {
+        "name": "New York City",
+        "latitude": 40.71278,
+        "longitude": -74.00611,
+        "country": "United States",
+        "category": "Towns & cities",
+        "slug": "new-york-city"
+      },
+      {
+        "name": "Washington, D.C.",
+        "latitude": 38.895,
+        "longitude": -77.03667,
+        "country": "United States",
+        "category": "Towns & cities",
+        "slug": "washington-d-c"
+      },
+      {
+        "name": "Asheville",
+        "latitude": 35.59556,
+        "longitude": -82.55194,
+        "country": "United States",
+        "category": "Towns & cities",
+        "slug": "asheville"
+      },
+      {
+        "name": "Los Angeles",
+        "latitude": 34.05223,
+        "longitude": -118.24368,
+        "country": "United States",
+        "category": "Towns & cities",
+        "slug": "los-angeles"
+      },
+      {
+        "name": "Port Clyde",
+        "latitude": 43.92722,
+        "longitude": -69.25278,
+        "country": "United States",
+        "category": "Towns & cities",
+        "slug": "port-clyde"
+      },
+      {
+        "name": "Maine",
+        "latitude": 45.5,
+        "longitude": -69,
+        "country": "United States",
+        "category": "Countries & regions",
+        "slug": "maine"
+      },
+      {
+        "name": "Richard V. Woods Memorial Bridge",
+        "latitude": 32.4275,
+        "longitude": -80.66917,
+        "country": "United States",
+        "category": "Streets & squares",
+        "slug": "richard-v-woods-memorial-bridge"
+      },
+      {
+        "name": "Beaufort",
+        "latitude": 32.43194,
+        "longitude": -80.68945,
+        "country": "United States",
+        "category": "Towns & cities",
+        "slug": "beaufort"
+      },
+      {
+        "name": "Arizona",
+        "latitude": 34.28667,
+        "longitude": -111.65694,
+        "country": "United States",
+        "category": "Countries & regions",
+        "slug": "arizona"
+      },
+      {
+        "name": "Utah",
+        "latitude": 39.5,
+        "longitude": -111.5,
+        "country": "United States",
+        "category": "Countries & regions",
+        "slug": "utah"
+      },
+      {
+        "name": "Grandfather Mountain",
+        "latitude": 36.11111,
+        "longitude": -81.81139,
+        "country": "United States",
+        "category": "Landscapes & nature",
+        "slug": "grandfather-mountain"
+      },
+      {
+        "name": "Savannah",
+        "latitude": 32.05083,
+        "longitude": -81.10389,
+        "country": "United States",
+        "category": "Towns & cities",
+        "slug": "savannah"
+      },
+      {
+        "name": "Palace of Fine Arts",
+        "latitude": 37.80278,
+        "longitude": -122.44833,
+        "country": "United States",
+        "category": "Landmarks & buildings",
+        "slug": "palace-of-fine-arts"
+      },
+      {
+        "name": "California",
+        "latitude": 37,
+        "longitude": -120,
+        "country": "United States",
+        "category": "Countries & regions",
+        "slug": "california"
+      }
+    ],
     "vodAvailable": null,
     "vodProviders": [],
     "vodCountry": "",
@@ -45,12 +319,13 @@
       "votes": 0,
       "press": 0,
       "duration": 0,
-      "vod": 0,
       "country": 0,
       "director": 0,
       "actor": 0
     },
-    "corrected": 4.598819777113749
+    "corrected": 4.598819777113749,
+    "userRating": null,
+    "watchDate": null
   },
   {
     "id": "1r3dp07",
@@ -86,6 +361,104 @@
     "countries": [
       "américain"
     ],
+    "locations": [
+      {
+        "name": "North Carolina",
+        "latitude": 35.5,
+        "longitude": -80,
+        "country": "United States",
+        "category": "Countries & regions",
+        "slug": "north-carolina"
+      },
+      {
+        "name": "Blue Ridge Mountains",
+        "latitude": 35.76428,
+        "longitude": -82.26568,
+        "country": "United States",
+        "category": "Landscapes & nature",
+        "slug": "blue-ridge-mountains"
+      },
+      {
+        "name": "Shelbyville",
+        "latitude": 35.4889,
+        "longitude": -86.4522,
+        "country": "United States",
+        "category": "Towns & cities",
+        "slug": "shelbyville"
+      },
+      {
+        "name": "Blowing Rock",
+        "latitude": 36.1297,
+        "longitude": -81.6725,
+        "country": "United States",
+        "category": "Towns & cities",
+        "slug": "blowing-rock"
+      },
+      {
+        "name": "Hollywood",
+        "latitude": 34.09833,
+        "longitude": -118.32667,
+        "country": "United States",
+        "category": "Towns & cities",
+        "slug": "hollywood"
+      },
+      {
+        "name": "The Lot at Formosa",
+        "latitude": 34.08974,
+        "longitude": -118.34748,
+        "country": "United States",
+        "category": "Studios & sets",
+        "slug": "the-lot-at-formosa"
+      },
+      {
+        "name": "Burbank",
+        "latitude": 34.18028,
+        "longitude": -118.32833,
+        "country": "United States",
+        "category": "Towns & cities",
+        "slug": "burbank"
+      },
+      {
+        "name": "Columbia",
+        "latitude": 35.61502,
+        "longitude": -87.04446,
+        "country": "United States",
+        "category": "Towns & cities",
+        "slug": "columbia"
+      },
+      {
+        "name": "Los Angeles",
+        "latitude": 34.05223,
+        "longitude": -118.24368,
+        "country": "United States",
+        "category": "Towns & cities",
+        "slug": "los-angeles"
+      },
+      {
+        "name": "Tennessee State Prison",
+        "latitude": 36.1772,
+        "longitude": -86.8654,
+        "country": "United States",
+        "category": "Landmarks & buildings",
+        "slug": "tennessee-state-prison"
+      },
+      {
+        "name": "West Hollywood",
+        "latitude": 34.08778,
+        "longitude": -118.37222,
+        "country": "United States",
+        "category": "Towns & cities",
+        "slug": "west-hollywood"
+      },
+      {
+        "name": "California",
+        "latitude": 37,
+        "longitude": -120,
+        "country": "United States",
+        "category": "Countries & regions",
+        "slug": "california"
+      }
+    ],
     "vodAvailable": null,
     "vodProviders": [],
     "vodCountry": "",
@@ -98,12 +471,13 @@
       "votes": 0,
       "press": 0,
       "duration": 0,
-      "vod": 0,
       "country": 0,
       "director": 0,
       "actor": 0
     },
-    "corrected": 4.598630804418197
+    "corrected": 4.598630804418197,
+    "userRating": null,
+    "watchDate": null
   },
   {
     "id": "1nyzuta",
@@ -141,6 +515,104 @@
     "countries": [
       "américain"
     ],
+    "locations": [
+      {
+        "name": "Płaszów",
+        "latitude": 50.04502,
+        "longitude": 19.9839,
+        "country": "Poland",
+        "category": "Towns & cities",
+        "slug": "plaszow"
+      },
+      {
+        "name": "Jerusalem",
+        "latitude": 31.77668,
+        "longitude": 35.23416,
+        "country": "Israel/Palestine",
+        "category": "Towns & cities",
+        "slug": "jerusalem"
+      },
+      {
+        "name": "Podgórze",
+        "latitude": 50.04417,
+        "longitude": 19.94889,
+        "country": "Poland",
+        "category": "Towns & cities",
+        "slug": "podgorze"
+      },
+      {
+        "name": "Oskar Schindler's Enamel Factory",
+        "latitude": 50.0475,
+        "longitude": 19.96178,
+        "country": "Poland",
+        "category": "Landmarks & buildings",
+        "slug": "oskar-schindler-s-enamel-factory"
+      },
+      {
+        "name": "Kraków Ghetto",
+        "latitude": 50.04528,
+        "longitude": 19.95472,
+        "country": "Poland",
+        "category": "Towns & cities",
+        "slug": "krakow-ghetto"
+      },
+      {
+        "name": "Kraków",
+        "latitude": 50.06139,
+        "longitude": 19.93722,
+        "country": "Poland",
+        "category": "Towns & cities",
+        "slug": "krakow"
+      },
+      {
+        "name": "Mount Zion",
+        "latitude": 31.77167,
+        "longitude": 35.22861,
+        "country": "Israel",
+        "category": "Landscapes & nature",
+        "slug": "mount-zion"
+      },
+      {
+        "name": "Auschwitz",
+        "latitude": 50.03583,
+        "longitude": 19.17833,
+        "country": "Poland",
+        "category": "Towns & cities",
+        "slug": "auschwitz"
+      },
+      {
+        "name": "Olkusz",
+        "latitude": 50.27917,
+        "longitude": 19.55972,
+        "country": "Poland",
+        "category": "Towns & cities",
+        "slug": "olkusz"
+      },
+      {
+        "name": "Auschwitz-Birkenau State Museum",
+        "latitude": 50.03583,
+        "longitude": 19.17833,
+        "country": "Poland",
+        "category": "Landmarks & buildings",
+        "slug": "auschwitz-birkenau-state-museum"
+      },
+      {
+        "name": "Kazimierz",
+        "latitude": 50.05167,
+        "longitude": 19.94472,
+        "country": "Poland",
+        "category": "Towns & cities",
+        "slug": "kazimierz"
+      },
+      {
+        "name": "Niepołomice",
+        "latitude": 50.03389,
+        "longitude": 20.21722,
+        "country": "Poland",
+        "category": "Towns & cities",
+        "slug": "niepolomice"
+      }
+    ],
     "vodAvailable": null,
     "vodProviders": [],
     "vodCountry": "",
@@ -153,12 +625,13 @@
       "votes": 0,
       "press": 0,
       "duration": 0,
-      "vod": 0,
       "country": 0,
       "director": 0,
       "actor": 0
     },
-    "corrected": 4.597812061047501
+    "corrected": 4.597812061047501,
+    "userRating": null,
+    "watchDate": null
   },
   {
     "id": "8tsalf",
@@ -196,6 +669,104 @@
       "américain",
       "néo-zélandais"
     ],
+    "locations": [
+      {
+        "name": "North Island",
+        "latitude": -39,
+        "longitude": 176,
+        "country": "New Zealand",
+        "category": "Landscapes & nature",
+        "slug": "north-island"
+      },
+      {
+        "name": "Tongariro National Park",
+        "latitude": -39.2,
+        "longitude": 175.58333,
+        "country": "New Zealand",
+        "category": "Landscapes & nature",
+        "slug": "tongariro-national-park"
+      },
+      {
+        "name": "Mount Ruapehu",
+        "latitude": -39.28167,
+        "longitude": 175.56861,
+        "country": "New Zealand",
+        "category": "Landscapes & nature",
+        "slug": "mount-ruapehu"
+      },
+      {
+        "name": "Rangitata River",
+        "latitude": -44.18944,
+        "longitude": 171.50833,
+        "country": "New Zealand",
+        "category": "Landscapes & nature",
+        "slug": "rangitata-river"
+      },
+      {
+        "name": "Wellington",
+        "latitude": -41.28889,
+        "longitude": 174.77722,
+        "country": "New Zealand",
+        "category": "Towns & cities",
+        "slug": "wellington"
+      },
+      {
+        "name": "Black Mountain Range",
+        "latitude": -43.56667,
+        "longitude": 170.8,
+        "country": "New Zealand",
+        "category": "Landscapes & nature",
+        "slug": "black-mountain-range"
+      },
+      {
+        "name": "Queenstown",
+        "latitude": -45.03111,
+        "longitude": 168.6625,
+        "country": "New Zealand",
+        "category": "Towns & cities",
+        "slug": "queenstown"
+      },
+      {
+        "name": "New Zealand",
+        "latitude": -41.2,
+        "longitude": 174,
+        "country": "New Zealand",
+        "category": "Countries & regions",
+        "slug": "new-zealand"
+      },
+      {
+        "name": "Matamata",
+        "latitude": -37.80972,
+        "longitude": 175.77333,
+        "country": "New Zealand",
+        "category": "Towns & cities",
+        "slug": "matamata"
+      },
+      {
+        "name": "Pūtangirua Pinnacles",
+        "latitude": -41.44722,
+        "longitude": 175.24639,
+        "country": "New Zealand",
+        "category": "Landscapes & nature",
+        "slug": "putangirua-pinnacles"
+      },
+      {
+        "name": "Twizel",
+        "latitude": -44.25833,
+        "longitude": 170.1,
+        "country": "New Zealand",
+        "category": "Towns & cities",
+        "slug": "twizel"
+      },
+      {
+        "name": "Rangipo Desert",
+        "latitude": -39.3116,
+        "longitude": 175.6745,
+        "country": "New Zealand",
+        "category": "Landscapes & nature",
+        "slug": "rangipo-desert"
+      }
+    ],
     "vodAvailable": null,
     "vodProviders": [],
     "vodCountry": "",
@@ -208,12 +779,13 @@
       "votes": 0,
       "press": 0,
       "duration": 0,
-      "vod": 0,
       "country": 0,
       "director": 0,
       "actor": 0
     },
-    "corrected": 4.498828886779223
+    "corrected": 4.498828886779223,
+    "userRating": null,
+    "watchDate": null
   },
   {
     "id": "sbaaxn",
@@ -250,6 +822,256 @@
       "américain",
       "britannique"
     ],
+    "locations": [
+      {
+        "name": "Morocco",
+        "latitude": 32,
+        "longitude": -6,
+        "country": "Morocco",
+        "category": "Countries & regions",
+        "slug": "morocco"
+      },
+      {
+        "name": "Farnborough Airport",
+        "latitude": 51.27528,
+        "longitude": -0.7775,
+        "country": "United Kingdom",
+        "category": "Landmarks & buildings",
+        "slug": "farnborough-airport"
+      },
+      {
+        "name": "Tangier",
+        "latitude": 35.76949,
+        "longitude": -5.80447,
+        "country": "Morocco",
+        "category": "Towns & cities",
+        "slug": "tangier"
+      },
+      {
+        "name": "Port of Los Angeles",
+        "latitude": 33.72919,
+        "longitude": -118.26201,
+        "country": "United States",
+        "category": "Landscapes & nature",
+        "slug": "port-of-los-angeles"
+      },
+      {
+        "name": "Seine",
+        "latitude": 49.43472,
+        "longitude": 0.1175,
+        "country": "France",
+        "category": "Landscapes & nature",
+        "slug": "seine"
+      },
+      {
+        "name": "Tokyo",
+        "latitude": 35.68944,
+        "longitude": 139.69167,
+        "country": "Japan",
+        "category": "Towns & cities",
+        "slug": "tokyo"
+      },
+      {
+        "name": "Palais Galliera",
+        "latitude": 48.86556,
+        "longitude": 2.29667,
+        "country": "France",
+        "category": "Landmarks & buildings",
+        "slug": "palais-galliera"
+      },
+      {
+        "name": "Warner Bros. Studios, Burbank",
+        "latitude": 34.1487,
+        "longitude": -118.33756,
+        "country": "United States",
+        "category": "Studios & sets",
+        "slug": "warner-bros-studios-burbank"
+      },
+      {
+        "name": "Japan",
+        "latitude": 35,
+        "longitude": 136,
+        "country": "Japan",
+        "category": "Countries & regions",
+        "slug": "japan"
+      },
+      {
+        "name": "University of London",
+        "latitude": 51.52111,
+        "longitude": -0.12889,
+        "country": "United Kingdom",
+        "category": "Landmarks & buildings",
+        "slug": "university-of-london"
+      },
+      {
+        "name": "Ark Hills",
+        "latitude": 35.66711,
+        "longitude": 139.74017,
+        "country": "Japan",
+        "category": "Streets & squares",
+        "slug": "ark-hills"
+      },
+      {
+        "name": "University College London",
+        "latitude": 51.52472,
+        "longitude": -0.13361,
+        "country": "United Kingdom",
+        "category": "Landmarks & buildings",
+        "slug": "university-college-london"
+      },
+      {
+        "name": "Alberta",
+        "latitude": 54.5,
+        "longitude": -115,
+        "country": "Canada",
+        "category": "",
+        "slug": ""
+      },
+      {
+        "name": "pont de Bir-Hakeim",
+        "latitude": 48.85556,
+        "longitude": 2.28778,
+        "country": "France",
+        "category": "Streets & squares",
+        "slug": "pont-de-bir-hakeim"
+      },
+      {
+        "name": "rue Bouchut",
+        "latitude": 48.847,
+        "longitude": 2.30992,
+        "country": "France",
+        "category": "Streets & squares",
+        "slug": "rue-bouchut"
+      },
+      {
+        "name": "rue César-Franck",
+        "latitude": 48.8473,
+        "longitude": 2.30946,
+        "country": "France",
+        "category": "Streets & squares",
+        "slug": "rue-cesar-franck"
+      },
+      {
+        "name": "Calgary",
+        "latitude": 51.0475,
+        "longitude": -114.0625,
+        "country": "Canada",
+        "category": "Towns & cities",
+        "slug": "calgary"
+      },
+      {
+        "name": "Malibu",
+        "latitude": 34.035,
+        "longitude": -118.695,
+        "country": "United States",
+        "category": "Towns & cities",
+        "slug": "malibu"
+      },
+      {
+        "name": "Burbank",
+        "latitude": 34.18028,
+        "longitude": -118.32833,
+        "country": "United States",
+        "category": "Towns & cities",
+        "slug": "burbank"
+      },
+      {
+        "name": "Pasadena",
+        "latitude": 34.1475,
+        "longitude": -118.14389,
+        "country": "United States",
+        "category": "Towns & cities",
+        "slug": "pasadena"
+      },
+      {
+        "name": "Commodore Schuyler F. Heim Bridge",
+        "latitude": 33.76611,
+        "longitude": -118.23972,
+        "country": "United States",
+        "category": "Streets & squares",
+        "slug": "commodore-schuyler-f-heim-bridge"
+      },
+      {
+        "name": "Fortress Mountain Resort",
+        "latitude": 50.8278,
+        "longitude": -115.202,
+        "country": "Canada",
+        "category": "Towns & cities",
+        "slug": "fortress-mountain-resort"
+      },
+      {
+        "name": "Banff",
+        "latitude": 51.1781,
+        "longitude": -115.572,
+        "country": "Canada",
+        "category": "Towns & cities",
+        "slug": "banff-q58337"
+      },
+      {
+        "name": "Fuji River",
+        "latitude": 35.116,
+        "longitude": 138.6386,
+        "country": "Japan",
+        "category": "Landscapes & nature",
+        "slug": "fuji-river"
+      },
+      {
+        "name": "Los Angeles",
+        "latitude": 34.05223,
+        "longitude": -118.24368,
+        "country": "United States",
+        "category": "Towns & cities",
+        "slug": "los-angeles"
+      },
+      {
+        "name": "Cardington",
+        "latitude": 52.1161,
+        "longitude": -0.4139,
+        "country": "United Kingdom",
+        "category": "Towns & cities",
+        "slug": "cardington"
+      },
+      {
+        "name": "RAF Cardington",
+        "latitude": 52.10892,
+        "longitude": -0.4225,
+        "country": "United Kingdom",
+        "category": "Landmarks & buildings",
+        "slug": "raf-cardington"
+      },
+      {
+        "name": "London",
+        "latitude": 51.50722,
+        "longitude": -0.1275,
+        "country": "United Kingdom",
+        "category": "Towns & cities",
+        "slug": "london"
+      },
+      {
+        "name": "Paris",
+        "latitude": 48.85667,
+        "longitude": 2.35222,
+        "country": "France",
+        "category": "Towns & cities",
+        "slug": "paris"
+      },
+      {
+        "name": "California",
+        "latitude": 37,
+        "longitude": -120,
+        "country": "United States",
+        "category": "Countries & regions",
+        "slug": "california"
+      },
+      {
+        "name": "Downtown Los Angeles",
+        "latitude": 34.057,
+        "longitude": -118.238,
+        "country": "United States",
+        "category": "Towns & cities",
+        "slug": "downtown-los-angeles"
+      }
+    ],
     "vodAvailable": null,
     "vodProviders": [],
     "vodCountry": "",
@@ -262,12 +1084,13 @@
       "votes": 0,
       "press": 0,
       "duration": 0,
-      "vod": 0,
       "country": 0,
       "director": 0,
       "actor": 0
     },
-    "corrected": 4.498693111435913
+    "corrected": 4.498693111435913,
+    "userRating": null,
+    "watchDate": null
   },
   {
     "id": "49pqmv",
@@ -305,6 +1128,272 @@
       "américain",
       "néo-zélandais"
     ],
+    "locations": [
+      {
+        "name": "Waiau River",
+        "latitude": -46.19457,
+        "longitude": 167.61486,
+        "country": "New Zealand",
+        "category": "Landscapes & nature",
+        "slug": "waiau-river"
+      },
+      {
+        "name": "Mount Aspiring National Park",
+        "latitude": -44.38278,
+        "longitude": 168.73278,
+        "country": "New Zealand",
+        "category": "Landscapes & nature",
+        "slug": "mount-aspiring-national-park"
+      },
+      {
+        "name": "North Island",
+        "latitude": -39,
+        "longitude": 176,
+        "country": "New Zealand",
+        "category": "Landscapes & nature",
+        "slug": "north-island"
+      },
+      {
+        "name": "South Island",
+        "latitude": -43.6,
+        "longitude": 170.4,
+        "country": "New Zealand",
+        "category": "Landscapes & nature",
+        "slug": "south-island"
+      },
+      {
+        "name": "Lake Wakatipu",
+        "latitude": -45.085,
+        "longitude": 168.561,
+        "country": "New Zealand",
+        "category": "Landscapes & nature",
+        "slug": "lake-wakatipu"
+      },
+      {
+        "name": "Lake Alta",
+        "latitude": -45.06411,
+        "longitude": 168.80987,
+        "country": "New Zealand",
+        "category": "Landscapes & nature",
+        "slug": "lake-alta"
+      },
+      {
+        "name": "The Remarkables",
+        "latitude": -45.15,
+        "longitude": 168.83333,
+        "country": "New Zealand",
+        "category": "Landscapes & nature",
+        "slug": "the-remarkables"
+      },
+      {
+        "name": "Mavora Lakes",
+        "latitude": -45.25556,
+        "longitude": 168.16806,
+        "country": "New Zealand",
+        "category": "Landscapes & nature",
+        "slug": "mavora-lakes"
+      },
+      {
+        "name": "Upper Hutt",
+        "latitude": -41.13333,
+        "longitude": 175.05,
+        "country": "New Zealand",
+        "category": "Towns & cities",
+        "slug": "upper-hutt"
+      },
+      {
+        "name": "Skippers Canyon",
+        "latitude": -44.8789,
+        "longitude": 168.626,
+        "country": "New Zealand",
+        "category": "Landscapes & nature",
+        "slug": "skippers-canyon"
+      },
+      {
+        "name": "Rangitīkei River",
+        "latitude": -40.30049,
+        "longitude": 175.22531,
+        "country": "New Zealand",
+        "category": "Landscapes & nature",
+        "slug": "rangitikei-river"
+      },
+      {
+        "name": "Milford Sound / Piopiotahi",
+        "latitude": -44.61667,
+        "longitude": 167.86667,
+        "country": "New Zealand",
+        "category": "Landscapes & nature",
+        "slug": "milford-sound-piopiotahi"
+      },
+      {
+        "name": "Hobbiton Movie Set",
+        "latitude": -37.8575,
+        "longitude": 175.67972,
+        "country": "New Zealand",
+        "category": "Studios & sets",
+        "slug": "hobbiton-movie-set"
+      },
+      {
+        "name": "Tongariro National Park",
+        "latitude": -39.2,
+        "longitude": 175.58333,
+        "country": "New Zealand",
+        "category": "Landscapes & nature",
+        "slug": "tongariro-national-park"
+      },
+      {
+        "name": "Wellington",
+        "latitude": -41.28889,
+        "longitude": 174.77722,
+        "country": "New Zealand",
+        "category": "Towns & cities",
+        "slug": "wellington"
+      },
+      {
+        "name": "Tākaka Hill",
+        "latitude": -41.03764,
+        "longitude": 172.85618,
+        "country": "New Zealand",
+        "category": "Landscapes & nature",
+        "slug": "takaka-hill"
+      },
+      {
+        "name": "Tarras",
+        "latitude": -44.837,
+        "longitude": 169.414,
+        "country": "New Zealand",
+        "category": "Towns & cities",
+        "slug": "tarras"
+      },
+      {
+        "name": "Mount Owen",
+        "latitude": -41.552,
+        "longitude": 172.541,
+        "country": "New Zealand",
+        "category": "Landscapes & nature",
+        "slug": "mount-owen"
+      },
+      {
+        "name": "Glenorchy",
+        "latitude": -44.85,
+        "longitude": 168.38333,
+        "country": "New Zealand",
+        "category": "Towns & cities",
+        "slug": "glenorchy"
+      },
+      {
+        "name": "Queenstown",
+        "latitude": -45.03111,
+        "longitude": 168.6625,
+        "country": "New Zealand",
+        "category": "Towns & cities",
+        "slug": "queenstown"
+      },
+      {
+        "name": "Kaitoke Regional Park",
+        "latitude": -41.069,
+        "longitude": 175.199,
+        "country": "New Zealand",
+        "category": "Landscapes & nature",
+        "slug": "kaitoke-regional-park"
+      },
+      {
+        "name": "Kepler Mire",
+        "latitude": -45.5306,
+        "longitude": 167.684,
+        "country": "New Zealand",
+        "category": "Landscapes & nature",
+        "slug": "kepler-mire"
+      },
+      {
+        "name": "New Zealand",
+        "latitude": -41.2,
+        "longitude": 174,
+        "country": "New Zealand",
+        "category": "Countries & regions",
+        "slug": "new-zealand"
+      },
+      {
+        "name": "Matamata",
+        "latitude": -37.80972,
+        "longitude": 175.77333,
+        "country": "New Zealand",
+        "category": "Towns & cities",
+        "slug": "matamata"
+      },
+      {
+        "name": "Mount Olympus Ski Area",
+        "latitude": -43.19245,
+        "longitude": 171.60634,
+        "country": "New Zealand",
+        "category": "Towns & cities",
+        "slug": "mount-olympus-ski-area"
+      },
+      {
+        "name": "Arrowtown",
+        "latitude": -44.9425,
+        "longitude": 168.83583,
+        "country": "New Zealand",
+        "category": "Towns & cities",
+        "slug": "arrowtown"
+      },
+      {
+        "name": "Paradise",
+        "latitude": -44.72351,
+        "longitude": 168.36416,
+        "country": "New Zealand",
+        "category": "Towns & cities",
+        "slug": "paradise"
+      },
+      {
+        "name": "Arrow River",
+        "latitude": -44.91837,
+        "longitude": 168.85007,
+        "country": "New Zealand",
+        "category": "Landscapes & nature",
+        "slug": "arrow-river"
+      },
+      {
+        "name": "Whakapapa skifield",
+        "latitude": -39.23736,
+        "longitude": 175.55696,
+        "country": "New Zealand",
+        "category": "Towns & cities",
+        "slug": "whakapapa-skifield"
+      },
+      {
+        "name": "Windwhistle",
+        "latitude": -43.515,
+        "longitude": 171.708,
+        "country": "New Zealand",
+        "category": "Towns & cities",
+        "slug": "windwhistle"
+      },
+      {
+        "name": "Mount Ngauruhoe",
+        "latitude": -39.15694,
+        "longitude": 175.63194,
+        "country": "New Zealand",
+        "category": "Landscapes & nature",
+        "slug": "mount-ngauruhoe"
+      },
+      {
+        "name": "Mavora Lakes Conservation Park",
+        "latitude": -45.27277,
+        "longitude": 168.16987,
+        "country": "New Zealand",
+        "category": "Landscapes & nature",
+        "slug": "mavora-lakes-conservation-park"
+      },
+      {
+        "name": "Fiordland National Park",
+        "latitude": -45.386,
+        "longitude": 167.347,
+        "country": "New Zealand",
+        "category": "Landscapes & nature",
+        "slug": "fiordland-national-park"
+      }
+    ],
     "vodAvailable": null,
     "vodProviders": [],
     "vodCountry": "",
@@ -317,12 +1406,13 @@
       "votes": 0,
       "press": 0,
       "duration": 0,
-      "vod": 0,
       "country": 0,
       "director": 0,
       "actor": 0
     },
-    "corrected": 4.498673794931679
+    "corrected": 4.498673794931679,
+    "userRating": null,
+    "watchDate": null
   },
   {
     "id": "17ehvyu",
@@ -361,6 +1451,104 @@
       "américain",
       "britannique"
     ],
+    "locations": [
+      {
+        "name": "Morocco",
+        "latitude": 32,
+        "longitude": -6,
+        "country": "Morocco",
+        "category": "Countries & regions",
+        "slug": "morocco"
+      },
+      {
+        "name": "Fort Ricasoli",
+        "latitude": 35.8975,
+        "longitude": 14.52583,
+        "country": "Malta",
+        "category": "Castles & palaces",
+        "slug": "fort-ricasoli"
+      },
+      {
+        "name": "Malta Film Studios",
+        "latitude": 35.89389,
+        "longitude": 14.53472,
+        "country": "Malta",
+        "category": "Studios & sets",
+        "slug": "malta-film-studios"
+      },
+      {
+        "name": "Malta",
+        "latitude": 35.88333,
+        "longitude": 14.45,
+        "country": "Malta",
+        "category": "Landscapes & nature",
+        "slug": "malta"
+      },
+      {
+        "name": "Val d'Orcia",
+        "latitude": 43.06667,
+        "longitude": 11.55,
+        "country": "Italy",
+        "category": "Landscapes & nature",
+        "slug": "val-d-orcia"
+      },
+      {
+        "name": "Shepperton Studios",
+        "latitude": 51.40689,
+        "longitude": -0.46518,
+        "country": "United Kingdom",
+        "category": "Studios & sets",
+        "slug": "shepperton-studios"
+      },
+      {
+        "name": "Malta",
+        "latitude": 35.9,
+        "longitude": 14.4,
+        "country": "Malta",
+        "category": "",
+        "slug": ""
+      },
+      {
+        "name": "Great Britain",
+        "latitude": 53.83333,
+        "longitude": -2.41667,
+        "country": "United Kingdom",
+        "category": "Landscapes & nature",
+        "slug": "great-britain"
+      },
+      {
+        "name": "Bourne Wood",
+        "latitude": 51.191,
+        "longitude": -0.778,
+        "country": "United Kingdom",
+        "category": "Landscapes & nature",
+        "slug": "bourne-wood"
+      },
+      {
+        "name": "Aït Benhaddou",
+        "latitude": 31.05,
+        "longitude": -7.13333,
+        "country": "Morocco",
+        "category": "Towns & cities",
+        "slug": "ait-benhaddou"
+      },
+      {
+        "name": "Ouarzazate",
+        "latitude": 30.91667,
+        "longitude": -6.91667,
+        "country": "Morocco",
+        "category": "Towns & cities",
+        "slug": "ouarzazate"
+      },
+      {
+        "name": "Farnham",
+        "latitude": 51.214,
+        "longitude": -0.799,
+        "country": "United Kingdom",
+        "category": "Towns & cities",
+        "slug": "farnham"
+      }
+    ],
     "vodAvailable": null,
     "vodProviders": [],
     "vodCountry": "",
@@ -373,12 +1561,13 @@
       "votes": 0,
       "press": 0,
       "duration": 0,
-      "vod": 0,
       "country": 0,
       "director": 0,
       "actor": 0
     },
-    "corrected": 4.498650457697933
+    "corrected": 4.498650457697933,
+    "userRating": null,
+    "watchDate": null
   },
   {
     "id": "qoamu9",
@@ -416,6 +1605,304 @@
       "américain",
       "britannique"
     ],
+    "locations": [
+      {
+        "name": "Kowloon Walled City",
+        "latitude": 22.33228,
+        "longitude": 114.19028,
+        "country": "Hong Kong",
+        "category": "Towns & cities",
+        "slug": "kowloon-walled-city"
+      },
+      {
+        "name": "Illinois Route 50",
+        "latitude": 41.56177,
+        "longitude": -87.73322,
+        "country": "United States",
+        "category": "Streets & squares",
+        "slug": "illinois-route-50"
+      },
+      {
+        "name": "Piccadilly",
+        "latitude": 51.50698,
+        "longitude": -0.14235,
+        "country": "United Kingdom",
+        "category": "Streets & squares",
+        "slug": "piccadilly"
+      },
+      {
+        "name": "Lake Michigan",
+        "latitude": 44.00787,
+        "longitude": -86.75645,
+        "country": "United States",
+        "category": "Landscapes & nature",
+        "slug": "lake-michigan"
+      },
+      {
+        "name": "University of Westminster",
+        "latitude": 51.51694,
+        "longitude": -0.14305,
+        "country": "United Kingdom",
+        "category": "Landmarks & buildings",
+        "slug": "university-of-westminster"
+      },
+      {
+        "name": "Chicago",
+        "latitude": 41.88194,
+        "longitude": -87.62778,
+        "country": "United States",
+        "category": "Towns & cities",
+        "slug": "chicago"
+      },
+      {
+        "name": "The Center",
+        "latitude": 22.28472,
+        "longitude": 114.15444,
+        "country": "China",
+        "category": "Landmarks & buildings",
+        "slug": "the-center"
+      },
+      {
+        "name": "Central",
+        "latitude": 22.28194,
+        "longitude": 114.15806,
+        "country": "China",
+        "category": "Towns & cities",
+        "slug": "central"
+      },
+      {
+        "name": "International Finance Centre",
+        "latitude": 22.285,
+        "longitude": 114.15917,
+        "country": "China",
+        "category": "Landmarks & buildings",
+        "slug": "international-finance-centre"
+      },
+      {
+        "name": "The Peninsula Hong Kong",
+        "latitude": 22.29529,
+        "longitude": 114.17153,
+        "country": "Hong Kong",
+        "category": "Landmarks & buildings",
+        "slug": "the-peninsula-hong-kong"
+      },
+      {
+        "name": "Richard J. Daley Center",
+        "latitude": 41.8839,
+        "longitude": -87.6302,
+        "country": "United States",
+        "category": "Landmarks & buildings",
+        "slug": "richard-j-daley-center"
+      },
+      {
+        "name": "Farmiloe Building",
+        "latitude": 51.52076,
+        "longitude": -0.10134,
+        "country": "United Kingdom",
+        "category": "Landmarks & buildings",
+        "slug": "farmiloe-building"
+      },
+      {
+        "name": "McCormick Place",
+        "latitude": 41.8531,
+        "longitude": -87.61214,
+        "country": "United States",
+        "category": "Landmarks & buildings",
+        "slug": "mccormick-place"
+      },
+      {
+        "name": "330 North Wabash",
+        "latitude": 41.88861,
+        "longitude": -87.6275,
+        "country": "United States",
+        "category": "Landmarks & buildings",
+        "slug": "330-north-wabash"
+      },
+      {
+        "name": "Great Britain",
+        "latitude": 53.83333,
+        "longitude": -2.41667,
+        "country": "United Kingdom",
+        "category": "Landscapes & nature",
+        "slug": "great-britain"
+      },
+      {
+        "name": "Millennium Station",
+        "latitude": 41.88594,
+        "longitude": -87.62345,
+        "country": "United States",
+        "category": "Landmarks & buildings",
+        "slug": "millennium-station"
+      },
+      {
+        "name": "Willis Tower",
+        "latitude": 41.87861,
+        "longitude": -87.63583,
+        "country": "United States",
+        "category": "Landmarks & buildings",
+        "slug": "willis-tower"
+      },
+      {
+        "name": "Navy Pier",
+        "latitude": 41.89139,
+        "longitude": -87.59972,
+        "country": "United States",
+        "category": "Streets & squares",
+        "slug": "navy-pier"
+      },
+      {
+        "name": "Old Chicago Main Post Office",
+        "latitude": 41.8756,
+        "longitude": -87.6388,
+        "country": "United States",
+        "category": "Landmarks & buildings",
+        "slug": "old-chicago-main-post-office"
+      },
+      {
+        "name": "LaSalle Street",
+        "latitude": 41.8781,
+        "longitude": -87.6323,
+        "country": "United States",
+        "category": "Streets & squares",
+        "slug": "lasalle-street"
+      },
+      {
+        "name": "Baltimore",
+        "latitude": 39.28639,
+        "longitude": -76.615,
+        "country": "United States",
+        "category": "Towns & cities",
+        "slug": "baltimore"
+      },
+      {
+        "name": "Criterion Restaurant",
+        "latitude": 51.50972,
+        "longitude": -0.13411,
+        "country": "United Kingdom",
+        "category": "Landmarks & buildings",
+        "slug": "criterion-restaurant"
+      },
+      {
+        "name": "Trump International Hotel and Tower",
+        "latitude": 41.8891,
+        "longitude": -87.62667,
+        "country": "United States",
+        "category": "Landmarks & buildings",
+        "slug": "trump-international-hotel-and-tower"
+      },
+      {
+        "name": "Illinois Center",
+        "latitude": 41.8864,
+        "longitude": -87.6216,
+        "country": "United States",
+        "category": "Landmarks & buildings",
+        "slug": "illinois-center"
+      },
+      {
+        "name": "Chicago Theatre",
+        "latitude": 41.88528,
+        "longitude": -87.62778,
+        "country": "United States",
+        "category": "Landmarks & buildings",
+        "slug": "chicago-theatre"
+      },
+      {
+        "name": "Los Angeles",
+        "latitude": 34.05223,
+        "longitude": -118.24368,
+        "country": "United States",
+        "category": "Towns & cities",
+        "slug": "los-angeles"
+      },
+      {
+        "name": "Pinewood Studios",
+        "latitude": 51.54861,
+        "longitude": -0.535,
+        "country": "United Kingdom",
+        "category": "Studios & sets",
+        "slug": "pinewood-studios"
+      },
+      {
+        "name": "Queen's Road",
+        "latitude": 22.28119,
+        "longitude": 114.15705,
+        "country": "China",
+        "category": "Streets & squares",
+        "slug": "queen-s-road"
+      },
+      {
+        "name": "RAF Cardington",
+        "latitude": 52.10892,
+        "longitude": -0.4225,
+        "country": "United Kingdom",
+        "category": "Landmarks & buildings",
+        "slug": "raf-cardington"
+      },
+      {
+        "name": "Randolph Street",
+        "latitude": 41.88442,
+        "longitude": -87.64503,
+        "country": "United States",
+        "category": "Streets & squares",
+        "slug": "randolph-street"
+      },
+      {
+        "name": "The Berghoff",
+        "latitude": 41.8793,
+        "longitude": -87.6284,
+        "country": "United States",
+        "category": "Landmarks & buildings",
+        "slug": "the-berghoff"
+      },
+      {
+        "name": "Wacker Drive",
+        "latitude": 41.8869,
+        "longitude": -87.6274,
+        "country": "United States",
+        "category": "Streets & squares",
+        "slug": "wacker-drive"
+      },
+      {
+        "name": "Battersea Power Station",
+        "latitude": 51.4811,
+        "longitude": -0.14444,
+        "country": "United Kingdom",
+        "category": "Landmarks & buildings",
+        "slug": "battersea-power-station"
+      },
+      {
+        "name": "London",
+        "latitude": 51.50722,
+        "longitude": -0.1275,
+        "country": "United Kingdom",
+        "category": "Towns & cities",
+        "slug": "london"
+      },
+      {
+        "name": "Trump World Tower",
+        "latitude": 40.75228,
+        "longitude": -73.96766,
+        "country": "United States",
+        "category": "Landmarks & buildings",
+        "slug": "trump-world-tower"
+      },
+      {
+        "name": "Central–Mid-levels escalators",
+        "latitude": 22.28101,
+        "longitude": 114.15251,
+        "country": "China",
+        "category": "Streets & squares",
+        "slug": "central-mid-levels-escalators"
+      },
+      {
+        "name": "Hong Kong",
+        "latitude": 22.27833,
+        "longitude": 114.15861,
+        "country": "Hong Kong",
+        "category": "Towns & cities",
+        "slug": "hong-kong"
+      }
+    ],
     "vodAvailable": null,
     "vodProviders": [],
     "vodCountry": "",
@@ -428,12 +1915,13 @@
       "votes": 0,
       "press": 0,
       "duration": 0,
-      "vod": 0,
       "country": 0,
       "director": 0,
       "actor": 0
     },
-    "corrected": 4.498637045800962
+    "corrected": 4.498637045800962,
+    "userRating": null,
+    "watchDate": null
   },
   {
     "id": "1k6zkrw",
@@ -469,6 +1957,64 @@
     "countries": [
       "américain"
     ],
+    "locations": [
+      {
+        "name": "Tennessee",
+        "latitude": 36,
+        "longitude": -86,
+        "country": "United States",
+        "category": "Countries & regions",
+        "slug": "tennessee"
+      },
+      {
+        "name": "Culver Studios",
+        "latitude": 34.02389,
+        "longitude": -118.39247,
+        "country": "United States",
+        "category": "Studios & sets",
+        "slug": "culver-studios"
+      },
+      {
+        "name": "Pasadena",
+        "latitude": 34.1475,
+        "longitude": -118.14389,
+        "country": "United States",
+        "category": "Towns & cities",
+        "slug": "pasadena"
+      },
+      {
+        "name": "Glendale",
+        "latitude": 34.17083,
+        "longitude": -118.25,
+        "country": "United States",
+        "category": "Towns & cities",
+        "slug": "glendale"
+      },
+      {
+        "name": "Culver City",
+        "latitude": 34.00806,
+        "longitude": -118.40139,
+        "country": "United States",
+        "category": "Towns & cities",
+        "slug": "culver-city"
+      },
+      {
+        "name": "Los Angeles",
+        "latitude": 34.05223,
+        "longitude": -118.24368,
+        "country": "United States",
+        "category": "Towns & cities",
+        "slug": "los-angeles"
+      },
+      {
+        "name": "Hawthorne",
+        "latitude": 33.91721,
+        "longitude": -118.34861,
+        "country": "United States",
+        "category": "Towns & cities",
+        "slug": "hawthorne"
+      }
+    ],
     "vodAvailable": null,
     "vodProviders": [],
     "vodCountry": "",
@@ -481,12 +2027,13 @@
       "votes": 0,
       "press": 0,
       "duration": 0,
-      "vod": 0,
       "country": 0,
       "director": 0,
       "actor": 0
     },
-    "corrected": 4.498625218547618
+    "corrected": 4.498625218547618,
+    "userRating": null,
+    "watchDate": null
   },
   {
     "id": "i6ml6v",
@@ -524,6 +2071,88 @@
       "américain",
       "néo-zélandais"
     ],
+    "locations": [
+      {
+        "name": "Lower Hutt",
+        "latitude": -41.21667,
+        "longitude": 174.91667,
+        "country": "New Zealand",
+        "category": "Towns & cities",
+        "slug": "lower-hutt"
+      },
+      {
+        "name": "Mavora Lakes",
+        "latitude": -45.25556,
+        "longitude": 168.16806,
+        "country": "New Zealand",
+        "category": "Landscapes & nature",
+        "slug": "mavora-lakes"
+      },
+      {
+        "name": "Poolburn Reservoir",
+        "latitude": -45.312,
+        "longitude": 169.741,
+        "country": "New Zealand",
+        "category": "Landscapes & nature",
+        "slug": "poolburn-reservoir"
+      },
+      {
+        "name": "Tongariro National Park",
+        "latitude": -39.2,
+        "longitude": 175.58333,
+        "country": "New Zealand",
+        "category": "Landscapes & nature",
+        "slug": "tongariro-national-park"
+      },
+      {
+        "name": "Mount Ruapehu",
+        "latitude": -39.28167,
+        "longitude": 175.56861,
+        "country": "New Zealand",
+        "category": "Landscapes & nature",
+        "slug": "mount-ruapehu"
+      },
+      {
+        "name": "Rangitata River",
+        "latitude": -44.18944,
+        "longitude": 171.50833,
+        "country": "New Zealand",
+        "category": "Landscapes & nature",
+        "slug": "rangitata-river"
+      },
+      {
+        "name": "Wellington",
+        "latitude": -41.28889,
+        "longitude": 174.77722,
+        "country": "New Zealand",
+        "category": "Towns & cities",
+        "slug": "wellington"
+      },
+      {
+        "name": "Mount Sunday",
+        "latitude": -43.548,
+        "longitude": 170.893,
+        "country": "New Zealand",
+        "category": "Studios & sets",
+        "slug": "mount-sunday"
+      },
+      {
+        "name": "Queenstown",
+        "latitude": -45.03111,
+        "longitude": 168.6625,
+        "country": "New Zealand",
+        "category": "Towns & cities",
+        "slug": "queenstown"
+      },
+      {
+        "name": "New Zealand",
+        "latitude": -41.2,
+        "longitude": 174,
+        "country": "New Zealand",
+        "category": "Countries & regions",
+        "slug": "new-zealand"
+      }
+    ],
     "vodAvailable": null,
     "vodProviders": [],
     "vodCountry": "",
@@ -536,11 +2165,12 @@
       "votes": 0,
       "press": 0,
       "duration": 0,
-      "vod": 0,
       "country": 0,
       "director": 0,
       "actor": 0
     },
-    "corrected": 4.498617871982577
+    "corrected": 4.498617871982577,
+    "userRating": null,
+    "watchDate": null
   }
 ]

@@ -1,5 +1,5 @@
-import { parseList } from "./allocine-parser.js?v=music-selection-1";
-import { number, extractYear, duration, fold } from "../utils/values.js?v=music-selection-1";
+import { parseList } from "./allocine-parser.js?v=ranking-freeze-1";
+import { number, extractYear, duration, fold } from "../utils/values.js?v=ranking-freeze-1";
 export const mapping = {
   title: "movie_title",
   synopsis: "summary",

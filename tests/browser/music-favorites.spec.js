@@ -133,3 +133,43 @@ test("checked tracks restrict the Musiques playback loop until reload", async ({
   await expect(view.locator(".soundtrack-select")).toHaveCount(2);
   await expect(view.locator(".soundtrack-select:checked")).toHaveCount(0);
 });
+
+test("the most-played ranking keeps its order while listening, until the sub-tab is clicked", async ({ page }) => {
+  await mockSoundtrack(page);
+  await page.goto("/");
+  await expect(page.locator("#table-view tbody tr")).toHaveCount(250, { timeout: 15000 });
+  await page.locator("#table-view .title-button").first().click();
+  const section = page.locator("#modal .soundtrack");
+  await section.getByRole("button", { name: "Chercher la bande originale" }).click();
+  await expect(section.locator(".music-star")).toHaveCount(2, { timeout: 15000 });
+  await section.locator(".music-star").nth(0).click();
+  await section.locator(".music-star").nth(1).click();
+  await page.locator("#modal-close").click();
+
+  // Au moins une écoute chacun.
+  await page.locator("#view-music").click();
+  const view = page.locator("#music-view");
+  const control = (name) => view.locator(`.soundtrack-controls [data-control=${name}]`);
+  const listened = () => page.evaluate(() => JSON.parse(localStorage.getItem("cine-scope-music-plays-v1") || "[]").length);
+  await control("toggle").click();
+  await expect.poll(listened, { timeout: 5000 }).toBe(2);
+  await control("toggle").click();
+  const tab = view.getByRole("tab", { name: "Les plus écoutées" });
+  await tab.click();
+  const titles = view.locator(".music-ranking .soundtrack-title");
+  const before = await titles.allTextContents();
+  const plays = (index) => view.locator(".music-ranking .music-plays").nth(index).textContent().then(parseInt);
+
+  // Le second en boucle dépasse le premier en écoutes, mais garde son rang.
+  await control("repeat").click();
+  await view.locator(".soundtrack-play").nth(1).click();
+  const first = await plays(0);
+  await expect.poll(() => plays(1), { timeout: 10000 }).toBeGreaterThan(first);
+  await expect(titles).toHaveText(before);
+  await expect(view.locator(".soundtrack-play").nth(1)).toHaveText("⏸");
+
+  // Cliquer sur le sous-onglet recalcule le classement ; la lecture continue.
+  await tab.click();
+  await expect(titles).toHaveText([...before].reverse());
+  await expect(view.locator(".soundtrack-play").nth(0)).toHaveText("⏸");
+});

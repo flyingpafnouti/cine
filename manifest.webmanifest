@@ -1,0 +1,17 @@
+{
+  "id": "./",
+  "name": "CinéScope",
+  "short_name": "CinéScope",
+  "description": "Explorer, classer et suivre les films",
+  "lang": "fr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "theme_color": "#102e50",
+  "background_color": "#102e50",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

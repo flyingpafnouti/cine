@@ -367,7 +367,7 @@ test("combined sources show a real synopsis and rated 2026 films", async ({
 test("missing complementary file preserves historical dataset and explains missing synopsis", async ({
   page,
 }) => {
-  await page.route("**/data/source/allocine_movies_2026.csv", (route) =>
+  await page.route("**/data/source/allocine_movies_2026.csv*", (route) =>
     route.fulfill({ status: 404, body: "" }),
   );
   await page.reload();

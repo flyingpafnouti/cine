@@ -1,4 +1,4 @@
-import { fold } from "../utils/values.js?v=ranking-freeze-1";
+import { fold } from "../utils/values.js?v=pwa-1";
 
 const key = (m) =>
   m.year !== null && m.directors.length

@@ -1,15 +1,15 @@
-import { el, $, fmt, modal, labels } from "./dom.js?v=ranking-freeze-1";
-import { formatDate } from "../utils/values.js?v=ranking-freeze-1";
+import { el, $, fmt, modal, labels } from "./dom.js?v=pwa-1";
+import { formatDate } from "../utils/values.js?v=pwa-1";
 import {
   readApiKeys,
   findTrailer,
-} from "../storage/youtube.js?v=ranking-freeze-1";
+} from "../storage/youtube.js?v=pwa-1";
 import {
   findSoundtrack,
   getCachedSoundtrack,
   previewUrl,
-} from "../storage/soundtrack.js?v=ranking-freeze-1";
-import { musicFavoriteFrom } from "../storage/music-favorites.js?v=ranking-freeze-1";
+} from "../storage/soundtrack.js?v=pwa-1";
+import { musicFavoriteFrom } from "../storage/music-favorites.js?v=pwa-1";
 const tags = (m) => m.genres.map((g) => el("span", { class: "tag" }, g));
 function searchLink(query) {
   return el(

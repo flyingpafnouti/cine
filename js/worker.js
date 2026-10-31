@@ -1,4 +1,4 @@
-import { execute } from "./engine.js?v=ranking-freeze-1";
+import { execute } from "./engine.js?v=pwa-1";
 self.onmessage = ({ data: { id, type, payload } }) => {
   try {
     self.postMessage({ id, result: execute(type, payload) });

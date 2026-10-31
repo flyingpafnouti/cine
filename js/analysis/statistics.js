@@ -1,4 +1,4 @@
-import { mean, median } from "../utils/values.js?v=ranking-freeze-1";
+import { mean, median } from "../utils/values.js?v=pwa-1";
 const top = (movies, fn) => {
   const counts = new Map();
   for (const m of movies)

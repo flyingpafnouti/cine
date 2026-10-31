@@ -628,3 +628,43 @@ les presets sont propres à cette origine et ne sont pas transférés depuis loc
 Aucun serveur Python ni Node.js n’est nécessaire sur GitHub Pages.
 
 Documentation : https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site
+
+## Publier un dataset sur tous les appareils
+
+Un import reste dans le navigateur (IndexedDB). Pour le partager, il faut le
+publier : il est alors commité dans `data/source/` et ajouté à
+`data/datasets.json`, le catalogue que chaque appareil lit au démarrage.
+
+1. Créer un [jeton à accès fin](https://github.com/settings/personal-access-tokens/new)
+   limité au dépôt `cine`, avec **Contents : Read and write**, et lui donner une
+   date d’expiration.
+2. Le coller dans **Datasets GitHub**, sur l’appareil qui publie seulement.
+3. Importer le fichier en cochant **Publier sur GitHub**, ou utiliser **Publier**
+   dans **Datasets GitHub** pour un import déjà présent sur l’appareil.
+
+- Publier sous un nom existant remplace ce fichier. Pour une mise à jour sous un
+  autre nom, choisir le dataset à remplacer, sinon les deux sont fusionnés.
+- Le commit modifie `main` : faire `git pull` avant de pousser depuis un poste.
+- GitHub Pages redéploie en quelques minutes, puis chaque appareil reçoit le
+  dataset à son lancement suivant. La copie locale est alors supprimée.
+- Le jeton reste dans le `localStorage` du navigateur et n’est envoyé qu’à
+  `api.github.com`. Les scripts tiers de la page (Leaflet via unpkg) peuvent
+  néanmoins le lire : d’où la portée limitée et l’expiration.
+- Limite : 100 Mo par fichier. Chaque mise à jour alourdit l’historique git.
+
+## Application installable (PWA)
+
+Sur Chrome Android, ouvrir le site puis **⋮ → Installer l’application**. Le
+manifeste est `manifest.webmanifest`, les icônes sont générées par
+`scripts/generate-icons.py` (Pillow) et le service worker est `sw.js`.
+
+- L’interface passe d’abord par le réseau et retombe sur le cache hors ligne.
+- Le catalogue `data/datasets.json` est revalidé à chaque lancement. Un dataset
+  publié arrive donc au lancement suivant le redéploiement.
+- Les datasets, identifiés par leur hash, viennent du cache. Pour
+  `locations-enriched.json`, une requête HEAD compare l’ETag, et un fichier
+  modifié n’apparaît qu’au lancement suivant.
+- Hors ligne, les films, les filtres et les listes locales restent disponibles.
+  La carte, YouTube, Deezer et les listes cloud demandent le réseau.
+- Tout nouveau module de `js/` doit être ajouté à `SHELL_FILES` dans `sw.js` :
+  `tests/pwa.test.js` échoue sinon.

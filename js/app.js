@@ -1,24 +1,28 @@
-import { writeFavorites } from "./storage/favorites.js?v=ranking-freeze-1";
-import { writeWatched } from "./storage/watched.js?v=ranking-freeze-1";
-import { writeRatings } from "./storage/ratings.js?v=ranking-freeze-1";
-import { writeWatchDates } from "./storage/watch-dates.js?v=ranking-freeze-1";
-import { writeSidebarOpen } from "./storage/ui.js?v=ranking-freeze-1";
+import { writeFavorites } from "./storage/favorites.js?v=pwa-1";
+import { writeWatched } from "./storage/watched.js?v=pwa-1";
+import { writeRatings } from "./storage/ratings.js?v=pwa-1";
+import { writeWatchDates } from "./storage/watch-dates.js?v=pwa-1";
+import { writeSidebarOpen } from "./storage/ui.js?v=pwa-1";
 import {
-  readImportedDatasets,
+  deleteImportedDataset,
+  readHashedDatasets,
   saveImportedDataset,
-} from "./storage/datasets.js?v=ranking-freeze-1";
-import { exportLists, parseLists, readListMetadata, saveImportedLists } from "./storage/lists.js?v=ranking-freeze-1";
-import { showDatasetInfo } from "./ui/dataset-ui.js?v=ranking-freeze-1";
-import { state, defaults } from "./state.js?v=ranking-freeze-1";
-import { $, el, fmt, modal, notice } from "./ui/dom.js?v=ranking-freeze-1";
-import { setupControls, syncControls, renderGenres } from "./ui/controls.js?v=ranking-freeze-1";
-import { renderResults, showDetails, renderPivot, renderTrackingStatistics, renderMusicView, setSoundtrackListener, soundtrackShortcut } from "./ui/results.js?v=ranking-freeze-1";
-import { renderMap, invalidateMap, resetMapView, centerOnData } from "./ui/map.js?v=ranking-freeze-1";
-import { importDialog, mappingDialog } from "./ui/import.js?v=ranking-freeze-1";
-import { setupPresets } from "./ui/presets-ui.js?v=ranking-freeze-1";
-import { setupApiSettings } from "./ui/api-settings.js?v=ranking-freeze-1";
-import { setupCloudLists } from "./ui/cloud-lists.js?v=ranking-freeze-1";
-import { createCloudLists } from "./storage/cloud-lists.js?v=ranking-freeze-1";
+} from "./storage/datasets.js?v=pwa-1";
+import { CATALOG_PATH, datasetUrl, parseCatalog, reconcile } from "./data/catalog.js?v=pwa-1";
+import { readGithubToken, sha256 } from "./storage/github.js?v=pwa-1";
+import { replacementSelect, setupGithubSync } from "./ui/github-sync.js?v=pwa-1";
+import { exportLists, parseLists, readListMetadata, saveImportedLists } from "./storage/lists.js?v=pwa-1";
+import { showDatasetInfo } from "./ui/dataset-ui.js?v=pwa-1";
+import { state, defaults } from "./state.js?v=pwa-1";
+import { $, el, fmt, modal, notice } from "./ui/dom.js?v=pwa-1";
+import { setupControls, syncControls, renderGenres } from "./ui/controls.js?v=pwa-1";
+import { renderResults, showDetails, renderPivot, renderTrackingStatistics, renderMusicView, setSoundtrackListener, soundtrackShortcut } from "./ui/results.js?v=pwa-1";
+import { renderMap, invalidateMap, resetMapView, centerOnData } from "./ui/map.js?v=pwa-1";
+import { importDialog, mappingDialog } from "./ui/import.js?v=pwa-1";
+import { setupPresets } from "./ui/presets-ui.js?v=pwa-1";
+import { setupApiSettings } from "./ui/api-settings.js?v=pwa-1";
+import { setupCloudLists } from "./ui/cloud-lists.js?v=pwa-1";
+import { createCloudLists } from "./storage/cloud-lists.js?v=pwa-1";
 import {
   createCloudMusic,
   musicFavorite,
@@ -27,18 +31,18 @@ import {
   sortedMusicFavorites,
   toggledMusicFavorites,
   writeMusicFavorites,
-} from "./storage/music-favorites.js?v=ranking-freeze-1";
+} from "./storage/music-favorites.js?v=pwa-1";
 import {
   RANKING_SIZE,
   countedPlays,
   createCloudPlays,
   frozenRanking,
   writeMusicPlays,
-} from "./storage/music-plays.js?v=ranking-freeze-1";
-import { csv, download } from "./export/export.js?v=ranking-freeze-1";
-import { ratingBandFilters } from "./analysis/tracking.js?v=ranking-freeze-1";
-import { formatDate } from "./utils/values.js?v=ranking-freeze-1";
-const worker = new Worker(new URL("./worker.js?v=ranking-freeze-1", import.meta.url), {
+} from "./storage/music-plays.js?v=pwa-1";
+import { csv, download } from "./export/export.js?v=pwa-1";
+import { ratingBandFilters } from "./analysis/tracking.js?v=pwa-1";
+import { formatDate } from "./utils/values.js?v=pwa-1";
+const worker = new Worker(new URL("./worker.js?v=pwa-1", import.meta.url), {
   type: "module",
 });
 const requests = new Map();
@@ -165,7 +169,9 @@ const cloudSync = {
     cloudTimer = null;
   },
 };
-async function load(source, merge = false, persist = false) {
+let catalog = [];
+const githubSync = setupGithubSync(() => catalog);
+async function load(source, merge = false, persist = false, publish = false) {
   notice("Lecture et normalisation du fichier…");
   try {
     const result = await request(
@@ -175,14 +181,15 @@ async function load(source, merge = false, persist = false) {
     if (result.mappingRequired) {
       notice("Ce fichier nécessite une association des colonnes.");
       mappingDialog(result.headers, (map) =>
-        load({ ...source, mapping: map }, merge, persist),
+        load({ ...source, mapping: map }, merge, persist, publish),
       );
       return;
     }
     let persistenceFailed = false;
+    let savedId;
     if (persist) {
       try {
-        await saveImportedDataset(source);
+        savedId = await saveImportedDataset({ ...source, sha256: await sha256(source.text) });
       } catch {
         persistenceFailed = true;
       }
@@ -207,6 +214,10 @@ async function load(source, merge = false, persist = false) {
         : "",
     );
     await refresh();
+    if (publish && savedId !== undefined) {
+      $("#github-sync").open = true;
+      await githubSync.publish(savedId, source.replaces);
+    }
   } catch (e) {
     notice("Import impossible : " + e.message);
   }
@@ -549,6 +560,7 @@ async function updateMap() {
   try {
     const movies = await request("export");
     if (revision !== mapRevision || state.config.view !== "map") return;
+    if (!window.L) throw Error("La carte nécessite une connexion internet.");
     renderMap(movies, detail);
   } catch (e) {
     if (revision === mapRevision) notice(e.message);
@@ -662,7 +674,10 @@ function resetFilters() {
 }
 $("#reset").onclick = resetFilters;
 $("#import-open").onclick = () =>
-  importDialog((source) => load(source, true, true));
+  importDialog((source, publish) => load(source, true, true, publish), {
+    canPublish: Boolean(readGithubToken()),
+    replacement: replacementSelect(catalog),
+  });
 $("#sort").onchange = (e) => {
   const [field, direction] = e.target.value.split(":");
   state.config.sorting = { field, direction };
@@ -856,15 +871,29 @@ $("#export-json").onclick = () => exportResults("json");
 $("#copy").onclick = () => exportResults("copy");
 $("#download-dataset").onclick = downloadDataset;
 setupPresets(state, refresh);
-const bundled = [
-  { name: "allocine_brut.csv", sourceLabel: "Allociné historique" },
-  { name: "allocine_movies_2026.csv", sourceLabel: "Allociné · juin 2026" },
-];
+navigator.serviceWorker?.register("./sw.js").catch(() => {
+  // The app works the same without offline support.
+});
+try {
+  // Revalidated so that a freshly published dataset is seen at the next launch.
+  const response = await fetch("./" + CATALOG_PATH, { cache: "no-cache" });
+  if (!response.ok) throw Error(CATALOG_PATH);
+  catalog = parseCatalog(await response.text());
+} catch {
+  catalog = [];
+}
+let imported = { remote: catalog, local: [], obsolete: [] };
+try {
+  imported = reconcile(catalog, await readHashedDatasets(sha256));
+  await Promise.all(imported.obsolete.map((record) => deleteImportedDataset(record.id)));
+} catch {
+  notice("Les datasets importés enregistrés n’ont pas pu être relus.");
+}
 const downloaded = await Promise.allSettled(
-  bundled.map(async (source) => {
-    const response = await fetch("./data/source/" + source.name);
-    if (!response.ok) throw Error(source.name);
-    return { ...source, text: await response.text() };
+  imported.remote.map(async (entry) => {
+    const response = await fetch(datasetUrl(entry));
+    if (!response.ok) throw Error(entry.name);
+    return { ...entry, text: await response.text() };
   }),
 );
 const sources = downloaded
@@ -872,15 +901,14 @@ const sources = downloaded
   .map((r) => r.value);
 if (sources.length) {
   await load({
-    name:
-      sources.length === 2
-        ? "Allociné historique + juin 2026"
-        : sources[0].name,
+    name: sources.map((source) => source.sourceLabel).join(" + "),
     sources,
   });
-  if (sources.length < bundled.length)
+  if (sources.length < imported.remote.length)
     notice(
-      "Une source locale manque : seul " + sources[0].name + " a été chargé.",
+      "Une source locale manque : seul " +
+        sources.map((source) => source.name).join(", ") +
+        " a été chargé.",
     );
 } else {
   notice(
@@ -888,12 +916,7 @@ if (sources.length) {
   );
   $("#dataset-status").textContent = "Aucun dataset chargé";
 }
-try {
-  const importedDatasets = await readImportedDatasets();
-  for (const source of importedDatasets) await load(source, true);
-} catch {
-  notice("Les datasets importés enregistrés n’ont pas pu être relus.");
-}
+for (const source of imported.local) await load(source, true);
 
 try {
   const locationsResponse = await fetch("./data/locations-enriched.json");
@@ -913,3 +936,11 @@ try {
 } catch {
   // Locations are optional
 }
+navigator.serviceWorker?.ready.then((registration) =>
+  registration.active?.postMessage({
+    type: "cache-data",
+    urls: [...imported.remote.map(datasetUrl), "./data/locations-enriched.json"].map(
+      (url) => new URL(url, location.href).href,
+    ),
+  }),
+);

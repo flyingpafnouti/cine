@@ -6,6 +6,7 @@ export default defineConfig({
   use: {
     baseURL: "http://127.0.0.1:8000",
     headless: true,
+    serviceWorkers: "block",
     launchOptions: {
       executablePath: process.env.CHROME_PATH || "/usr/bin/google-chrome",
       args: ["--no-sandbox"],

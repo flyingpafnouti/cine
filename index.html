@@ -6,7 +6,8 @@
     <meta name="theme-color" content="#102e50" />
     <title>CinéScope — Explorer le cinéma</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
-    <link rel="stylesheet" href="css/styles.css?v=ranking-freeze-1" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="css/styles.css?v=pwa-1" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
       integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
       crossorigin="" />
@@ -62,6 +63,25 @@
           </div>
           <input id="lists-file" type="file" accept=".json,application/json" hidden />
           <p class="hint">Le chargement fusionne vos listes sans suppression.</p>
+        </div>
+      </details>
+      <details id="github-sync">
+        <summary>Datasets GitHub</summary>
+        <div class="api-settings-panel">
+          <h3>Publication sur tous les appareils</h3>
+          <p class="hint">
+            Un seul appareil a besoin du jeton : celui qui publie. Créez un
+            <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">jeton à accès fin</a>
+            limité au dépôt cine, avec la permission Contents en lecture et écriture.
+          </p>
+          <label>Jeton GitHub<input id="github-token" type="password" autocomplete="off" spellcheck="false" /></label>
+          <div class="api-settings-actions">
+            <button id="github-token-save" class="button">Enregistrer le jeton</button>
+          </div>
+          <p class="hint">Jeton conservé dans ce navigateur. Videz le champ puis enregistrez pour le supprimer.</p>
+          <hr />
+          <div id="github-datasets"></div>
+          <p id="github-notice" role="status" aria-live="polite"></p>
         </div>
       </details>
       <details id="api-settings">
@@ -496,7 +516,7 @@
       <p id="modal-notice" role="status"></p>
       <div id="modal-body"></div>
     </dialog>
-    <script type="module" src="js/app.js?v=ranking-freeze-1"></script>
+    <script type="module" src="js/app.js?v=pwa-1"></script>
     <!-- Cloudflare Web Analytics -->
     <script
       type="module"

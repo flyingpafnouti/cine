@@ -1,5 +1,5 @@
-import { $, el } from "./dom.js?v=ranking-freeze-1";
-import { currentUser, resetPassword, signIn, signOut, signUp } from "../storage/cloud-lists.js?v=ranking-freeze-1";
+import { $, el } from "./dom.js?v=pwa-1";
+import { currentUser, resetPassword, signIn, signOut, signUp } from "../storage/cloud-lists.js?v=pwa-1";
 
 export function setupCloudLists(sync) {
   const container = $("#cloud-account");

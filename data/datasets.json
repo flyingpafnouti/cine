@@ -1,0 +1,12 @@
+[
+  {
+    "name": "allocine_brut.csv",
+    "sourceLabel": "Allociné historique",
+    "sha256": "e22e64eb4193b7298dfb44b3b863e5e0db232e690cd4ec5706379d98a0e44528"
+  },
+  {
+    "name": "allocine_movies_2026.csv",
+    "sourceLabel": "Allociné · juin 2026",
+    "sha256": "01d1ab7efbf82c8bd67fcb6f9aaeeb5a2d4dc2df18045eb2ac9397a483008604"
+  }
+]

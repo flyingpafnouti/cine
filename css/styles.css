@@ -1812,3 +1812,18 @@ td.watch-date {
     height: 400px;
   }
 }
+
+.github-dataset {
+  display: grid;
+  gap: 6px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+.import-publish {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0;
+}
+.import-publish input[type="checkbox"] {
+  width: auto;
+}

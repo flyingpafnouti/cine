@@ -1,7 +1,7 @@
-import { $, el, modal, notice } from "./dom.js?v=ranking-freeze-1";
-import { readPresets, writePresets } from "../storage/presets.js?v=ranking-freeze-1";
-import { defaults } from "../state.js?v=ranking-freeze-1";
-import { syncControls } from "./controls.js?v=ranking-freeze-1";
+import { $, el, modal, notice } from "./dom.js?v=pwa-1";
+import { readPresets, writePresets } from "../storage/presets.js?v=pwa-1";
+import { defaults } from "../state.js?v=pwa-1";
+import { syncControls } from "./controls.js?v=pwa-1";
 export function setupPresets(state, refresh) {
   let loadedId = "";
   function updateButton() {

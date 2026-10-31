@@ -1,10 +1,10 @@
-import { readFavorites } from "./storage/favorites.js?v=ranking-freeze-1";
-import { readWatched } from "./storage/watched.js?v=ranking-freeze-1";
-import { readRatings } from "./storage/ratings.js?v=ranking-freeze-1";
-import { readWatchDates } from "./storage/watch-dates.js?v=ranking-freeze-1";
-import { readSidebarOpen } from "./storage/ui.js?v=ranking-freeze-1";
-import { readMusicFavorites } from "./storage/music-favorites.js?v=ranking-freeze-1";
-import { readMusicPlays } from "./storage/music-plays.js?v=ranking-freeze-1";
+import { readFavorites } from "./storage/favorites.js?v=pwa-1";
+import { readWatched } from "./storage/watched.js?v=pwa-1";
+import { readRatings } from "./storage/ratings.js?v=pwa-1";
+import { readWatchDates } from "./storage/watch-dates.js?v=pwa-1";
+import { readSidebarOpen } from "./storage/ui.js?v=pwa-1";
+import { readMusicFavorites } from "./storage/music-favorites.js?v=pwa-1";
+import { readMusicPlays } from "./storage/music-plays.js?v=pwa-1";
 export const defaults = () => ({
   filters: {
     query: "",

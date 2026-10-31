@@ -1,6 +1,7 @@
-import { el, modal, notice, $ } from "./dom.js?v=ranking-freeze-1";
-import { mapping } from "../data/normalizer.js?v=ranking-freeze-1";
-export function importDialog(onLoad) {
+import { el, modal, notice, $ } from "./dom.js?v=pwa-1";
+import { mapping } from "../data/normalizer.js?v=pwa-1";
+export function importDialog(onLoad, { canPublish = false, replacement = null } = {}) {
+  const publish = el("input", { type: "checkbox", checked: canPublish });
   const file = el("input", {
     type: "file",
     accept: ".csv,.json",
@@ -27,7 +28,10 @@ export function importDialog(onLoad) {
           const text = new TextDecoder(encoding.value).decode(
             await f.arrayBuffer(),
           );
-          await onLoad({ text, name: f.name });
+          await onLoad(
+            { text, name: f.name, replaces: canPublish ? replacement.value : "" },
+            canPublish && publish.checked,
+          );
         } catch (e) {
           notice(e.message);
         } finally {
@@ -42,7 +46,7 @@ export function importDialog(onLoad) {
     el(
       "p",
       {},
-      "Le fichier reste dans votre navigateur, fusionne avec la collection actuelle et sera restauré aux prochains chargements. Le format Allociné est reconnu automatiquement ; les autres colonnes peuvent être associées manuellement.",
+      "Le fichier reste dans votre navigateur sauf si vous le publiez, fusionne avec la collection actuelle et sera restauré aux prochains chargements. Le format Allociné est reconnu automatiquement ; les autres colonnes peuvent être associées manuellement.",
     ),
     el("label", {}, "Fichier", file),
     el("label", {}, "Encodage", encoding),
@@ -51,6 +55,14 @@ export function importDialog(onLoad) {
       { class: "hint" },
       "VOD facultative : vod_available (oui/non), vod_providers (liste), vod_country et vod_checked_at. Une valeur manquante signifie « non renseignée ».",
     ),
+    canPublish
+      ? el(
+          "div",
+          { class: "import-publish" },
+          el("label", {}, publish, " Publier sur GitHub pour tous mes appareils"),
+          el("label", {}, "Remplace", replacement),
+        )
+      : el("p", { class: "hint" }, "Pour le publier sur tous vos appareils, enregistrez un jeton dans « Datasets GitHub »."),
     el("div", { class: "modal-actions" }, action),
   );
 }

@@ -1,5 +1,5 @@
-import { fold, sortDate, monthsSince } from "../utils/values.js?v=ranking-freeze-1";
-import { dimension } from "../analysis/pivot.js?v=ranking-freeze-1";
+import { fold, sortDate, monthsSince } from "../utils/values.js?v=pwa-1";
+import { dimension } from "../analysis/pivot.js?v=pwa-1";
 function matchesSynopsisTerms(value, query) {
   const normalize = (text) => fold(text).replace(/[‘’]/g, "'");
   const terms = [];

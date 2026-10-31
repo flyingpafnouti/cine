@@ -8,5 +8,10 @@
     "name": "allocine_movies_2026.csv",
     "sourceLabel": "Allociné · juin 2026",
     "sha256": "01d1ab7efbf82c8bd67fcb6f9aaeeb5a2d4dc2df18045eb2ac9397a483008604"
+  },
+  {
+    "sourceLabel": "allocine_movies_2026-05-01_2026-09-23",
+    "name": "allocine_movies_2026-05-01_2026-09-23.csv",
+    "sha256": "13ebf828d0fd3cec097ae7a95b8a8c76f4a9bc81c8925ee902f8fff00fca08e5"
   }
 ]

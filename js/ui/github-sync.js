@@ -1,6 +1,6 @@
-import { $, el } from "./dom.js?v=pwa-1";
-import { deleteImportedDataset, markDatasetPublished, readImportedDatasets } from "../storage/datasets.js?v=pwa-1";
-import { publishDataset, readGithubToken, writeGithubToken } from "../storage/github.js?v=pwa-1";
+import { $, el } from "./dom.js?v=pwa-2";
+import { deleteImportedDataset, markDatasetPublished, readImportedDatasets } from "../storage/datasets.js?v=pwa-2";
+import { publishDataset, readGithubToken, writeGithubToken } from "../storage/github.js?v=pwa-2";
 
 export function replacementSelect(catalog, selected = "") {
   const select = el(

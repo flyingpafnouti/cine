@@ -1,11 +1,10 @@
 import { test, expect } from "@playwright/test";
+import { catalogCount } from "./catalog-helpers.js";
 
 test.describe("Map view", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/");
-    await expect(page.locator("#result-count")).toContainText("90", {
-      timeout: 20000,
-    });
+    await catalogCount(page);
     await expect(page.locator("#table-view tbody tr")).toHaveCount(250);
   });
 

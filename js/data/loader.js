@@ -1,4 +1,4 @@
-import { parseCSV } from "./csv-parser.js?v=pwa-1";
+import { parseCSV } from "./csv-parser.js?v=pwa-2";
 export function parseSource(text, name) {
   if (text.includes("\uFFFD"))
     throw Error(

@@ -1,4 +1,4 @@
-import { fold } from "../utils/values.js?v=pwa-1";
+import { fold } from "../utils/values.js?v=pwa-2";
 
 const key = (m) =>
   m.year !== null && m.directors.length

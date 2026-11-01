@@ -1,4 +1,4 @@
-import { mean, fold } from "../utils/values.js?v=pwa-1";
+import { mean, fold } from "../utils/values.js?v=pwa-2";
 export const clamp = (n) => Math.max(0, Math.min(1, n));
 export function normalizeWeights(w) {
   const a = Object.fromEntries(

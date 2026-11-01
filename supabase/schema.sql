@@ -141,3 +141,35 @@
 
   revoke execute on function public.add_music_plays(jsonb) from public, anon;
   grant execute on function public.add_music_plays(jsonb) to authenticated;
+
+  -- Clés API YouTube du compte : une ligne par utilisateur, partagée entre ses appareils.
+  -- Bloc ré-exécutable seul sur une base existante.
+  create table if not exists public.youtube_api_keys (
+    user_id uuid primary key references auth.users(id) on delete cascade,
+    keys text[] not null default '{}',
+    updated_at timestamptz not null default now()
+  );
+
+  alter table public.youtube_api_keys enable row level security;
+
+  revoke all on public.youtube_api_keys from anon;
+  grant select, insert, update on public.youtube_api_keys to authenticated;
+
+  drop policy if exists "Users can read their own YouTube keys" on public.youtube_api_keys;
+  create policy "Users can read their own YouTube keys"
+  on public.youtube_api_keys for select
+  to authenticated
+  using ((select auth.uid()) = user_id);
+
+  drop policy if exists "Users can insert their own YouTube keys" on public.youtube_api_keys;
+  create policy "Users can insert their own YouTube keys"
+  on public.youtube_api_keys for insert
+  to authenticated
+  with check ((select auth.uid()) = user_id);
+
+  drop policy if exists "Users can update their own YouTube keys" on public.youtube_api_keys;
+  create policy "Users can update their own YouTube keys"
+  on public.youtube_api_keys for update
+  to authenticated
+  using ((select auth.uid()) = user_id)
+  with check ((select auth.uid()) = user_id);

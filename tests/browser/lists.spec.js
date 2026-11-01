@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { catalogCount } from "./catalog-helpers.js";
 
 test("lists transfer between browsers, merge, persist and reject invalid input", async ({ page, browser }) => {
   await page.goto("/");
@@ -7,7 +8,7 @@ test("lists transfer between browsers, merge, persist and reject invalid input",
     localStorage.setItem("cine-scope-watched-v1", '["film-b"]');
   });
   await page.reload();
-  await expect(page.locator("#result-count")).toContainText("90", { timeout: 15000 });
+  await catalogCount(page);
   const downloadPromise = page.waitForEvent("download");
   await expect(page.locator("#lists-export")).not.toBeVisible();
   await page.locator("#lists-settings summary").click();
@@ -69,7 +70,7 @@ test(`readable archive preserves titles with ${legacyEngine ? "older cached" : "
     });
   }
   await page.goto("/");
-  await expect(page.locator("#result-count")).toContainText("90", { timeout: 15000 });
+  await catalogCount(page);
   await page.locator("#search").fill("Forrest Gump");
   await expect(page.locator("#table-view tbody tr")).toHaveCount(1);
   await page.locator("#table-view .favorite-button").click();

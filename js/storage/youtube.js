@@ -1,3 +1,5 @@
+import { api, currentUser, validSession } from "./cloud-lists.js?v=pwa-2";
+
 const KEY = "cine-scope-youtube-key-v1";
 const CACHE = "cine-scope-youtube-cache-v1";
 const KEYS = "cine-scope-youtube-keys-v1";
@@ -22,6 +24,12 @@ export function writeApiKeys(values) {
   localStorage.removeItem(KEY);
   localStorage.removeItem(STATUS);
   fallbackStatus = null;
+}
+// Remplace les clés sans perdre la clé active, si elle fait toujours partie de la liste.
+export function replaceApiKeys(values) {
+  const active = readApiKeys()[readActiveApiKeyIndex()];
+  writeApiKeys(values);
+  selectApiKey(readApiKeys().indexOf(active));
 }
 // Keep the existing single-key interface compatible.
 export function readApiKey() { return readApiKeys()[0] || ""; }
@@ -107,4 +115,64 @@ export async function findTrailer(query, apiKeys = readApiKeys()) {
     return videoId;
   }
   throw Error("Quota YouTube épuisé pour toutes les clés. Réessayez après le renouvellement quotidien ou ouvrez la recherche sur YouTube.");
+}
+
+// --- Synchronisation Supabase ----------------------------------------------
+// Une ligne par compte. La première synchronisation d'un appareil réunit ses clés
+// et celles du compte ; ensuite le compte fait foi, sauf modification locale en attente.
+
+const TABLE = "/rest/v1/youtube_api_keys";
+const PENDING_KEY = "cine-scope-supabase-youtube-pending-v1";
+const LINKED_KEY = "cine-scope-supabase-youtube-linked-v1";
+
+const unique = (keys) => [...new Set(keys)];
+const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+
+export function createCloudKeys({ changed, status }) {
+  let syncing = false;
+  const marked = (key, userId) => localStorage.getItem(key) === userId;
+
+  async function pull() {
+    if (syncing) return;
+    syncing = true;
+    try {
+      const session = await validSession();
+      if (!session) return;
+      const userId = session.user.id;
+      const remote = (await api(`${TABLE}?select=keys`, { token: session.access_token }))[0]?.keys ?? null;
+      const local = readApiKeys();
+      const merged = marked(PENDING_KEY, userId) ? local
+        : marked(LINKED_KEY, userId) ? remote ?? local
+        : unique([...(remote || []), ...local]);
+      if (!same(merged, local)) {
+        replaceApiKeys(merged);
+        changed();
+      }
+      if (!same(merged, remote || [])) {
+        await api(`${TABLE}?on_conflict=user_id`, {
+          method: "POST", token: session.access_token, prefer: "resolution=merge-duplicates",
+          body: { user_id: userId, keys: merged, updated_at: new Date().toISOString() },
+        });
+      }
+      localStorage.setItem(LINKED_KEY, userId);
+      // Une clé enregistrée pendant l'envoi reste en attente pour le passage suivant.
+      if (same(merged, readApiKeys())) localStorage.removeItem(PENDING_KEY);
+    } catch (error) {
+      status("Clés API non synchronisées : " + error.message);
+    } finally {
+      syncing = false;
+    }
+  }
+
+  function save() {
+    const user = currentUser();
+    if (user) {
+      localStorage.setItem(PENDING_KEY, user.id);
+      return pull();
+    }
+    // Hors connexion, les clés modifiées seront réunies à celles du compte à la prochaine connexion.
+    localStorage.removeItem(LINKED_KEY);
+  }
+
+  return { pull, save };
 }

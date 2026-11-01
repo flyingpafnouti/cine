@@ -1,7 +1,7 @@
-import { $, el } from "./dom.js?v=pwa-1";
-import { readApiKeys, writeApiKeys, readActiveApiKeyIndex, selectApiKey } from "../storage/youtube.js?v=pwa-1";
+import { $, el } from "./dom.js?v=pwa-2";
+import { readApiKeys, replaceApiKeys, readActiveApiKeyIndex, selectApiKey } from "../storage/youtube.js?v=pwa-2";
 
-export function setupApiSettings() {
+export function setupApiSettings(saved) {
   const inputs = $("#api-key-inputs");
   const selector = $("#api-key-select");
   const message = (text) => { $("#api-key-notice").textContent = text; };
@@ -32,12 +32,10 @@ export function setupApiSettings() {
   };
   $("#api-key-save").onclick = () => {
     try {
-      const activeKey = readApiKeys()[readActiveApiKeyIndex()];
-      writeApiKeys([...inputs.querySelectorAll("input")].map((input) => input.value));
-      const activeIndex = readApiKeys().indexOf(activeKey);
-      if (activeIndex >= 0) selectApiKey(activeIndex);
+      replaceApiKeys([...inputs.querySelectorAll("input")].map((input) => input.value));
       render();
       message("Clés enregistrées.");
+      saved();
     } catch {
       message("Impossible d’enregistrer : stockage indisponible ou plein.");
     }
@@ -54,4 +52,5 @@ export function setupApiSettings() {
   $("#api-settings").addEventListener("toggle", updateSelector);
   $("#modal").addEventListener("close", updateSelector);
   render();
+  return render;
 }

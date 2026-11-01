@@ -1,28 +1,29 @@
-import { writeFavorites } from "./storage/favorites.js?v=pwa-1";
-import { writeWatched } from "./storage/watched.js?v=pwa-1";
-import { writeRatings } from "./storage/ratings.js?v=pwa-1";
-import { writeWatchDates } from "./storage/watch-dates.js?v=pwa-1";
-import { writeSidebarOpen } from "./storage/ui.js?v=pwa-1";
+import { writeFavorites } from "./storage/favorites.js?v=pwa-2";
+import { writeWatched } from "./storage/watched.js?v=pwa-2";
+import { writeRatings } from "./storage/ratings.js?v=pwa-2";
+import { writeWatchDates } from "./storage/watch-dates.js?v=pwa-2";
+import { writeSidebarOpen } from "./storage/ui.js?v=pwa-2";
 import {
   deleteImportedDataset,
   readHashedDatasets,
   saveImportedDataset,
-} from "./storage/datasets.js?v=pwa-1";
-import { CATALOG_PATH, datasetUrl, parseCatalog, reconcile } from "./data/catalog.js?v=pwa-1";
-import { readGithubToken, sha256 } from "./storage/github.js?v=pwa-1";
-import { replacementSelect, setupGithubSync } from "./ui/github-sync.js?v=pwa-1";
-import { exportLists, parseLists, readListMetadata, saveImportedLists } from "./storage/lists.js?v=pwa-1";
-import { showDatasetInfo } from "./ui/dataset-ui.js?v=pwa-1";
-import { state, defaults } from "./state.js?v=pwa-1";
-import { $, el, fmt, modal, notice } from "./ui/dom.js?v=pwa-1";
-import { setupControls, syncControls, renderGenres } from "./ui/controls.js?v=pwa-1";
-import { renderResults, showDetails, renderPivot, renderTrackingStatistics, renderMusicView, setSoundtrackListener, soundtrackShortcut } from "./ui/results.js?v=pwa-1";
-import { renderMap, invalidateMap, resetMapView, centerOnData } from "./ui/map.js?v=pwa-1";
-import { importDialog, mappingDialog } from "./ui/import.js?v=pwa-1";
-import { setupPresets } from "./ui/presets-ui.js?v=pwa-1";
-import { setupApiSettings } from "./ui/api-settings.js?v=pwa-1";
-import { setupCloudLists } from "./ui/cloud-lists.js?v=pwa-1";
-import { createCloudLists } from "./storage/cloud-lists.js?v=pwa-1";
+} from "./storage/datasets.js?v=pwa-2";
+import { CATALOG_PATH, datasetUrl, parseCatalog, reconcile } from "./data/catalog.js?v=pwa-2";
+import { readGithubToken, sha256 } from "./storage/github.js?v=pwa-2";
+import { replacementSelect, setupGithubSync } from "./ui/github-sync.js?v=pwa-2";
+import { exportLists, parseLists, readListMetadata, saveImportedLists } from "./storage/lists.js?v=pwa-2";
+import { showDatasetInfo } from "./ui/dataset-ui.js?v=pwa-2";
+import { state, defaults } from "./state.js?v=pwa-2";
+import { $, el, fmt, modal, notice } from "./ui/dom.js?v=pwa-2";
+import { setupControls, syncControls, renderGenres } from "./ui/controls.js?v=pwa-2";
+import { renderResults, showDetails, renderPivot, renderTrackingStatistics, renderMusicView, setSoundtrackListener, soundtrackShortcut } from "./ui/results.js?v=pwa-2";
+import { renderMap, invalidateMap, resetMapView, centerOnData } from "./ui/map.js?v=pwa-2";
+import { importDialog, mappingDialog } from "./ui/import.js?v=pwa-2";
+import { setupPresets } from "./ui/presets-ui.js?v=pwa-2";
+import { setupApiSettings } from "./ui/api-settings.js?v=pwa-2";
+import { setupCloudLists } from "./ui/cloud-lists.js?v=pwa-2";
+import { createCloudLists } from "./storage/cloud-lists.js?v=pwa-2";
+import { createCloudKeys } from "./storage/youtube.js?v=pwa-2";
 import {
   createCloudMusic,
   musicFavorite,
@@ -31,18 +32,18 @@ import {
   sortedMusicFavorites,
   toggledMusicFavorites,
   writeMusicFavorites,
-} from "./storage/music-favorites.js?v=pwa-1";
+} from "./storage/music-favorites.js?v=pwa-2";
 import {
   RANKING_SIZE,
   countedPlays,
   createCloudPlays,
   frozenRanking,
   writeMusicPlays,
-} from "./storage/music-plays.js?v=pwa-1";
-import { csv, download } from "./export/export.js?v=pwa-1";
-import { ratingBandFilters } from "./analysis/tracking.js?v=pwa-1";
-import { formatDate } from "./utils/values.js?v=pwa-1";
-const worker = new Worker(new URL("./worker.js?v=pwa-1", import.meta.url), {
+} from "./storage/music-plays.js?v=pwa-2";
+import { csv, download } from "./export/export.js?v=pwa-2";
+import { ratingBandFilters } from "./analysis/tracking.js?v=pwa-2";
+import { formatDate } from "./utils/values.js?v=pwa-2";
+const worker = new Worker(new URL("./worker.js?v=pwa-2", import.meta.url), {
   type: "module",
 });
 const requests = new Map();
@@ -150,6 +151,10 @@ const cloudPlays = createCloudPlays({
   changed: () => renderMusic(),
   status: (text) => { $("#cloud-status").textContent = text; },
 });
+const cloudKeys = createCloudKeys({
+  changed: () => refreshApiKeys(),
+  status: (text) => { $("#cloud-status").textContent = text; },
+});
 // Films et musiques sont synchronisés l'un après l'autre, pour ne jamais
 // rafraîchir deux fois en parallèle le jeton de session.
 let cloudTimer = null;
@@ -158,6 +163,7 @@ const cloudSync = {
     await cloudLists.pull(options);
     await cloudMusic.pull(options);
     await cloudPlays.pull(options);
+    await cloudKeys.pull();
   },
   start() {
     clearInterval(cloudTimer);
@@ -573,7 +579,7 @@ function scheduleMapUpdate() {
   mapTimer = setTimeout(updateMap, 300);
 }
 setupControls(state, schedule);
-setupApiSettings();
+const refreshApiKeys = setupApiSettings(() => cloudKeys.save());
 setupCloudLists(cloudSync);
 syncControls(state);
 function applySidebar(open) {

@@ -1,4 +1,4 @@
-import { execute } from "./engine.js?v=pwa-1";
+import { execute } from "./engine.js?v=pwa-2";
 self.onmessage = ({ data: { id, type, payload } }) => {
   try {
     self.postMessage({ id, result: execute(type, payload) });

@@ -1,4 +1,4 @@
-import { el, fmt, modal } from "./dom.js?v=pwa-1";
+import { el, fmt, modal } from "./dom.js?v=pwa-2";
 export function showDatasetInfo(s, datasetName) {
   if (!s) return;
   modal(

@@ -1,4 +1,4 @@
-import { mean, median } from "../utils/values.js?v=pwa-1";
+import { mean, median } from "../utils/values.js?v=pwa-2";
 
 const values = (movies, key) => movies.map((movie) => movie[key]).filter((value) => value !== null);
 

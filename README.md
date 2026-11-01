@@ -195,6 +195,12 @@ disponible. Le cache des bandes-annonces évite les requêtes déjà effectuées
 
 Les clés sont enregistrées dans le stockage local du navigateur et transmises
 à Google pour les recherches ; elles ne figurent pas dans l’export des listes.
+Une fois connecté dans **Mes listes**, elles sont aussi rattachées au compte
+(table `youtube_api_keys`, protégée par RLS) et retrouvées sur ses autres appareils.
+À la première connexion d’un appareil, ses clés s’ajoutent à celles du compte ;
+ensuite, un ajout ou une suppression se propage à tous les appareils connectés.
+La clé sélectionnée et le suivi des quotas restent propres à chaque appareil.
+Les clés restent dans le navigateur après la déconnexion.
 Plusieurs clés d’un même projet Google partagent son quota, comme décrit dans
 la [documentation YouTube](https://developers.google.com/youtube/v3/getting-started#quota).
 

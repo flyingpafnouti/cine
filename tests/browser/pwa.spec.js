@@ -1,8 +1,11 @@
+import { readFileSync } from "node:fs";
 import { test, expect } from "@playwright/test";
 
 test.use({ serviceWorkers: "allow" });
 
 test("reopens offline with the catalogue after a single visit", async ({ page, context }) => {
+  const datasets = JSON.parse(readFileSync("data/datasets.json", "utf8"));
+  const cachedDataFiles = datasets.length + 2; // datasets.json and locations-enriched.json
   await page.goto("/");
   await expect(page.locator("#table-view tbody tr")).toHaveCount(250, { timeout: 15000 });
   await expect
@@ -10,7 +13,7 @@ test("reopens offline with the catalogue after a single visit", async ({ page, c
       () => page.evaluate(async () => (await caches.keys()).length && (await caches.has("cinescope-v1")) && (await (await caches.open("cinescope-v1")).keys()).filter((r) => new URL(r.url).pathname.startsWith("/data/")).length),
       { timeout: 30000 },
     )
-    .toBe(4);
+    .toBe(cachedDataFiles);
   await context.setOffline(true);
   // Leaflet may survive in the HTTP cache, which an installed app cannot rely on.
   await page.route("https://unpkg.com/**", (route) => route.abort());

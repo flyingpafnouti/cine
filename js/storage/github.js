@@ -1,4 +1,4 @@
-import { CATALOG_PATH, DATASET_DIRECTORY, parseCatalog, safeFileName, updatedCatalog } from "../data/catalog.js?v=pwa-1";
+import { CATALOG_PATH, DATASET_DIRECTORY, parseCatalog, safeFileName, updatedCatalog } from "../data/catalog.js?v=pwa-2";
 
 const TOKEN_KEY = "cine-scope-github-token-v1";
 const REPOSITORY = "https://api.github.com/repos/flyingpafnouti/cine";

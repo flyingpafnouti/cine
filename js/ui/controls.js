@@ -1,6 +1,6 @@
-import { $, el, labels, fmt } from "./dom.js?v=pwa-1";
-import { normalizeWeights } from "../scoring/scoring.js?v=pwa-1";
-import { fold } from "../utils/values.js?v=pwa-1";
+import { $, el, labels, fmt } from "./dom.js?v=pwa-2";
+import { normalizeWeights } from "../scoring/scoring.js?v=pwa-2";
+import { fold } from "../utils/values.js?v=pwa-2";
 let refreshResults = () => {};
 export function setupControls(state, update) {
   refreshResults = update;

@@ -1,5 +1,5 @@
-import { el, modal, notice, $ } from "./dom.js?v=pwa-1";
-import { mapping } from "../data/normalizer.js?v=pwa-1";
+import { el, modal, notice, $ } from "./dom.js?v=pwa-2";
+import { mapping } from "../data/normalizer.js?v=pwa-2";
 export function importDialog(onLoad, { canPublish = false, replacement = null } = {}) {
   const publish = el("input", { type: "checkbox", checked: canPublish });
   const file = el("input", {

@@ -1,5 +1,5 @@
-import { parseList } from "./allocine-parser.js?v=pwa-1";
-import { number, extractYear, duration, fold } from "../utils/values.js?v=pwa-1";
+import { parseList } from "./allocine-parser.js?v=pwa-2";
+import { number, extractYear, duration, fold } from "../utils/values.js?v=pwa-2";
 export const mapping = {
   title: "movie_title",
   synopsis: "summary",
@@ -43,6 +43,7 @@ export function detectMapping(headers) {
         ...Object.keys(mapping),
         "year",
         "id",
+        "locations",
         "score",
         "parts",
         "corrected",

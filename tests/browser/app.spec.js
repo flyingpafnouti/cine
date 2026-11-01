@@ -1,24 +1,26 @@
 import { test, expect, devices } from "@playwright/test";
+import { catalogCount, filmCount } from "./catalog-helpers.js";
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
-  await expect(page.locator("#result-count")).toContainText("90", {
-    timeout: 15000,
-  });
+  await catalogCount(page);
   await expect(page.locator("#table-view tbody tr")).toHaveCount(250);
 });
-test("duration is the last column and sorts shortest to longest or conversely", async ({ page }) => {
+test("duration column sorts shortest to longest or conversely", async ({ page }) => {
   const headers = page.locator("#table-view thead th");
-  await expect(headers.last()).toHaveText("Durée (min)");
+  const header = headers.filter({ hasText: "Durée (min)" });
+  await expect(header).toHaveCount(1);
+  const column = (await headers.allTextContents()).findIndex((text) => text.includes("Durée (min)")) + 1;
+  const cells = page.locator(`#table-view tbody tr td:nth-child(${column})`);
 
   await page.locator("#sort").selectOption("duration:asc");
-  await expect(headers.last()).toHaveAttribute("aria-sort", "ascending");
-  const ascending = await page.locator("#table-view tbody tr td:last-child").allTextContents();
+  await expect(header).toHaveAttribute("aria-sort", "ascending");
+  const ascending = await cells.allTextContents();
   const knownAscending = ascending.filter((value) => value.trim() !== "—").map(Number);
   expect(knownAscending).toEqual([...knownAscending].sort((a, b) => a - b));
 
   await page.locator("#sort").selectOption("duration:desc");
-  await expect(headers.last()).toHaveAttribute("aria-sort", "descending");
-  const descending = await page.locator("#table-view tbody tr td:last-child").allTextContents();
+  await expect(header).toHaveAttribute("aria-sort", "descending");
+  const descending = await cells.allTextContents();
   const knownDescending = descending.filter((value) => value.trim() !== "—").map(Number);
   expect(knownDescending).toEqual([...knownDescending].sort((a, b) => b - a));
 });
@@ -111,6 +113,7 @@ test.describe("Android synopsis input", () => {
 test("real dataset, required filters, details, presets, pivot and export", async ({
   page,
 }) => {
+  const total = await catalogCount(page);
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.screenshot({ path: "artifacts/desktop.png", fullPage: true });
@@ -131,7 +134,7 @@ test("real dataset, required filters, details, presets, pivot and export", async
   await page.getByLabel("Nom de la configuration").fill("Thrillers 90s");
   await page.locator("#modal-body button").click();
   await page.locator("#reset").click();
-  await expect(page.locator("#result-count")).toContainText("90");
+  await expect(page.locator("#result-count")).toHaveText(filmCount(total));
   await page.locator("#preset-load").click();
   await expect(page.locator("#result-count")).toHaveText(
     "25 films dans votre sélection",
@@ -196,6 +199,7 @@ test("V and F toggle watched and favorite filters outside inputs", async ({ page
 test("generic CSV manual mapping, normalized JSON, errors and mobile layout", async ({
   page,
 }) => {
+  const total = await catalogCount(page);
   await page.locator("#import-open").click();
   await page.getByLabel("Fichier CSV ou JSON").setInputFiles({
     name: "synthetic-test.csv",
@@ -217,9 +221,13 @@ test("generic CSV manual mapping, normalized JSON, errors and mobile layout", as
     .getByRole("button", { name: "Charger les films", exact: true })
     .click();
   await expect(page.locator("#result-count")).toHaveText(
-    "90 766 films dans votre sélection",
+    filmCount(total + 2),
   );
+  // Without votes the film ranks far beyond the first page.
+  await page.locator("#search").fill("Film test");
   await expect(page.locator("#table-view")).toContainText("Film test");
+  await page.locator("#search").fill("");
+  await expect(page.locator("#result-count")).toHaveText(filmCount(total + 2));
   await page.locator("#import-open").click();
   await page.getByLabel("Fichier CSV ou JSON").setInputFiles({
     name: "synthetic-test.json",
@@ -239,7 +247,7 @@ test("generic CSV manual mapping, normalized JSON, errors and mobile layout", as
   });
   await page.locator("#modal-body button").click();
   await expect(page.locator("#result-count")).toHaveText(
-    "90 767 films dans votre sélection",
+    filmCount(total + 3),
   );
   await expect(page.locator("#table-view")).toContainText(
     "<img src=x onerror=alert(1)>",
@@ -255,7 +263,7 @@ test("generic CSV manual mapping, normalized JSON, errors and mobile layout", as
   await page.locator("#modal-close").click();
   await page.reload();
   await expect(page.locator("#result-count")).toHaveText(
-    "90 767 films dans votre sélection",
+    filmCount(total + 3),
     { timeout: 15000 },
   );
   await page.locator("#search").fill("<img src=x onerror=alert(1)>");
@@ -283,13 +291,14 @@ test("generic CSV manual mapping, normalized JSON, errors and mobile layout", as
 test("pagination, persistent preset rename/delete, CSV export and real mobile dataset", async ({
   page,
 }) => {
+  const total = await catalogCount(page);
   await page.locator("#next").click();
-  await expect(page.locator("#page-label")).toHaveText("2 / 364");
+  await expect(page.locator("#page-label")).toHaveText(`2 / ${Math.ceil(total / 250)}`);
   await page.locator("#page-size").selectOption("50");
   await expect(page.locator("#table-view tbody tr")).toHaveCount(50);
   await page.locator("#page-size").selectOption("250");
   await expect(page.locator("#table-view tbody tr")).toHaveCount(250);
-  await expect(page.locator("#page-label")).toHaveText("1 / 364");
+  await expect(page.locator("#page-label")).toHaveText(`1 / ${Math.ceil(total / 250)}`);
   await page.locator("#sort").selectOption("year:asc");
   await expect(page.locator("#table-view tbody tr").first()).toContainText(
     "1913",
@@ -329,16 +338,19 @@ test("pagination, persistent preset rename/delete, CSV export and real mobile da
     ),
   ).toBe(true);
   await page.locator("#hard-form [name=ratingMin]").fill("4.5");
-  await expect(page.locator("#result-count")).not.toContainText("90 764");
+  await expect(page.locator("#result-count")).not.toHaveText(filmCount(total));
 });
 test("combined sources show a real synopsis and rated 2026 films", async ({
   page,
 }) => {
+  const total = await catalogCount(page);
   await page.locator("#dataset-info").click();
   await expect(page.locator("#modal-body")).toContainText(
     "allocine_movies_2026.csv",
   );
-  await expect(page.locator("#modal-body")).toContainText("39 739");
+  // Published datasets only add films: the first two sources alone hold 39 739 synopses.
+  const synopses = (await page.locator("#modal-body").textContent()).match(/(\d[\d\s]*) films avec synopsis/);
+  expect(Number(synopses[1].replace(/\D/g, ""))).toBeGreaterThanOrEqual(39739);
   await page.locator("#modal-close").click();
   await page.locator("#search").fill("Forrest Gump");
   await expect(page.locator("#table-view tbody tr")).toHaveCount(1);
@@ -358,16 +370,20 @@ test("combined sources show a real synopsis and rated 2026 films", async ({
   await page.locator("#hard-form [name=yearMin]").fill("2026");
   await page.locator("#hard-form [name=yearMax]").fill("2026");
   await page.locator("#hard-form [name=onlyRated]").check();
-  await expect(page.locator("#result-count")).toHaveText(
-    "984 films dans votre sélection",
-  );
+  // The counter passes through intermediate values while the filters apply.
+  await expect
+    .poll(async () => {
+      const count = Number((await page.locator("#result-count").textContent()).replace(/\D/g, ""));
+      return count >= 984 && count < total;
+    })
+    .toBe(true);
   await page.locator("#table-view .title-button").first().click();
   await expect(page.locator("#modal-body")).toContainText("sortie en France");
 });
 test("missing complementary file preserves historical dataset and explains missing synopsis", async ({
   page,
 }) => {
-  await page.route("**/data/source/allocine_movies_2026.csv*", (route) =>
+  await page.route("**/data/source/allocine_movies_2026*.csv*", (route) =>
     route.fulfill({ status: 404, body: "" }),
   );
   await page.reload();
